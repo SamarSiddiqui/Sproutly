@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { usePlants } from '../context/PlantContext';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import {
@@ -15,6 +15,14 @@ import {
 import { motion } from 'framer-motion';
 export const Dashboard: React.FC = () => {
   const { plants, setActiveTab, setSelectedPlantId } = usePlants();
+  const [environmentView, setEnvironmentView] = useState<'chart' | 'bars'>(() => {
+    if (typeof window === 'undefined') return 'chart';
+    const saved = window.localStorage.getItem('verdant:dashboard:environmentView');
+    return saved === 'bars' ? 'bars' : 'chart';
+  });
+  useEffect(() => {
+    window.localStorage.setItem('verdant:dashboard:environmentView', environmentView);
+  }, [environmentView]);
   // Derived data
   const growthStages = {
     Seedling: plants.filter((p) => p.growthStage === 'Seedling').length,
@@ -22,23 +30,36 @@ export const Dashboard: React.FC = () => {
     Mature: plants.filter((p) => p.growthStage === 'Mature').length,
     Flowering: plants.filter((p) => p.growthStage === 'Flowering').length
   };
-  const distributionData = [
-  {
-    name: 'Indoor',
-    value: plants.filter((p) => p.category === 'Indoor').length,
-    color: '#1B4332'
-  },
-  {
-    name: 'Semi-Shade',
-    value: plants.filter((p) => p.category === 'Semi-Shade').length,
-    color: '#52796F'
-  },
-  {
-    name: 'Direct Sun',
-    value: plants.filter((p) => p.category === 'Direct Sun').length,
-    color: '#74C69D'
-  }].
-  filter((d) => d.value > 0);
+  const environmentBreakdown = useMemo(() => {
+    const total = plants.length;
+    const categories = [
+      {
+        name: 'Indoor',
+        value: plants.filter((p) => p.category === 'Indoor').length,
+        color: '#1B4332'
+      },
+      {
+        name: 'Semi-Shade',
+        value: plants.filter((p) => p.category === 'Semi-Shade').length,
+        color: '#52796F'
+      },
+      {
+        name: 'Direct Sun',
+        value: plants.filter((p) => p.category === 'Direct Sun').length,
+        color: '#74C69D'
+      }
+    ].map((c) => ({
+      ...c,
+      percent: total === 0 ? 0 : Math.round(c.value / total * 100)
+    }));
+    const dominant = total === 0 ? null : categories.reduce((best, c) => c.value > best.value ? c : best, categories[0]);
+    return {
+      total,
+      categories,
+      chartData: categories.filter((c) => c.value > 0),
+      dominant
+    };
+  }, [plants]);
   const alerts = [
   ...plants.
   filter((p) => p.healthStatus === 'needs-water').
@@ -209,49 +230,136 @@ export const Dashboard: React.FC = () => {
           <h2 className="text-xl font-bold text-verdant-primary mb-4">
             Environment
           </h2>
-          <div className="bg-white p-6 rounded-2xl shadow-sm h-[calc(100%-2.5rem)] flex flex-col">
-            <div className="flex-1 min-h-[200px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={distributionData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={70}
-                    outerRadius={90}
-                    paddingAngle={5}
-                    dataKey="value">
-                    
-                    {distributionData.map((entry, index) =>
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                    )}
-                  </Pie>
-                  <Tooltip
-                    contentStyle={{
-                      borderRadius: '12px',
-                      border: 'none',
-                      boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
-                    }} />
-                  
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="flex flex-wrap justify-center gap-4 mt-6">
-              {distributionData.map((d) =>
-              <div
-                key={d.name}
-                className="flex items-center gap-2 text-sm font-medium text-verdant-secondary">
-                
-                  <div
-                  className="w-3 h-3 rounded-full"
-                  style={{
-                    backgroundColor: d.color
-                  }} />
-                
-                  {d.name} ({d.value})
+          <div className="bg-white p-6 rounded-2xl shadow-sm min-h-[360px] flex flex-col">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <div className="text-sm font-semibold text-verdant-secondary">
+                  Total plants
                 </div>
-              )}
+                <div className="text-2xl font-bold text-verdant-primary leading-tight">
+                  {environmentBreakdown.total}
+                </div>
+              </div>
+              <div className="flex items-center bg-verdant-bg rounded-xl p-1">
+                <button
+                  type="button"
+                  onClick={() => setEnvironmentView('chart')}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-bold transition-all ${environmentView === 'chart' ? 'bg-white text-verdant-primary shadow-sm' : 'text-verdant-secondary hover:text-verdant-primary'}`}>
+                  Chart
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEnvironmentView('bars')}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-bold transition-all ${environmentView === 'bars' ? 'bg-white text-verdant-primary shadow-sm' : 'text-verdant-secondary hover:text-verdant-primary'}`}>
+                  Bars
+                </button>
+              </div>
             </div>
+
+            {environmentBreakdown.total === 0 ?
+            <div className="flex-1 flex flex-col items-center justify-center text-center">
+                <div className="w-14 h-14 rounded-2xl bg-verdant-bg text-verdant-secondary flex items-center justify-center mb-4">
+                  <Leaf size={28} />
+                </div>
+                <div className="text-lg font-bold text-verdant-primary">
+                  No plants yet
+                </div>
+                <div className="text-sm font-medium text-verdant-secondary mt-1 max-w-xs">
+                  Add a plant to see your environment breakdown (Indoor, Semi-Shade, Direct Sun).
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('collection')}
+                  className="mt-5 bg-verdant-primary text-white px-4 py-3 rounded-xl shadow-md hover:bg-verdant-secondary transition-colors font-bold">
+                  Go to My Collection
+                </button>
+              </div> :
+            <>
+                {environmentView === 'chart' ?
+                <div className="relative mt-6 flex-1 min-h-[220px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={environmentBreakdown.chartData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={70}
+                          outerRadius={95}
+                          paddingAngle={environmentBreakdown.chartData.length > 1 ? 4 : 0}
+                          stroke="#ffffff"
+                          strokeWidth={4}
+                          dataKey="value">
+                          
+                          {environmentBreakdown.chartData.map((entry, index) =>
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                          )}
+                        </Pie>
+                        <Tooltip
+                          formatter={(value: number, name: string) => [`${value} plants`, name]}
+                          contentStyle={{
+                            borderRadius: '12px',
+                            border: 'none',
+                            boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                          }} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                    {environmentBreakdown.dominant ?
+                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                        <div className="text-3xl font-bold text-verdant-primary leading-none">
+                          {environmentBreakdown.dominant.percent}%
+                        </div>
+                        <div className="text-sm font-bold text-verdant-secondary mt-1">
+                          {environmentBreakdown.dominant.name}
+                        </div>
+                      </div> :
+                    null}
+                  </div> :
+                <div className="mt-6">
+                    <div className="h-4 rounded-full bg-verdant-bg overflow-hidden flex">
+                      {environmentBreakdown.categories.map((c) =>
+                      c.value === 0 ? null : (
+                        <div
+                          key={c.name}
+                          className="h-full"
+                          style={{
+                            width: `${c.percent}%`,
+                            backgroundColor: c.color
+                          }} />
+                      ))}
+                    </div>
+                  </div>}
+
+                <div className="mt-6 space-y-4">
+                  {environmentBreakdown.categories.map((c) =>
+                  <div key={c.name} className="flex items-center gap-3">
+                      <div
+                        className="w-3 h-3 rounded-full shrink-0"
+                        style={{
+                          backgroundColor: c.color
+                        }} />
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between gap-4">
+                          <span className="text-sm font-bold text-verdant-primary">
+                            {c.name}
+                          </span>
+                          <span className="text-sm font-semibold text-verdant-secondary">
+                            {c.value} • {c.percent}%
+                          </span>
+                        </div>
+                        <div className="mt-2 h-2 rounded-full bg-verdant-bg overflow-hidden">
+                          <div
+                            className="h-full rounded-full"
+                            style={{
+                              width: `${c.percent}%`,
+                              backgroundColor: c.color
+                            }} />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </>
+            }
           </div>
         </section>
       </div>
