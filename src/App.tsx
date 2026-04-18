@@ -8,6 +8,7 @@ import { Collection } from './pages/Collection';
 import { CareCycle } from './pages/CareCycle';
 import { KnowledgeHub } from './pages/KnowledgeHub';
 import { VerdantAI } from './pages/VerdantAI';
+import { SettingsPage } from './pages/Settings';
 import { Menu, Leaf } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 const MainContent: React.FC = () => {
@@ -25,6 +26,8 @@ const MainContent: React.FC = () => {
         return <KnowledgeHub />;
       case 'ai':
         return <VerdantAI />;
+      case 'settings':
+        return <SettingsPage />;
       default:
         return <Dashboard />;
     }

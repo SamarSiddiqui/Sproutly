@@ -134,11 +134,15 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
             </div>
 
             <div className="p-6 border-t border-verdant-secondary/20 space-y-4">
-              <button className="flex items-center gap-3 text-verdant-secondary hover:text-verdant-primary transition-colors">
+              <button
+                onClick={() => handleNav('settings')}
+                className={`flex items-center gap-3 transition-colors ${activeTab === 'settings' ? 'text-verdant-primary' : 'text-verdant-secondary hover:text-verdant-primary'}`}>
                 <Settings size={20} />
                 <span className="font-medium">Settings</span>
               </button>
-              <button className="flex items-center gap-3 text-verdant-secondary hover:text-verdant-primary transition-colors">
+              <button
+                onClick={() => handleNav('settings')}
+                className="flex items-center gap-3 text-verdant-secondary hover:text-verdant-primary transition-colors">
                 <User size={20} />
                 <span className="font-medium">Profile</span>
               </button>

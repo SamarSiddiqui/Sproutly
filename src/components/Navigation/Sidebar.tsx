@@ -92,11 +92,15 @@ export const Sidebar: React.FC = () => {
       </nav>
 
       <div className="p-4 border-t border-verdant-secondary/10 space-y-2">
-        <button className="w-full flex items-center gap-3 p-3 rounded-xl text-verdant-secondary hover:text-verdant-primary hover:bg-verdant-light/10 transition-all">
+        <button
+          onClick={() => setActiveTab('settings')}
+          className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${activeTab === 'settings' ? 'bg-verdant-primary text-white shadow-md' : 'text-verdant-secondary hover:text-verdant-primary hover:bg-verdant-light/10'}`}>
           <Settings size={20} />
           <span className="font-semibold text-sm">Settings</span>
         </button>
-        <button className="w-full flex items-center gap-3 p-3 rounded-xl text-verdant-secondary hover:text-verdant-primary hover:bg-verdant-light/10 transition-all">
+        <button
+          onClick={() => setActiveTab('settings')}
+          className="w-full flex items-center gap-3 p-3 rounded-xl text-verdant-secondary hover:text-verdant-primary hover:bg-verdant-light/10 transition-all">
           <User size={20} />
           <span className="font-semibold text-sm">Profile</span>
         </button>
