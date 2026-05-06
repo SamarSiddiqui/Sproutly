@@ -34,11 +34,11 @@ export const BottomNav: React.FC = () => {
   {
     id: 'ai',
     icon: Sparkles,
-    label: 'Verdant AI'
+    label: 'Sproutly AI'
   }];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-verdant-secondary/20 px-4 py-2 pb-safe z-40">
+    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-sproutly-secondary/20 px-4 py-2 pb-safe z-40">
       <div className="flex justify-between items-center max-w-md mx-auto">
         {tabs.map((tab) => {
           const Icon = tab.icon;
@@ -52,7 +52,7 @@ export const BottomNav: React.FC = () => {
               {isActive &&
               <motion.div
                 layoutId="bottomNavIndicator"
-                className="absolute inset-0 bg-verdant-light/20 rounded-xl"
+                className="absolute inset-0 bg-sproutly-light/20 rounded-xl"
                 transition={{
                   type: 'spring',
                   bounce: 0.2,
@@ -62,10 +62,10 @@ export const BottomNav: React.FC = () => {
               }
               <Icon
                 size={24}
-                className={`relative z-10 transition-colors duration-200 ${isActive ? 'text-verdant-primary' : 'text-verdant-secondary/60'}`} />
+                className={`relative z-10 transition-colors duration-200 ${isActive ? 'text-sproutly-primary' : 'text-sproutly-secondary/60'}`} />
               
               <span
-                className={`text-[10px] mt-1 font-medium relative z-10 transition-colors duration-200 ${isActive ? 'text-verdant-primary' : 'text-verdant-secondary/60'}`}>
+                className={`text-[10px] mt-1 font-medium relative z-10 transition-colors duration-200 ${isActive ? 'text-sproutly-primary' : 'text-sproutly-secondary/60'}`}>
                 
                 {tab.label}
               </span>

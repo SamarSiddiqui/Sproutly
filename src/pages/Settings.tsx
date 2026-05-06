@@ -4,7 +4,7 @@ import { Download, Upload, RefreshCw, Trash2, Bell, User, Sparkles, SlidersHoriz
 
 type EnvironmentView = 'chart' | 'bars';
 
-type VerdantSettings = {
+type SproutlySettings = {
   profile: {
     displayName: string;
     location: string;
@@ -21,10 +21,10 @@ type VerdantSettings = {
   };
 };
 
-const settingsStorageKey = 'verdant:settings:v1';
-const dashboardEnvironmentViewKey = 'verdant:dashboard:environmentView';
+const settingsStorageKey = 'sproutly:settings:v1';
+const dashboardEnvironmentViewKey = 'sproutly:dashboard:environmentView';
 
-const defaultSettings: VerdantSettings = {
+const defaultSettings: SproutlySettings = {
   profile: {
     displayName: '',
     location: ''
@@ -41,12 +41,12 @@ const defaultSettings: VerdantSettings = {
   }
 };
 
-const loadSettings = (): VerdantSettings => {
+const loadSettings = (): SproutlySettings => {
   if (typeof window === 'undefined') return defaultSettings;
   try {
     const raw = window.localStorage.getItem(settingsStorageKey);
     if (!raw) return defaultSettings;
-    const parsed = JSON.parse(raw) as Partial<VerdantSettings> | null;
+    const parsed = JSON.parse(raw) as Partial<SproutlySettings> | null;
     if (!parsed || typeof parsed !== 'object') return defaultSettings;
     return {
       profile: {
@@ -69,7 +69,7 @@ const loadSettings = (): VerdantSettings => {
   }
 };
 
-const saveSettings = (next: VerdantSettings) => {
+const saveSettings = (next: SproutlySettings) => {
   try {
     window.localStorage.setItem(settingsStorageKey, JSON.stringify(next));
   } catch { /* empty */ }
@@ -85,17 +85,17 @@ const Toggle: React.FC<{
     <button
       type="button"
       onClick={() => onChange(!checked)}
-      className="w-full flex items-center justify-between gap-4 p-4 rounded-2xl bg-verdant-bg hover:bg-verdant-light/10 transition-colors text-left">
+      className="w-full flex items-center justify-between gap-4 p-4 rounded-2xl bg-sproutly-bg hover:bg-sproutly-light/10 transition-colors text-left">
       <div>
-        <div className="font-bold text-verdant-primary">{label}</div>
+        <div className="font-bold text-sproutly-primary">{label}</div>
         {description ?
-        <div className="text-sm font-medium text-verdant-secondary mt-1">
+        <div className="text-sm font-medium text-sproutly-secondary mt-1">
             {description}
           </div> :
         null}
       </div>
       <div
-        className={`w-12 h-7 rounded-full p-1 transition-colors ${checked ? 'bg-verdant-primary' : 'bg-verdant-secondary/30'}`}>
+        className={`w-12 h-7 rounded-full p-1 transition-colors ${checked ? 'bg-sproutly-primary' : 'bg-sproutly-secondary/30'}`}>
         <div
           className={`w-5 h-5 bg-white rounded-full transition-transform ${checked ? 'translate-x-5' : 'translate-x-0'}`} />
       </div>
@@ -106,7 +106,7 @@ const Toggle: React.FC<{
 export const SettingsPage: React.FC = () => {
   const { plants, replacePlants, resetPlants, setActiveTab } = usePlants();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [settings, setSettings] = useState<VerdantSettings>(() => {
+  const [settings, setSettings] = useState<SproutlySettings>(() => {
     const s = loadSettings();
     if (typeof window === 'undefined') return s;
     const env = window.localStorage.getItem(dashboardEnvironmentViewKey);
@@ -154,7 +154,7 @@ export const SettingsPage: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'verdant-backup.json';
+    a.download = 'sproutly-backup.json';
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -204,7 +204,7 @@ export const SettingsPage: React.FC = () => {
   const handleClearAll = () => {
     if (!window.confirm('Clear all local data (plants + settings)? This cannot be undone.')) return;
     try {
-      window.localStorage.removeItem('verdant:plants:v1');
+      window.localStorage.removeItem('sproutly:plants:v1');
       window.localStorage.removeItem(settingsStorageKey);
       window.localStorage.removeItem(dashboardEnvironmentViewKey);
     } catch { /* empty */ }
@@ -215,16 +215,16 @@ export const SettingsPage: React.FC = () => {
     <div className="pt-20 pb-24 lg:pt-8 lg:pb-8 px-4 lg:px-8 max-w-4xl mx-auto min-h-full space-y-8">
       <header className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-verdant-primary mb-1">
+          <h1 className="text-3xl font-bold text-sproutly-primary mb-1">
             Settings
           </h1>
-          <p className="text-verdant-secondary font-medium">
-            Personalize Verdant, manage your data, and choose how the app behaves.
+          <p className="text-sproutly-secondary font-medium">
+            Personalize Sproutly, manage your data, and choose how the app behaves.
           </p>
         </div>
         <div className="bg-white rounded-2xl shadow-sm px-4 py-3 text-right">
-          <div className="text-sm font-semibold text-verdant-secondary">Garden</div>
-          <div className="text-lg font-bold text-verdant-primary">
+          <div className="text-sm font-semibold text-sproutly-secondary">Garden</div>
+          <div className="text-lg font-bold text-sproutly-primary">
             {stats.total} plants • {stats.tasks} tasks
           </div>
         </div>
@@ -232,15 +232,15 @@ export const SettingsPage: React.FC = () => {
 
       <section className="bg-white p-6 rounded-2xl shadow-sm">
         <div className="flex items-center gap-3 mb-5">
-          <div className="p-2 rounded-xl bg-verdant-bg text-verdant-primary">
+          <div className="p-2 rounded-xl bg-sproutly-bg text-sproutly-primary">
             <User size={20} />
           </div>
-          <h2 className="text-xl font-bold text-verdant-primary">Profile</h2>
+          <h2 className="text-xl font-bold text-sproutly-primary">Profile</h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-bold text-verdant-primary mb-2">
+            <label className="block text-sm font-bold text-sproutly-primary mb-2">
               Display name
             </label>
             <input
@@ -255,10 +255,10 @@ export const SettingsPage: React.FC = () => {
                 }))
               }
               placeholder="e.g., Sam"
-              className="w-full bg-verdant-bg rounded-xl py-3 px-4 font-medium text-verdant-primary focus:outline-none focus:ring-2 focus:ring-verdant-light" />
+              className="w-full bg-sproutly-bg rounded-xl py-3 px-4 font-medium text-sproutly-primary focus:outline-none focus:ring-2 focus:ring-sproutly-light" />
           </div>
           <div>
-            <label className="block text-sm font-bold text-verdant-primary mb-2">
+            <label className="block text-sm font-bold text-sproutly-primary mb-2">
               Location
             </label>
             <input
@@ -273,17 +273,17 @@ export const SettingsPage: React.FC = () => {
                 }))
               }
               placeholder="e.g., Mumbai"
-              className="w-full bg-verdant-bg rounded-xl py-3 px-4 font-medium text-verdant-primary focus:outline-none focus:ring-2 focus:ring-verdant-light" />
+              className="w-full bg-sproutly-bg rounded-xl py-3 px-4 font-medium text-sproutly-primary focus:outline-none focus:ring-2 focus:ring-sproutly-light" />
           </div>
         </div>
       </section>
 
       <section className="bg-white p-6 rounded-2xl shadow-sm">
         <div className="flex items-center gap-3 mb-5">
-          <div className="p-2 rounded-xl bg-verdant-bg text-verdant-primary">
+          <div className="p-2 rounded-xl bg-sproutly-bg text-sproutly-primary">
             <Bell size={20} />
           </div>
-          <h2 className="text-xl font-bold text-verdant-primary">Reminders</h2>
+          <h2 className="text-xl font-bold text-sproutly-primary">Reminders</h2>
         </div>
 
         <div className="space-y-3">
@@ -303,8 +303,8 @@ export const SettingsPage: React.FC = () => {
           />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div className="p-4 rounded-2xl bg-verdant-bg">
-              <div className="font-bold text-verdant-primary mb-2">Reminder time</div>
+            <div className="p-4 rounded-2xl bg-sproutly-bg">
+              <div className="font-bold text-sproutly-primary mb-2">Reminder time</div>
               <input
                 type="time"
                 value={settings.reminders.reminderTime}
@@ -317,7 +317,7 @@ export const SettingsPage: React.FC = () => {
                     }
                   }))
                 }
-                className="w-full bg-white rounded-xl py-3 px-4 font-medium text-verdant-primary focus:outline-none focus:ring-2 focus:ring-verdant-light" />
+                className="w-full bg-white rounded-xl py-3 px-4 font-medium text-sproutly-primary focus:outline-none focus:ring-2 focus:ring-sproutly-light" />
             </div>
             <Toggle
               label="Weekly digest"
@@ -339,18 +339,18 @@ export const SettingsPage: React.FC = () => {
 
       <section className="bg-white p-6 rounded-2xl shadow-sm">
         <div className="flex items-center gap-3 mb-5">
-          <div className="p-2 rounded-xl bg-verdant-bg text-verdant-primary">
+          <div className="p-2 rounded-xl bg-sproutly-bg text-sproutly-primary">
             <SlidersHorizontal size={20} />
           </div>
-          <h2 className="text-xl font-bold text-verdant-primary">Preferences</h2>
+          <h2 className="text-xl font-bold text-sproutly-primary">Preferences</h2>
         </div>
 
         <div className="space-y-3">
-          <div className="p-4 rounded-2xl bg-verdant-bg">
+          <div className="p-4 rounded-2xl bg-sproutly-bg">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <div className="font-bold text-verdant-primary">Dashboard environment view</div>
-                <div className="text-sm font-medium text-verdant-secondary mt-1">
+                <div className="font-bold text-sproutly-primary">Dashboard environment view</div>
+                <div className="text-sm font-medium text-sproutly-secondary mt-1">
                   Choose how the Environment section looks in the Command Center.
                 </div>
               </div>
@@ -366,7 +366,7 @@ export const SettingsPage: React.FC = () => {
                       }
                     }))
                   }
-                  className={`px-3 py-1.5 rounded-lg text-sm font-bold transition-all ${settings.preferences.environmentView === 'chart' ? 'bg-verdant-bg text-verdant-primary' : 'text-verdant-secondary hover:text-verdant-primary'}`}>
+                  className={`px-3 py-1.5 rounded-lg text-sm font-bold transition-all ${settings.preferences.environmentView === 'chart' ? 'bg-sproutly-bg text-sproutly-primary' : 'text-sproutly-secondary hover:text-sproutly-primary'}`}>
                   Chart
                 </button>
                 <button
@@ -380,7 +380,7 @@ export const SettingsPage: React.FC = () => {
                       }
                     }))
                   }
-                  className={`px-3 py-1.5 rounded-lg text-sm font-bold transition-all ${settings.preferences.environmentView === 'bars' ? 'bg-verdant-bg text-verdant-primary' : 'text-verdant-secondary hover:text-verdant-primary'}`}>
+                  className={`px-3 py-1.5 rounded-lg text-sm font-bold transition-all ${settings.preferences.environmentView === 'bars' ? 'bg-sproutly-bg text-sproutly-primary' : 'text-sproutly-secondary hover:text-sproutly-primary'}`}>
                   Bars
                 </button>
               </div>
@@ -406,17 +406,17 @@ export const SettingsPage: React.FC = () => {
 
       <section className="bg-white p-6 rounded-2xl shadow-sm">
         <div className="flex items-center gap-3 mb-5">
-          <div className="p-2 rounded-xl bg-verdant-bg text-verdant-primary">
+          <div className="p-2 rounded-xl bg-sproutly-bg text-sproutly-primary">
             <Sparkles size={20} />
           </div>
-          <h2 className="text-xl font-bold text-verdant-primary">Verdant AI</h2>
+          <h2 className="text-xl font-bold text-sproutly-primary">Sproutly AI</h2>
         </div>
 
-        <div className="p-4 rounded-2xl bg-verdant-bg">
+        <div className="p-4 rounded-2xl bg-sproutly-bg">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <div className="font-bold text-verdant-primary">Assistant tone</div>
-              <div className="text-sm font-medium text-verdant-secondary mt-1">
+              <div className="font-bold text-sproutly-primary">Assistant tone</div>
+              <div className="text-sm font-medium text-sproutly-secondary mt-1">
                 Just a preference for now—useful for future AI responses.
               </div>
             </div>
@@ -431,7 +431,7 @@ export const SettingsPage: React.FC = () => {
                   }
                 }))
               }
-              className="bg-white rounded-xl py-3 px-4 font-bold text-verdant-primary focus:outline-none focus:ring-2 focus:ring-verdant-light">
+              className="bg-white rounded-xl py-3 px-4 font-bold text-sproutly-primary focus:outline-none focus:ring-2 focus:ring-sproutly-light">
               <option value="gentle">Gentle</option>
               <option value="direct">Direct</option>
             </select>
@@ -441,17 +441,17 @@ export const SettingsPage: React.FC = () => {
 
       <section className="bg-white p-6 rounded-2xl shadow-sm">
         <div className="flex items-center gap-3 mb-5">
-          <div className="p-2 rounded-xl bg-verdant-bg text-verdant-primary">
+          <div className="p-2 rounded-xl bg-sproutly-bg text-sproutly-primary">
             <ShieldAlert size={20} />
           </div>
-          <h2 className="text-xl font-bold text-verdant-primary">Data</h2>
+          <h2 className="text-xl font-bold text-sproutly-primary">Data</h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <button
             type="button"
             onClick={handleExport}
-            className="w-full flex items-center justify-center gap-3 p-4 rounded-2xl bg-verdant-primary text-white font-bold shadow-md hover:bg-verdant-secondary transition-colors">
+            className="w-full flex items-center justify-center gap-3 p-4 rounded-2xl bg-sproutly-primary text-white font-bold shadow-md hover:bg-sproutly-secondary transition-colors">
             <Download size={18} />
             Export backup
           </button>
@@ -459,7 +459,7 @@ export const SettingsPage: React.FC = () => {
           <button
             type="button"
             onClick={handleImportClick}
-            className="w-full flex items-center justify-center gap-3 p-4 rounded-2xl bg-white border border-verdant-secondary/20 text-verdant-primary font-bold shadow-sm hover:bg-verdant-light/10 transition-colors">
+            className="w-full flex items-center justify-center gap-3 p-4 rounded-2xl bg-white border border-sproutly-secondary/20 text-sproutly-primary font-bold shadow-sm hover:bg-sproutly-light/10 transition-colors">
             <Upload size={18} />
             Import backup
           </button>
@@ -483,7 +483,7 @@ export const SettingsPage: React.FC = () => {
           <button
             type="button"
             onClick={handleResetDemo}
-            className="w-full flex items-center justify-center gap-3 p-4 rounded-2xl bg-verdant-bg text-verdant-primary font-bold hover:bg-verdant-light/10 transition-colors">
+            className="w-full flex items-center justify-center gap-3 p-4 rounded-2xl bg-sproutly-bg text-sproutly-primary font-bold hover:bg-sproutly-light/10 transition-colors">
             <RefreshCw size={18} />
             Restore demo plants
           </button>
@@ -491,13 +491,13 @@ export const SettingsPage: React.FC = () => {
           <button
             type="button"
             onClick={handleClearAll}
-            className="w-full flex items-center justify-center gap-3 p-4 rounded-2xl bg-verdant-urgent/10 text-verdant-urgent font-bold hover:bg-verdant-urgent/15 transition-colors">
+            className="w-full flex items-center justify-center gap-3 p-4 rounded-2xl bg-sproutly-urgent/10 text-sproutly-urgent font-bold hover:bg-sproutly-urgent/15 transition-colors">
             <Trash2 size={18} />
             Clear all local data
           </button>
         </div>
 
-        <div className="mt-4 text-sm font-medium text-verdant-secondary">
+        <div className="mt-4 text-sm font-medium text-sproutly-secondary">
           Tip: After exporting, keep your backup somewhere safe. Import will replace your current collection.
         </div>
 
@@ -505,7 +505,7 @@ export const SettingsPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setActiveTab('dashboard')}
-            className="text-verdant-secondary hover:text-verdant-primary font-bold transition-colors">
+            className="text-sproutly-secondary hover:text-sproutly-primary font-bold transition-colors">
             Back to Command Center
           </button>
         </div>
