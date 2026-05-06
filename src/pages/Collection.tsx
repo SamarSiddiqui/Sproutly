@@ -53,14 +53,14 @@ export const Collection: React.FC = () => {
   return (
     <div className="pt-20 pb-24 lg:pt-8 lg:pb-8 px-4 lg:px-8 max-w-7xl mx-auto min-h-full">
       <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">
-        <h1 className="text-3xl font-bold text-verdant-primary">
+        <h1 className="text-3xl font-bold text-sproutly-primary">
           My Collection
         </h1>
 
         <div className="flex items-center gap-3 flex-1 lg:max-w-xl lg:ml-auto">
           <div className="relative flex-1">
             <Search
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-verdant-secondary/50"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-sproutly-secondary/50"
               size={20} />
             
             <input
@@ -68,19 +68,19 @@ export const Collection: React.FC = () => {
               placeholder="Search plants..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white rounded-xl py-3 pl-10 pr-4 shadow-sm focus:outline-none focus:ring-2 focus:ring-verdant-light text-verdant-primary" />
+              className="w-full bg-white rounded-xl py-3 pl-10 pr-4 shadow-sm focus:outline-none focus:ring-2 focus:ring-sproutly-light text-sproutly-primary" />
             
           </div>
           <div className="bg-white rounded-xl p-1 shadow-sm flex items-center">
             <button
               onClick={() => setViewMode('grid')}
-              className={`p-2 rounded-lg transition-colors ${viewMode === 'grid' ? 'bg-verdant-bg text-verdant-primary' : 'text-verdant-secondary/50'}`}>
+              className={`p-2 rounded-lg transition-colors ${viewMode === 'grid' ? 'bg-sproutly-bg text-sproutly-primary' : 'text-sproutly-secondary/50'}`}>
               
               <LayoutGrid size={20} />
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`p-2 rounded-lg transition-colors ${viewMode === 'list' ? 'bg-verdant-bg text-verdant-primary' : 'text-verdant-secondary/50'}`}>
+              className={`p-2 rounded-lg transition-colors ${viewMode === 'list' ? 'bg-sproutly-bg text-sproutly-primary' : 'text-sproutly-secondary/50'}`}>
               
               <List size={20} />
             </button>
@@ -90,7 +90,7 @@ export const Collection: React.FC = () => {
               setEditingPlant(null);
               setIsFormOpen(true);
             }}
-            className="bg-verdant-primary text-white p-3 rounded-xl shadow-md hover:bg-verdant-secondary transition-colors flex items-center gap-2">
+            className="bg-sproutly-primary text-white p-3 rounded-xl shadow-md hover:bg-sproutly-secondary transition-colors flex items-center gap-2">
             
             <Plus size={20} />
             <span className="hidden lg:inline font-semibold">Add Plant</span>
@@ -131,7 +131,7 @@ export const Collection: React.FC = () => {
               
                 <div className="absolute top-2 right-2 flex gap-1">
                   {plant.healthStatus !== 'healthy' &&
-                <div className="bg-white/90 backdrop-blur-sm p-1.5 rounded-full text-verdant-urgent shadow-sm">
+                <div className="bg-white/90 backdrop-blur-sm p-1.5 rounded-full text-sproutly-urgent shadow-sm">
                       <AlertTriangle size={14} />
                     </div>
                 }
@@ -142,7 +142,7 @@ export const Collection: React.FC = () => {
               className={`flex-1 ${viewMode === 'grid' ? 'p-4' : 'min-w-0'}`}>
               
                 <div className="flex justify-between items-start mb-1">
-                  <h3 className="font-bold text-verdant-primary text-lg truncate pr-2">
+                  <h3 className="font-bold text-sproutly-primary text-lg truncate pr-2">
                     {plant.name}
                   </h3>
                   {viewMode === 'grid' &&
@@ -150,19 +150,19 @@ export const Collection: React.FC = () => {
                   className="relative"
                   onClick={(e) => e.stopPropagation()}>
                   
-                      <button className="text-verdant-secondary/50 hover:text-verdant-primary p-1">
+                      <button className="text-sproutly-secondary/50 hover:text-sproutly-primary p-1">
                         <MoreVertical size={18} />
                       </button>
-                      <div className="absolute right-0 top-8 bg-white shadow-lg rounded-xl py-1 hidden group-hover:block z-10 w-28 border border-verdant-bg">
+                      <div className="absolute right-0 top-8 bg-white shadow-lg rounded-xl py-1 hidden group-hover:block z-10 w-28 border border-sproutly-bg">
                         <button
                       onClick={() => handleEdit(plant)}
-                      className="w-full text-left px-4 py-2 text-sm hover:bg-verdant-bg flex items-center gap-2 text-verdant-primary">
+                      className="w-full text-left px-4 py-2 text-sm hover:bg-sproutly-bg flex items-center gap-2 text-sproutly-primary">
                       
                           <Edit2 size={14} /> Edit
                         </button>
                         <button
                       onClick={() => handleDelete(plant.id)}
-                      className="w-full text-left px-4 py-2 text-sm hover:bg-verdant-bg flex items-center gap-2 text-verdant-urgent">
+                      className="w-full text-left px-4 py-2 text-sm hover:bg-sproutly-bg flex items-center gap-2 text-sproutly-urgent">
                       
                           <Trash2 size={14} /> Delete
                         </button>
@@ -171,15 +171,15 @@ export const Collection: React.FC = () => {
                 }
                 </div>
 
-                <p className="text-sm text-verdant-secondary italic mb-3 truncate">
+                <p className="text-sm text-sproutly-secondary italic mb-3 truncate">
                   {plant.species}
                 </p>
 
                 <div className="flex flex-wrap gap-2 mb-3">
-                  <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-verdant-bg text-verdant-primary">
+                  <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-sproutly-bg text-sproutly-primary">
                     {plant.category}
                   </span>
-                  <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-verdant-light/20 text-verdant-primary">
+                  <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-sproutly-light/20 text-sproutly-primary">
                     {plant.growthStage}
                   </span>
                 </div>
@@ -187,9 +187,9 @@ export const Collection: React.FC = () => {
                 {plant.pottingStatus === 'nursery' && viewMode === 'grid' &&
               <button
                 onClick={(e) => openChecklist(e, plant.id)}
-                className="w-full mt-2 bg-verdant-warning/20 text-verdant-primary text-xs font-bold py-2 rounded-xl flex items-center justify-center gap-1.5 hover:bg-verdant-warning/30 transition-colors">
+                className="w-full mt-2 bg-sproutly-warning/20 text-sproutly-primary text-xs font-bold py-2 rounded-xl flex items-center justify-center gap-1.5 hover:bg-sproutly-warning/30 transition-colors">
                 
-                    <AlertTriangle size={14} className="text-verdant-warning" />
+                    <AlertTriangle size={14} className="text-sproutly-warning" />
                     Transition Checklist
                   </button>
               }
@@ -201,11 +201,11 @@ export const Collection: React.FC = () => {
                   {plant.pottingStatus === 'nursery' &&
               <button
                 onClick={(e) => openChecklist(e, plant.id)}
-                className="bg-verdant-warning/20 text-verdant-primary text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-1.5 hover:bg-verdant-warning/30 transition-colors whitespace-nowrap">
+                className="bg-sproutly-warning/20 text-sproutly-primary text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-1.5 hover:bg-sproutly-warning/30 transition-colors whitespace-nowrap">
                 
                       <AlertTriangle
                   size={14}
-                  className="text-verdant-warning" />
+                  className="text-sproutly-warning" />
                 
                       Checklist
                     </button>
@@ -216,13 +216,13 @@ export const Collection: React.FC = () => {
                 
                     <button
                   onClick={() => handleEdit(plant)}
-                  className="p-2 text-verdant-secondary hover:text-verdant-primary hover:bg-verdant-bg rounded-lg transition-colors">
+                  className="p-2 text-sproutly-secondary hover:text-sproutly-primary hover:bg-sproutly-bg rounded-lg transition-colors">
                   
                       <Edit2 size={18} />
                     </button>
                     <button
                   onClick={() => handleDelete(plant.id)}
-                  className="p-2 text-verdant-secondary hover:text-verdant-urgent hover:bg-red-50 rounded-lg transition-colors">
+                  className="p-2 text-sproutly-secondary hover:text-sproutly-urgent hover:bg-red-50 rounded-lg transition-colors">
                   
                       <Trash2 size={18} />
                     </button>
@@ -284,7 +284,7 @@ const PlantFormModal = ({ plant, onClose, onSave }: any) => {
     }
   );
   return (
-    <div className="fixed inset-0 bg-verdant-primary/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4">
+    <div className="fixed inset-0 bg-sproutly-primary/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4">
       <motion.div
         initial={{
           opacity: 0,
@@ -301,15 +301,15 @@ const PlantFormModal = ({ plant, onClose, onSave }: any) => {
           scale: 0.95,
           y: 20
         }}
-        className="bg-verdant-bg w-full max-w-lg rounded-3xl max-h-[90vh] overflow-y-auto p-6 lg:p-8 shadow-2xl">
+        className="bg-sproutly-bg w-full max-w-lg rounded-3xl max-h-[90vh] overflow-y-auto p-6 lg:p-8 shadow-2xl">
         
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-verdant-primary">
+          <h2 className="text-2xl font-bold text-sproutly-primary">
             {plant ? 'Edit Plant' : 'Add Plant'}
           </h2>
           <button
             onClick={onClose}
-            className="p-2 text-verdant-secondary hover:bg-black/5 rounded-full transition-colors">
+            className="p-2 text-sproutly-secondary hover:bg-black/5 rounded-full transition-colors">
             
             <MoreVertical size={24} className="rotate-90" />
           </button>
@@ -317,7 +317,7 @@ const PlantFormModal = ({ plant, onClose, onSave }: any) => {
 
         <div className="space-y-5">
           <div>
-            <label className="block text-sm font-semibold text-verdant-secondary mb-1.5">
+            <label className="block text-sm font-semibold text-sproutly-secondary mb-1.5">
               Name
             </label>
             <input
@@ -329,11 +329,11 @@ const PlantFormModal = ({ plant, onClose, onSave }: any) => {
                 name: e.target.value
               })
               }
-              className="w-full p-3.5 rounded-xl border border-verdant-secondary/20 focus:outline-none focus:border-verdant-light focus:ring-1 focus:ring-verdant-light" />
+              className="w-full p-3.5 rounded-xl border border-sproutly-secondary/20 focus:outline-none focus:border-sproutly-light focus:ring-1 focus:ring-sproutly-light" />
             
           </div>
           <div>
-            <label className="block text-sm font-semibold text-verdant-secondary mb-1.5">
+            <label className="block text-sm font-semibold text-sproutly-secondary mb-1.5">
               Species
             </label>
             <input
@@ -345,12 +345,12 @@ const PlantFormModal = ({ plant, onClose, onSave }: any) => {
                 species: e.target.value
               })
               }
-              className="w-full p-3.5 rounded-xl border border-verdant-secondary/20 focus:outline-none focus:border-verdant-light focus:ring-1 focus:ring-verdant-light" />
+              className="w-full p-3.5 rounded-xl border border-sproutly-secondary/20 focus:outline-none focus:border-sproutly-light focus:ring-1 focus:ring-sproutly-light" />
             
           </div>
           <div className="grid grid-cols-2 gap-5">
             <div>
-              <label className="block text-sm font-semibold text-verdant-secondary mb-1.5">
+              <label className="block text-sm font-semibold text-sproutly-secondary mb-1.5">
                 Category
               </label>
               <select
@@ -361,7 +361,7 @@ const PlantFormModal = ({ plant, onClose, onSave }: any) => {
                   category: e.target.value
                 })
                 }
-                className="w-full p-3.5 rounded-xl border border-verdant-secondary/20 focus:outline-none focus:border-verdant-light focus:ring-1 focus:ring-verdant-light bg-white">
+                className="w-full p-3.5 rounded-xl border border-sproutly-secondary/20 focus:outline-none focus:border-sproutly-light focus:ring-1 focus:ring-sproutly-light bg-white">
                 
                 <option>Indoor</option>
                 <option>Semi-Shade</option>
@@ -369,7 +369,7 @@ const PlantFormModal = ({ plant, onClose, onSave }: any) => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-semibold text-verdant-secondary mb-1.5">
+              <label className="block text-sm font-semibold text-sproutly-secondary mb-1.5">
                 Potting
               </label>
               <select
@@ -380,7 +380,7 @@ const PlantFormModal = ({ plant, onClose, onSave }: any) => {
                   pottingStatus: e.target.value
                 })
                 }
-                className="w-full p-3.5 rounded-xl border border-verdant-secondary/20 focus:outline-none focus:border-verdant-light focus:ring-1 focus:ring-verdant-light bg-white">
+                className="w-full p-3.5 rounded-xl border border-sproutly-secondary/20 focus:outline-none focus:border-sproutly-light focus:ring-1 focus:ring-sproutly-light bg-white">
                 
                 <option value="own">Own Pot</option>
                 <option value="nursery">Nursery Pot</option>
@@ -390,13 +390,13 @@ const PlantFormModal = ({ plant, onClose, onSave }: any) => {
           <div className="pt-4 flex gap-3">
             <button
               onClick={onClose}
-              className="flex-1 bg-white text-verdant-primary py-4 rounded-xl font-bold border border-verdant-secondary/20 hover:bg-verdant-bg transition-colors">
+              className="flex-1 bg-white text-sproutly-primary py-4 rounded-xl font-bold border border-sproutly-secondary/20 hover:bg-sproutly-bg transition-colors">
               
               Cancel
             </button>
             <button
               onClick={() => onSave(formData)}
-              className="flex-1 bg-verdant-primary text-white py-4 rounded-xl font-bold hover:bg-verdant-secondary transition-colors">
+              className="flex-1 bg-sproutly-primary text-white py-4 rounded-xl font-bold hover:bg-sproutly-secondary transition-colors">
               
               {plant ? 'Save Changes' : 'Add to Collection'}
             </button>
@@ -443,7 +443,7 @@ const TransitionChecklistModal = ({ plantId, onClose }: any) => {
     onClose();
   };
   return (
-    <div className="fixed inset-0 bg-verdant-primary/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-sproutly-primary/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <motion.div
         initial={{
           scale: 0.95,
@@ -462,10 +462,10 @@ const TransitionChecklistModal = ({ plantId, onClose }: any) => {
         }}
         className="bg-white w-full max-w-md rounded-3xl p-8 shadow-2xl">
         
-        <h2 className="text-2xl font-bold text-verdant-primary mb-2">
+        <h2 className="text-2xl font-bold text-sproutly-primary mb-2">
           Nursery Transition
         </h2>
-        <p className="text-verdant-secondary mb-8">
+        <p className="text-sproutly-secondary mb-8">
           Complete these checks before repotting your new plant.
         </p>
 
@@ -473,11 +473,11 @@ const TransitionChecklistModal = ({ plantId, onClose }: any) => {
           {items.map((item) =>
           <div
             key={item.id}
-            className="flex items-center justify-between p-4 rounded-2xl bg-verdant-bg">
+            className="flex items-center justify-between p-4 rounded-2xl bg-sproutly-bg">
             
               <label className="flex items-center gap-4 cursor-pointer flex-1">
                 <div
-                className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${checked[item.id] ? 'bg-verdant-primary border-verdant-primary' : 'border-verdant-secondary/30'}`}>
+                className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${checked[item.id] ? 'bg-sproutly-primary border-sproutly-primary' : 'border-sproutly-secondary/30'}`}>
                 
                   {checked[item.id] &&
                 <CheckCircle2 size={16} className="text-white" />
@@ -495,14 +495,14 @@ const TransitionChecklistModal = ({ plantId, onClose }: any) => {
                 } />
               
                 <span
-                className={`font-semibold ${checked[item.id] ? 'text-verdant-secondary line-through' : 'text-verdant-primary'}`}>
+                className={`font-semibold ${checked[item.id] ? 'text-sproutly-secondary line-through' : 'text-sproutly-primary'}`}>
                 
                   {item.label}
                 </span>
               </label>
               <button
               onClick={() => goToGuide(item.guide)}
-              className="text-sm text-verdant-light font-bold hover:text-verdant-primary px-3 py-1.5 rounded-lg hover:bg-white transition-colors">
+              className="text-sm text-sproutly-light font-bold hover:text-sproutly-primary px-3 py-1.5 rounded-lg hover:bg-white transition-colors">
               
                 Guide
               </button>
@@ -513,14 +513,14 @@ const TransitionChecklistModal = ({ plantId, onClose }: any) => {
         <div className="flex gap-4">
           <button
             onClick={onClose}
-            className="flex-1 py-4 rounded-xl font-bold text-verdant-secondary bg-verdant-bg hover:bg-verdant-secondary/10 transition-colors">
+            className="flex-1 py-4 rounded-xl font-bold text-sproutly-secondary bg-sproutly-bg hover:bg-sproutly-secondary/10 transition-colors">
             
             Cancel
           </button>
           <button
             onClick={handleComplete}
             disabled={!allChecked}
-            className={`flex-1 py-4 rounded-xl font-bold text-white transition-colors ${allChecked ? 'bg-verdant-primary hover:bg-verdant-secondary' : 'bg-verdant-secondary/30 cursor-not-allowed'}`}>
+            className={`flex-1 py-4 rounded-xl font-bold text-white transition-colors ${allChecked ? 'bg-sproutly-primary hover:bg-sproutly-secondary' : 'bg-sproutly-secondary/30 cursor-not-allowed'}`}>
             
             Complete
           </button>

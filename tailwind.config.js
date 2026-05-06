@@ -7,7 +7,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        verdant: {
+        sproutly: {
           primary: '#1B4332',
           secondary: '#52796F',
           light: '#74C69D',

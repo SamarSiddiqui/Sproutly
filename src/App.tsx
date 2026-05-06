@@ -7,7 +7,7 @@ import { Dashboard } from './pages/Dashboard';
 import { Collection } from './pages/Collection';
 import { CareCycle } from './pages/CareCycle';
 import { KnowledgeHub } from './pages/KnowledgeHub';
-import { VerdantAI } from './pages/VerdantAI';
+import { SproutlyAI } from './pages/SproutlyAI';
 import { SettingsPage } from './pages/Settings';
 import { Menu, Leaf } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -25,7 +25,7 @@ const MainContent: React.FC = () => {
       case 'knowledge':
         return <KnowledgeHub />;
       case 'ai':
-        return <VerdantAI />;
+        return <SproutlyAI />;
       case 'settings':
         return <SettingsPage />;
       default:
@@ -33,22 +33,22 @@ const MainContent: React.FC = () => {
     }
   };
   return (
-    <div className="min-h-screen bg-verdant-bg font-sans selection:bg-verdant-light/30 flex">
+    <div className="min-h-screen bg-sproutly-bg font-sans selection:bg-sproutly-light/30 flex">
       {/* Desktop Sidebar */}
       <Sidebar />
 
       {/* Mobile Top Header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-verdant-bg/80 backdrop-blur-md z-30 border-b border-verdant-secondary/10">
+      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-sproutly-bg/80 backdrop-blur-md z-30 border-b border-sproutly-secondary/10">
         <div className="max-w-md mx-auto h-full px-4 flex items-center justify-between">
           <button
             onClick={() => setIsMenuOpen(true)}
-            className="p-2 -ml-2 text-verdant-primary hover:bg-verdant-secondary/10 rounded-full transition-colors">
+            className="p-2 -ml-2 text-sproutly-primary hover:bg-sproutly-secondary/10 rounded-full transition-colors">
             
             <Menu size={24} />
           </button>
-          <div className="flex items-center gap-2 text-verdant-primary">
-            <Leaf className="fill-verdant-primary" size={20} />
-            <span className="font-bold tracking-tight text-lg">Verdant</span>
+          <div className="flex items-center gap-2 text-sproutly-primary">
+            <Leaf className="fill-sproutly-primary" size={20} />
+            <span className="font-bold tracking-tight text-lg">Sproutly</span>
           </div>
           <div className="w-10" /> {/* Spacer for centering */}
         </div>

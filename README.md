@@ -1,6 +1,6 @@
 # Sproutly
 
-Sproutly (a.k.a. “Verdant” in the app) is a cozy plant-care dashboard that helps you keep your leafy little roommates thriving. Track your collection, stay ahead of watering/fertilizing/pruning, and dip into quick guides when you want to learn something new—without the stress or the spreadsheets.
+Sproutly is a cozy plant-care dashboard that helps you keep your leafy little roommates thriving. Track your collection, stay ahead of watering/fertilizing/pruning, and dip into quick guides when you want to learn something new—without the stress or the spreadsheets.
 
 ## What You Can Do
 
@@ -8,7 +8,7 @@ Sproutly (a.k.a. “Verdant” in the app) is a cozy plant-care dashboard that h
 - Get a quick snapshot in the Command Center: growth stats, environment mix, and an Urgent Care stream.
 - Follow simple care cycles per plant (watering timeline, fertilizer cadence, pruning guidance).
 - Explore the Knowledge Hub for bite-sized tips and propagation mini-guides.
-- Chat with Verdant AI for extra help and gentle nudges when you’re unsure what your plant needs.
+- Chat with Sproutly AI for extra help and gentle nudges when you’re unsure what your plant needs.
 
 ## Getting Started
 

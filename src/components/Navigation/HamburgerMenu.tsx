@@ -48,7 +48,7 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
   {
     id: 'ai',
     icon: Sparkles,
-    label: 'Verdant AI',
+    label: 'Sproutly AI',
     desc: 'Garden Assistant'
   }];
 
@@ -71,7 +71,7 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
             opacity: 0
           }}
           onClick={onClose}
-          className="fixed inset-0 bg-verdant-primary/40 backdrop-blur-sm z-50" />
+          className="fixed inset-0 bg-sproutly-primary/40 backdrop-blur-sm z-50" />
         
           <motion.div
           initial={{
@@ -88,18 +88,18 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
             damping: 25,
             stiffness: 200
           }}
-          className="fixed top-0 left-0 bottom-0 w-4/5 max-w-sm bg-verdant-bg z-50 shadow-2xl flex flex-col">
+          className="fixed top-0 left-0 bottom-0 w-4/5 max-w-sm bg-sproutly-bg z-50 shadow-2xl flex flex-col">
           
-            <div className="p-6 flex justify-between items-center border-b border-verdant-secondary/20">
-              <div className="flex items-center gap-2 text-verdant-primary">
-                <Leaf className="fill-verdant-primary" />
+            <div className="p-6 flex justify-between items-center border-b border-sproutly-secondary/20">
+              <div className="flex items-center gap-2 text-sproutly-primary">
+                <Leaf className="fill-sproutly-primary" />
                 <span className="text-xl font-bold tracking-tight">
-                  Verdant
+                  Sproutly
                 </span>
               </div>
               <button
               onClick={onClose}
-              className="p-2 rounded-full hover:bg-verdant-secondary/10 text-verdant-primary">
+              className="p-2 rounded-full hover:bg-sproutly-secondary/10 text-sproutly-primary">
               
                 <X size={24} />
               </button>
@@ -113,17 +113,17 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
                 <button
                   key={item.id}
                   onClick={() => handleNav(item.id)}
-                  className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all ${isActive ? 'bg-verdant-primary text-white shadow-md' : 'hover:bg-verdant-light/10 text-verdant-primary'}`}>
+                  className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all ${isActive ? 'bg-sproutly-primary text-white shadow-md' : 'hover:bg-sproutly-light/10 text-sproutly-primary'}`}>
                   
                     <div
-                    className={`p-2 rounded-xl ${isActive ? 'bg-white/20' : 'bg-verdant-light/20'}`}>
+                    className={`p-2 rounded-xl ${isActive ? 'bg-white/20' : 'bg-sproutly-light/20'}`}>
                     
                       <Icon size={24} />
                     </div>
                     <div className="text-left">
                       <div className="font-semibold">{item.label}</div>
                       <div
-                      className={`text-sm ${isActive ? 'text-white/80' : 'text-verdant-secondary'}`}>
+                      className={`text-sm ${isActive ? 'text-white/80' : 'text-sproutly-secondary'}`}>
                       
                         {item.desc}
                       </div>
@@ -133,16 +133,16 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
             })}
             </div>
 
-            <div className="p-6 border-t border-verdant-secondary/20 space-y-4">
+            <div className="p-6 border-t border-sproutly-secondary/20 space-y-4">
               <button
                 onClick={() => handleNav('settings')}
-                className={`flex items-center gap-3 transition-colors ${activeTab === 'settings' ? 'text-verdant-primary' : 'text-verdant-secondary hover:text-verdant-primary'}`}>
+                className={`flex items-center gap-3 transition-colors ${activeTab === 'settings' ? 'text-sproutly-primary' : 'text-sproutly-secondary hover:text-sproutly-primary'}`}>
                 <Settings size={20} />
                 <span className="font-medium">Settings</span>
               </button>
               <button
                 onClick={() => handleNav('settings')}
-                className="flex items-center gap-3 text-verdant-secondary hover:text-verdant-primary transition-colors">
+                className="flex items-center gap-3 text-sproutly-secondary hover:text-sproutly-primary transition-colors">
                 <User size={20} />
                 <span className="font-medium">Profile</span>
               </button>

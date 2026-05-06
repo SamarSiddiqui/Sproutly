@@ -18,7 +18,7 @@ const PlantContext = createContext<PlantContextType | undefined>(undefined);
 export const PlantProvider: React.FC<{
   children: ReactNode;
 }> = ({ children }) => {
-  const plantsStorageKey = 'verdant:plants:v1';
+  const plantsStorageKey = 'sproutly:plants:v1';
   const [plants, setPlants] = useState<Plant[]>(() => {
     if (typeof window === 'undefined') return initialPlants;
     try {

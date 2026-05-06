@@ -72,18 +72,18 @@ export const KnowledgeHub: React.FC = () => {
   return (
     <div className="pt-20 pb-24 lg:pt-8 lg:pb-8 px-4 lg:px-8 max-w-7xl mx-auto space-y-10">
       <header>
-        <h1 className="text-3xl font-bold text-verdant-primary mb-2">
+        <h1 className="text-3xl font-bold text-sproutly-primary mb-2">
           Knowledge Hub
         </h1>
-        <p className="text-lg text-verdant-secondary">
+        <p className="text-lg text-sproutly-secondary">
           Master the art of terrace gardening
         </p>
       </header>
 
       {/* Quick Tips */}
       <section>
-        <h2 className="text-xl font-bold text-verdant-primary mb-6 flex items-center gap-2">
-          <Lightbulb size={24} className="text-verdant-warning" />
+        <h2 className="text-xl font-bold text-sproutly-primary mb-6 flex items-center gap-2">
+          <Lightbulb size={24} className="text-sproutly-warning" />
           Quick Tips
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -93,25 +93,25 @@ export const KnowledgeHub: React.FC = () => {
             return (
               <div
                 key={tip.id}
-                className="bg-white rounded-3xl p-6 shadow-sm border border-verdant-bg flex flex-col h-full">
+                className="bg-white rounded-3xl p-6 shadow-sm border border-sproutly-bg flex flex-col h-full">
                 
                 <div className="flex gap-4 mb-4">
-                  <div className="p-3 bg-verdant-bg rounded-2xl h-fit text-verdant-primary shrink-0">
+                  <div className="p-3 bg-sproutly-bg rounded-2xl h-fit text-sproutly-primary shrink-0">
                     <Icon size={24} />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-verdant-primary mb-2">
+                    <h3 className="text-lg font-bold text-sproutly-primary mb-2">
                       {tip.title}
                     </h3>
-                    <p className="text-sm text-verdant-secondary leading-relaxed font-medium">
+                    <p className="text-sm text-sproutly-secondary leading-relaxed font-medium">
                       {tip.content}
                     </p>
                   </div>
                 </div>
 
                 {related.length > 0 &&
-                <div className="mt-auto pt-5 border-t border-verdant-bg">
-                    <span className="text-xs font-bold text-verdant-secondary uppercase tracking-wider mb-3 block">
+                <div className="mt-auto pt-5 border-t border-sproutly-bg">
+                    <span className="text-xs font-bold text-sproutly-secondary uppercase tracking-wider mb-3 block">
                       Applies to your plants:
                     </span>
                     <div className="flex flex-wrap gap-2">
@@ -119,7 +119,7 @@ export const KnowledgeHub: React.FC = () => {
                     <button
                       key={p.id}
                       onClick={() => goToPlant(p.id)}
-                      className="flex items-center gap-2 bg-verdant-bg px-3 py-1.5 rounded-xl text-xs font-bold text-verdant-primary hover:bg-verdant-light/20 transition-colors">
+                      className="flex items-center gap-2 bg-sproutly-bg px-3 py-1.5 rounded-xl text-xs font-bold text-sproutly-primary hover:bg-sproutly-light/20 transition-colors">
                       
                           <img
                         src={p.image}
@@ -140,8 +140,8 @@ export const KnowledgeHub: React.FC = () => {
 
       {/* Cutting & Growth Lab */}
       <section>
-        <h2 className="text-xl font-bold text-verdant-primary mb-6 flex items-center gap-2">
-          <BookOpen size={24} className="text-verdant-light" />
+        <h2 className="text-xl font-bold text-sproutly-primary mb-6 flex items-center gap-2">
+          <BookOpen size={24} className="text-sproutly-light" />
           Cutting & Growth Lab
         </h2>
 
@@ -150,7 +150,7 @@ export const KnowledgeHub: React.FC = () => {
           {propagationGuides.map((guide, idx) =>
           <div
             key={idx}
-            className="snap-start shrink-0 w-80 lg:w-full bg-white rounded-3xl overflow-hidden shadow-sm border border-verdant-bg flex flex-col">
+            className="snap-start shrink-0 w-80 lg:w-full bg-white rounded-3xl overflow-hidden shadow-sm border border-sproutly-bg flex flex-col">
             
               <div className="h-48 relative">
                 <img
@@ -171,16 +171,16 @@ export const KnowledgeHub: React.FC = () => {
                   {guide.steps.map((step, sIdx) =>
                 <li
                   key={sIdx}
-                  className="flex items-start gap-4 text-sm font-medium text-verdant-primary">
+                  className="flex items-start gap-4 text-sm font-medium text-sproutly-primary">
                   
-                      <div className="w-6 h-6 rounded-full bg-verdant-bg flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
+                      <div className="w-6 h-6 rounded-full bg-sproutly-bg flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
                         {sIdx + 1}
                       </div>
                       {step}
                     </li>
                 )}
                 </ul>
-                <button className="w-full mt-auto py-3.5 bg-verdant-bg text-verdant-primary font-bold rounded-xl text-sm flex items-center justify-center gap-2 hover:bg-verdant-light/20 transition-colors">
+                <button className="w-full mt-auto py-3.5 bg-sproutly-bg text-sproutly-primary font-bold rounded-xl text-sm flex items-center justify-center gap-2 hover:bg-sproutly-light/20 transition-colors">
                   Read Full Guide <ArrowRight size={18} />
                 </button>
               </div>

@@ -48,7 +48,7 @@ export const CareCycle: React.FC = () => {
       {/* Left Panel: Plant Selector */}
       <div className="lg:w-80 shrink-0 flex flex-col">
         <header className="mb-4 lg:mb-6">
-          <h1 className="text-3xl font-bold text-verdant-primary">
+          <h1 className="text-3xl font-bold text-sproutly-primary">
             Care Cycle
           </h1>
         </header>
@@ -59,7 +59,7 @@ export const CareCycle: React.FC = () => {
           <button
             key={p.id}
             onClick={() => setSelectedPlantId(p.id)}
-            className={`snap-start shrink-0 flex items-center gap-3 p-2 pr-4 rounded-full transition-all ${selectedPlantId === p.id ? 'bg-verdant-primary text-white shadow-md' : 'bg-white text-verdant-primary border border-verdant-secondary/20'}`}>
+            className={`snap-start shrink-0 flex items-center gap-3 p-2 pr-4 rounded-full transition-all ${selectedPlantId === p.id ? 'bg-sproutly-primary text-white shadow-md' : 'bg-white text-sproutly-primary border border-sproutly-secondary/20'}`}>
             
               <img
               src={p.image}
@@ -71,7 +71,7 @@ export const CareCycle: React.FC = () => {
                   {p.name}
                 </div>
                 <div
-                className={`text-[10px] ${selectedPlantId === p.id ? 'text-white/80' : 'text-verdant-secondary'}`}>
+                className={`text-[10px] ${selectedPlantId === p.id ? 'text-white/80' : 'text-sproutly-secondary'}`}>
                 
                   {p.category}
                 </div>
@@ -86,7 +86,7 @@ export const CareCycle: React.FC = () => {
           <button
             key={p.id}
             onClick={() => setSelectedPlantId(p.id)}
-            className={`flex items-center gap-4 p-3 rounded-2xl transition-all text-left ${selectedPlantId === p.id ? 'bg-verdant-primary text-white shadow-md' : 'bg-white text-verdant-primary hover:bg-verdant-light/10'}`}>
+            className={`flex items-center gap-4 p-3 rounded-2xl transition-all text-left ${selectedPlantId === p.id ? 'bg-sproutly-primary text-white shadow-md' : 'bg-white text-sproutly-primary hover:bg-sproutly-light/10'}`}>
             
               <img
               src={p.image}
@@ -96,14 +96,14 @@ export const CareCycle: React.FC = () => {
               <div className="flex-1 min-w-0">
                 <div className="font-bold truncate">{p.name}</div>
                 <div
-                className={`text-xs truncate ${selectedPlantId === p.id ? 'text-white/80' : 'text-verdant-secondary'}`}>
+                className={`text-xs truncate ${selectedPlantId === p.id ? 'text-white/80' : 'text-sproutly-secondary'}`}>
                 
                   {p.species}
                 </div>
               </div>
               {p.healthStatus !== 'healthy' &&
             <div
-              className={`w-2.5 h-2.5 rounded-full shrink-0 ${p.healthStatus === 'needs-water' ? 'bg-blue-400' : p.healthStatus === 'needs-pruning' ? 'bg-verdant-warning' : 'bg-verdant-urgent'}`} />
+              className={`w-2.5 h-2.5 rounded-full shrink-0 ${p.healthStatus === 'needs-water' ? 'bg-blue-400' : p.healthStatus === 'needs-pruning' ? 'bg-sproutly-warning' : 'bg-sproutly-urgent'}`} />
 
             }
             </button>
@@ -121,15 +121,15 @@ export const CareCycle: React.FC = () => {
             className="w-24 h-24 rounded-2xl object-cover" />
           
           <div>
-            <h2 className="text-2xl font-bold text-verdant-primary">
+            <h2 className="text-2xl font-bold text-sproutly-primary">
               {plant.name}
             </h2>
-            <p className="text-verdant-secondary mb-2">{plant.species}</p>
+            <p className="text-sproutly-secondary mb-2">{plant.species}</p>
             <div className="flex gap-2">
-              <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-verdant-bg text-verdant-primary">
+              <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-sproutly-bg text-sproutly-primary">
                 {plant.category}
               </span>
-              <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-verdant-light/20 text-verdant-primary">
+              <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-sproutly-light/20 text-sproutly-primary">
                 {plant.growthStage}
               </span>
             </div>
@@ -147,10 +147,10 @@ export const CareCycle: React.FC = () => {
                     <Droplets size={28} />
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold text-verdant-primary">
+                    <h2 className="text-xl font-bold text-sproutly-primary">
                       Watering
                     </h2>
-                    <p className="text-sm font-medium text-verdant-secondary">
+                    <p className="text-sm font-medium text-sproutly-secondary">
                       {daysUntilWater > 0 ?
                       `In ${daysUntilWater} days` :
                       daysUntilWater === 0 ?
@@ -161,7 +161,7 @@ export const CareCycle: React.FC = () => {
                 </div>
                 <button
                   onClick={() => askAI('watering')}
-                  className="p-2.5 text-verdant-light hover:text-verdant-primary bg-verdant-bg rounded-xl transition-colors"
+                  className="p-2.5 text-sproutly-light hover:text-sproutly-primary bg-sproutly-bg rounded-xl transition-colors"
                   title="Ask AI about watering">
                   
                   <Sparkles size={20} />
@@ -169,7 +169,7 @@ export const CareCycle: React.FC = () => {
               </div>
 
               <div className="mb-8">
-                <div className="h-4 bg-verdant-bg rounded-full overflow-hidden mb-3">
+                <div className="h-4 bg-sproutly-bg rounded-full overflow-hidden mb-3">
                   <motion.div
                     initial={{
                       width: 0
@@ -177,10 +177,10 @@ export const CareCycle: React.FC = () => {
                     animate={{
                       width: `${waterProgress}%`
                     }}
-                    className={`h-full rounded-full ${waterProgress > 90 ? 'bg-verdant-urgent' : 'bg-blue-400'}`} />
+                    className={`h-full rounded-full ${waterProgress > 90 ? 'bg-sproutly-urgent' : 'bg-blue-400'}`} />
                   
                 </div>
-                <div className="flex justify-between text-sm text-verdant-secondary font-semibold">
+                <div className="flex justify-between text-sm text-sproutly-secondary font-semibold">
                   <span>
                     Last:{' '}
                     {new Date(plant.lastWatered).toLocaleDateString(undefined, {
@@ -201,12 +201,12 @@ export const CareCycle: React.FC = () => {
                 </div>
               </div>
 
-              <div className="bg-verdant-bg p-5 rounded-2xl flex gap-3 items-start mt-auto">
+              <div className="bg-sproutly-bg p-5 rounded-2xl flex gap-3 items-start mt-auto">
                 <Info
                   size={20}
-                  className="text-verdant-secondary shrink-0 mt-0.5" />
+                  className="text-sproutly-secondary shrink-0 mt-0.5" />
                 
-                <p className="text-sm text-verdant-primary font-medium leading-relaxed">
+                <p className="text-sm text-sproutly-primary font-medium leading-relaxed">
                   {plant.category === 'Indoor' ?
                   'Check top 2 inches of soil before watering.' :
                   'Water deeply until it drains from the bottom.'}
@@ -219,21 +219,21 @@ export const CareCycle: React.FC = () => {
           <section className="bg-white rounded-3xl p-6 lg:p-8 shadow-sm flex flex-col">
             <div className="flex justify-between items-start mb-8">
               <div className="flex items-center gap-4">
-                <div className="p-3.5 bg-verdant-warning/20 text-verdant-warning rounded-2xl">
+                <div className="p-3.5 bg-sproutly-warning/20 text-sproutly-warning rounded-2xl">
                   <FlaskConical size={28} />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-verdant-primary">
+                  <h2 className="text-xl font-bold text-sproutly-primary">
                     Nutrition
                   </h2>
-                  <p className="text-sm font-medium text-verdant-secondary">
+                  <p className="text-sm font-medium text-sproutly-secondary">
                     Every {plant.fertilizerCycle} days
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => askAI('fertilizing')}
-                className="p-2.5 text-verdant-light hover:text-verdant-primary bg-verdant-bg rounded-xl transition-colors"
+                className="p-2.5 text-sproutly-light hover:text-sproutly-primary bg-sproutly-bg rounded-xl transition-colors"
                 title="Ask AI about fertilizing">
                 
                 <Sparkles size={20} />
@@ -241,14 +241,14 @@ export const CareCycle: React.FC = () => {
             </div>
 
             {/* Static Calendar Representation */}
-            <div className="border border-verdant-secondary/20 rounded-2xl p-5 mt-auto">
+            <div className="border border-sproutly-secondary/20 rounded-2xl p-5 mt-auto">
               <div className="flex items-center justify-between mb-5">
-                <span className="font-bold text-verdant-primary">
+                <span className="font-bold text-sproutly-primary">
                   This Month
                 </span>
-                <CalendarIcon size={18} className="text-verdant-secondary" />
+                <CalendarIcon size={18} className="text-sproutly-secondary" />
               </div>
-              <div className="grid grid-cols-7 gap-2 text-center text-xs mb-3 text-verdant-secondary font-bold">
+              <div className="grid grid-cols-7 gap-2 text-center text-xs mb-3 text-sproutly-secondary font-bold">
                 {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) =>
                 <div key={i}>{d}</div>
                 )}
@@ -261,15 +261,15 @@ export const CareCycle: React.FC = () => {
                   return (
                     <div
                       key={i}
-                      className={`aspect-square rounded-full flex items-center justify-center text-sm font-bold ${isFeedDay ? 'bg-verdant-warning text-white shadow-md' : 'text-verdant-primary hover:bg-verdant-bg'}`}>
+                      className={`aspect-square rounded-full flex items-center justify-center text-sm font-bold ${isFeedDay ? 'bg-sproutly-warning text-white shadow-md' : 'text-sproutly-primary hover:bg-sproutly-bg'}`}>
                       
                       {i + 1}
                     </div>);
 
                 })}
               </div>
-              <div className="mt-5 text-sm font-medium text-verdant-secondary flex items-center gap-3 bg-verdant-bg p-3 rounded-xl">
-                <div className="w-3 h-3 rounded-full bg-verdant-warning shrink-0" />
+              <div className="mt-5 text-sm font-medium text-sproutly-secondary flex items-center gap-3 bg-sproutly-bg p-3 rounded-xl">
+                <div className="w-3 h-3 rounded-full bg-sproutly-warning shrink-0" />
                 Feed with balanced liquid fertilizer
               </div>
             </div>
@@ -280,21 +280,21 @@ export const CareCycle: React.FC = () => {
         <section className="bg-white rounded-3xl p-6 lg:p-8 shadow-sm">
           <div className="flex justify-between items-start mb-8">
             <div className="flex items-center gap-4">
-              <div className="p-3.5 bg-verdant-light/20 text-verdant-primary rounded-2xl">
+              <div className="p-3.5 bg-sproutly-light/20 text-sproutly-primary rounded-2xl">
                 <Scissors size={28} />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-verdant-primary">
+                <h2 className="text-xl font-bold text-sproutly-primary">
                   Pruning
                 </h2>
-                <p className="text-sm font-medium text-verdant-secondary">
+                <p className="text-sm font-medium text-sproutly-secondary">
                   {plant.pruningSeasons.join(', ')}
                 </p>
               </div>
             </div>
             <button
               onClick={() => askAI('pruning')}
-              className="p-2.5 text-verdant-light hover:text-verdant-primary bg-verdant-bg rounded-xl transition-colors"
+              className="p-2.5 text-sproutly-light hover:text-sproutly-primary bg-sproutly-bg rounded-xl transition-colors"
               title="Ask AI about pruning">
               
               <Sparkles size={20} />
@@ -309,12 +309,12 @@ export const CareCycle: React.FC = () => {
             map((instruction, idx) =>
             <div
               key={idx}
-              className="flex gap-4 items-start bg-verdant-bg p-5 rounded-2xl">
+              className="flex gap-4 items-start bg-sproutly-bg p-5 rounded-2xl">
               
-                <div className="w-8 h-8 rounded-full bg-white text-verdant-primary flex items-center justify-center text-sm font-bold shrink-0 shadow-sm">
+                <div className="w-8 h-8 rounded-full bg-white text-sproutly-primary flex items-center justify-center text-sm font-bold shrink-0 shadow-sm">
                   {idx + 1}
                 </div>
-                <p className="text-sm font-medium text-verdant-primary leading-relaxed">
+                <p className="text-sm font-medium text-sproutly-primary leading-relaxed">
                   {instruction}
                 </p>
               </div>
