@@ -9,9 +9,15 @@ import { CareCycle } from './pages/CareCycle';
 import { KnowledgeHub } from './pages/KnowledgeHub';
 import { SproutlyAI } from './pages/SproutlyAI';
 import { SettingsPage } from './pages/Settings';
+import { PreLoginPage } from './pages/PreLoginPage';
 import { Menu, Leaf } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-const MainContent: React.FC = () => {
+
+interface MainContentProps {
+  onLogout: () => void;
+}
+
+const MainContent: React.FC<MainContentProps> = ({ onLogout }) => {
   const { activeTab } = usePlants();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const renderTab = () => {
@@ -35,7 +41,7 @@ const MainContent: React.FC = () => {
   return (
     <div className="min-h-screen bg-sproutly-bg font-sans selection:bg-sproutly-light/30 flex">
       {/* Desktop Sidebar */}
-      <Sidebar />
+      <Sidebar onLogout={onLogout} />
 
       {/* Mobile Top Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-sproutly-bg/80 backdrop-blur-md z-30 border-b border-sproutly-secondary/10">
@@ -85,17 +91,49 @@ const MainContent: React.FC = () => {
       <div className="lg:hidden">
         <HamburgerMenu
           isOpen={isMenuOpen}
-          onClose={() => setIsMenuOpen(false)} />
+          onClose={() => setIsMenuOpen(false)}
+          onLogout={onLogout} />
         
         <BottomNav />
       </div>
     </div>);
 
 };
+
 export function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    try {
+      return window.localStorage.getItem('sproutly:auth:v1') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const handleLogin = () => {
+    try {
+      window.localStorage.setItem('sproutly:auth:v1', 'true');
+    } catch (e) {
+      console.error(e);
+    }
+    setIsLoggedIn(true);
+  };
+
+  const handleLogout = () => {
+    try {
+      window.localStorage.removeItem('sproutly:auth:v1');
+    } catch (e) {
+      console.error(e);
+    }
+    setIsLoggedIn(false);
+  };
+
+  if (!isLoggedIn) {
+    return <PreLoginPage onLogin={handleLogin} />;
+  }
+
   return (
     <PlantProvider>
-      <MainContent />
+      <MainContent onLogout={handleLogout} />
     </PlantProvider>);
-
 }
