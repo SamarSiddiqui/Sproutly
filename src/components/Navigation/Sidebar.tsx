@@ -6,11 +6,17 @@ import {
   BookOpen,
   Sparkles,
   Settings,
-  User } from
+  User,
+  LogOut } from
 'lucide-react';
 import { usePlants } from '../../context/PlantContext';
 import { motion } from 'framer-motion';
-export const Sidebar: React.FC = () => {
+
+interface SidebarProps {
+  onLogout: () => void;
+}
+
+export const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
   const { activeTab, setActiveTab, plants } = usePlants();
   const menuItems = [
   {
@@ -103,6 +109,12 @@ export const Sidebar: React.FC = () => {
           className="w-full flex items-center gap-3 p-3 rounded-xl text-sproutly-secondary hover:text-sproutly-primary hover:bg-sproutly-light/10 transition-all">
           <User size={20} />
           <span className="font-semibold text-sm">Profile</span>
+        </button>
+        <button
+          onClick={onLogout}
+          className="w-full flex items-center gap-3 p-3 rounded-xl text-sproutly-urgent hover:bg-sproutly-urgent/10 transition-all">
+          <LogOut size={20} className="text-sproutly-urgent" />
+          <span className="font-semibold text-sm text-sproutly-urgent">Log out</span>
         </button>
       </div>
     </div>);

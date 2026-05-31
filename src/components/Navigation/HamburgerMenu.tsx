@@ -8,16 +8,19 @@ import {
   BookOpen,
   Sparkles,
   Settings,
-  User } from
+  User,
+  LogOut } from
 'lucide-react';
 import { usePlants } from '../../context/PlantContext';
 interface HamburgerMenuProps {
   isOpen: boolean;
   onClose: () => void;
+  onLogout: () => void;
 }
 export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
   isOpen,
-  onClose
+  onClose,
+  onLogout
 }) => {
   const { activeTab, setActiveTab } = usePlants();
   const menuItems = [
@@ -145,6 +148,15 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
                 className="flex items-center gap-3 text-sproutly-secondary hover:text-sproutly-primary transition-colors">
                 <User size={20} />
                 <span className="font-medium">Profile</span>
+              </button>
+              <button
+                onClick={() => {
+                  onLogout();
+                  onClose();
+                }}
+                className="flex items-center gap-3 text-sproutly-urgent hover:text-sproutly-urgent/80 transition-colors">
+                <LogOut size={20} />
+                <span className="font-medium">Log out</span>
               </button>
             </div>
           </motion.div>
