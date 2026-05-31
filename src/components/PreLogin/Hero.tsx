@@ -3,10 +3,10 @@ import gsap from 'gsap';
 import { Leaf } from './decor/Leaf';
 
 interface HeroProps {
-  onLogin: () => void;
+  onNavigate: (state: 'landing' | 'login' | 'signup') => void;
 }
 
-export function Hero({ onLogin }: HeroProps) {
+export function Hero({ onNavigate }: HeroProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
   const leavesRef = useRef<HTMLDivElement>(null);
@@ -90,7 +90,7 @@ export function Hero({ onLogin }: HeroProps) {
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <button
-                onClick={onLogin}
+                onClick={() => onNavigate('signup')}
                 className="bg-sproutly-forest text-sproutly-cream px-8 py-4 rounded-full text-base font-medium hover:bg-sproutly-forest/90 transition-colors shadow-lg shadow-sproutly-forest/20"
               >
                 Start growing — it's free

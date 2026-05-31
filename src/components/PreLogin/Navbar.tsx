@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { Leaf } from 'lucide-react';
 
 interface NavbarProps {
-  onLogin: () => void;
+  onNavigate: (state: 'landing' | 'login' | 'signup') => void;
 }
 
-export function Navbar({ onLogin }: NavbarProps) {
+export function Navbar({ onNavigate }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -61,13 +61,13 @@ export function Navbar({ onLogin }: NavbarProps) {
 
         <div className="flex items-center gap-4">
           <button
-            onClick={onLogin}
+            onClick={() => onNavigate('login')}
             className="hidden md:block text-sm font-medium text-sproutly-forest hover:text-sproutly-forest/70 transition-colors"
           >
             Sign in
           </button>
           <button
-            onClick={onLogin}
+            onClick={() => onNavigate('signup')}
             className="bg-sproutly-forest text-sproutly-cream px-5 py-2.5 rounded-full text-sm font-medium hover:bg-sproutly-forest/90 transition-colors shadow-sm"
           >
             Get started
