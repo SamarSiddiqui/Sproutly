@@ -5,10 +5,10 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 gsap.registerPlugin(ScrollTrigger);
 
 interface FinalCtaProps {
-  onLogin: () => void;
+  onNavigate: (state: 'landing' | 'login' | 'signup') => void;
 }
 
-export function FinalCta({ onLogin }: FinalCtaProps) {
+export function FinalCta({ onNavigate }: FinalCtaProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -51,7 +51,7 @@ export function FinalCta({ onLogin }: FinalCtaProps) {
             stress. Your indoor jungle will thank you.
           </p>
           <button
-            onClick={onLogin}
+            onClick={() => onNavigate('signup')}
             className="bg-sproutly-terracotta text-white px-8 py-4 rounded-full text-lg font-medium hover:bg-sproutly-terracotta/90 transition-colors shadow-lg shadow-sproutly-terracotta/20"
           >
             Start growing for free

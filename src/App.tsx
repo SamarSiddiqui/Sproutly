@@ -10,6 +10,8 @@ import { KnowledgeHub } from './pages/KnowledgeHub';
 import { SproutlyAI } from './pages/SproutlyAI';
 import { SettingsPage } from './pages/Settings';
 import { PreLoginPage } from './pages/PreLoginPage';
+import { LoginPage } from './pages/LoginPage';
+import { SignupPage } from './pages/SignupPage';
 import { Menu, Leaf } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -110,6 +112,8 @@ export function App() {
     }
   });
 
+  const [preLoginState, setPreLoginState] = useState<'landing' | 'login' | 'signup'>('landing');
+
   const handleLogin = () => {
     try {
       window.localStorage.setItem('sproutly:auth:v1', 'true');
@@ -125,11 +129,21 @@ export function App() {
     } catch (e) {
       console.error(e);
     }
+    setPreLoginState('landing');
     setIsLoggedIn(false);
   };
 
   if (!isLoggedIn) {
-    return <PreLoginPage onLogin={handleLogin} />;
+    switch (preLoginState) {
+      case 'landing':
+        return <PreLoginPage onNavigate={setPreLoginState} />;
+      case 'login':
+        return <LoginPage onLogin={handleLogin} onNavigate={setPreLoginState} />;
+      case 'signup':
+        return <SignupPage onLogin={handleLogin} onNavigate={setPreLoginState} />;
+      default:
+        return <PreLoginPage onNavigate={setPreLoginState} />;
+    }
   }
 
   return (

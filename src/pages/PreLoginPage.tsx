@@ -11,22 +11,22 @@ import { FinalCta } from '../components/PreLogin/FinalCta';
 import { Footer } from '../components/PreLogin/Footer';
 
 interface PreLoginPageProps {
-  onLogin: () => void;
+  onNavigate: (state: 'landing' | 'login' | 'signup') => void;
 }
 
-export const PreLoginPage: React.FC<PreLoginPageProps> = ({ onLogin }) => {
+export const PreLoginPage: React.FC<PreLoginPageProps> = ({ onNavigate }) => {
   return (
     <div className="min-h-screen bg-sproutly-cream font-inter selection:bg-sproutly-sage selection:text-white">
-      <Navbar onLogin={onLogin} />
+      <Navbar onNavigate={onNavigate} />
       <main>
-        <Hero onLogin={onLogin} />
+        <Hero onNavigate={onNavigate} />
         <TrustStrip />
         <Benefits />
         <AiSection />
         <HowItWorks />
         <GuidesPreview />
         <Testimonial />
-        <FinalCta onLogin={onLogin} />
+        <FinalCta onNavigate={onNavigate} />
       </main>
       <Footer />
     </div>
