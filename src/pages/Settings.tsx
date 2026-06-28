@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { usePlants } from '../context/PlantContext';
-import { Download, Upload, RefreshCw, Trash2, Bell, User, Sparkles, SlidersHorizontal, ShieldAlert } from 'lucide-react';
+import { Download, Upload, RefreshCw, Trash2, Bell, User, Sparkles, SlidersHorizontal, ShieldAlert, Loader2, Check } from 'lucide-react';
+import { supabase } from '../utils/supabaseClient';
 
 type EnvironmentView = 'chart' | 'bars';
 
@@ -106,6 +107,8 @@ const Toggle: React.FC<{
 export const SettingsPage: React.FC = () => {
   const { plants, replacePlants, resetPlants, setActiveTab } = usePlants();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [loadingProfile, setLoadingProfile] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [settings, setSettings] = useState<SproutlySettings>(() => {
     const s = loadSettings();
     if (typeof window === 'undefined') return s;
@@ -122,12 +125,103 @@ export const SettingsPage: React.FC = () => {
     return s;
   });
 
+  // Fetch profile settings on mount
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        setLoadingProfile(true);
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+
+        if (error && error.code !== 'PGRST116') {
+          throw error;
+        }
+
+        if (data) {
+          setSettings({
+            profile: {
+              displayName: data.display_name || '',
+              location: data.location || ''
+            },
+            reminders: {
+              enableCareReminders: data.reminders?.enableCareReminders ?? defaultSettings.reminders.enableCareReminders,
+              reminderTime: data.reminders?.reminderTime ?? defaultSettings.reminders.reminderTime,
+              weeklyDigest: data.reminders?.weeklyDigest ?? defaultSettings.reminders.weeklyDigest
+            },
+            preferences: {
+              environmentView: data.preferences?.environmentView ?? defaultSettings.preferences.environmentView,
+              aiTone: data.preferences?.aiTone ?? defaultSettings.preferences.aiTone,
+              reduceMotion: data.preferences?.reduceMotion ?? defaultSettings.preferences.reduceMotion
+            }
+          });
+        } else {
+          // Initialize profile row
+          const defaultProfile = {
+            id: user.id,
+            display_name: user.user_metadata?.display_name || '',
+            location: '',
+            reminders: defaultSettings.reminders,
+            preferences: defaultSettings.preferences
+          };
+          await supabase.from('profiles').insert([defaultProfile]);
+          setSettings({
+            ...defaultSettings,
+            profile: {
+              displayName: user.user_metadata?.display_name || '',
+              location: ''
+            }
+          });
+        }
+      } catch (err) {
+        console.error('Error fetching profile from Supabase:', err);
+      } finally {
+        setLoadingProfile(false);
+      }
+    };
+
+    loadProfile();
+  }, []);
+
+  // Debounced Sync with Supabase on settings change
   useEffect(() => {
     saveSettings(settings);
     try {
       window.localStorage.setItem(dashboardEnvironmentViewKey, settings.preferences.environmentView);
     } catch { /* empty */ }
-  }, [settings]);
+
+    if (loadingProfile) return;
+
+    const timer = setTimeout(async () => {
+      try {
+        setSaving(true);
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        await supabase
+          .from('profiles')
+          .upsert({
+            id: user.id,
+            display_name: settings.profile.displayName,
+            location: settings.profile.location,
+            reminders: settings.reminders,
+            preferences: settings.preferences,
+            updated_at: new Date().toISOString()
+          });
+      } catch (err) {
+        console.error('Error saving profile changes to Supabase:', err);
+      } finally {
+        setSaving(false);
+      }
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [settings, loadingProfile]);
 
   const stats = useMemo(() => {
     const total = plants.length;
@@ -211,13 +305,33 @@ export const SettingsPage: React.FC = () => {
     window.location.reload();
   };
 
+  if (loadingProfile) {
+    return (
+      <div className="pt-20 pb-24 lg:pt-8 lg:pb-8 flex flex-col items-center justify-center min-h-[50vh] gap-3">
+        <Loader2 className="animate-spin text-sproutly-primary" size={32} />
+        <p className="text-sm font-semibold text-sproutly-secondary">Loading your preferences...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="pt-20 pb-24 lg:pt-8 lg:pb-8 px-4 lg:px-8 max-w-4xl mx-auto min-h-full space-y-8">
       <header className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-sproutly-primary mb-1">
-            Settings
-          </h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-bold text-sproutly-primary mb-1">
+              Settings
+            </h1>
+            {saving ? (
+              <span className="text-xs font-semibold text-sproutly-secondary flex items-center gap-1 bg-sproutly-bg px-2.5 py-1 rounded-full animate-pulse">
+                <Loader2 className="animate-spin" size={10} /> Syncing...
+              </span>
+            ) : (
+              <span className="text-xs font-semibold text-sproutly-secondary flex items-center gap-1 bg-green-50 text-green-600 border border-green-200 px-2.5 py-1 rounded-full">
+                <Check size={10} /> Saved to cloud
+              </span>
+            )}
+          </div>
           <p className="text-sproutly-secondary font-medium">
             Personalize Sproutly, manage your data, and choose how the app behaves.
           </p>
