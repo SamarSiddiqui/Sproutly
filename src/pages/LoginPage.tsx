@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { AuthLayout } from '../components/PreLogin/AuthLayout';
+import { supabase } from '../utils/supabaseClient';
 
 interface LoginPageProps {
   onLogin: () => void;
@@ -9,10 +10,32 @@ interface LoginPageProps {
 
 export function LoginPage({ onLogin, onNavigate }: LoginPageProps) {
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onLogin();
+    setError('');
+    setIsLoading(true);
+
+    try {
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (signInError) {
+        setError(signInError.message);
+      } else {
+        onLogin(); // Trigger callback if any (no-op now but good for compatibility)
+      }
+    } catch (err: any) {
+      setError(err?.message || 'An unexpected error occurred.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -30,6 +53,12 @@ export function LoginPage({ onLogin, onNavigate }: LoginPageProps) {
         </p>
       </div>
 
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-sm font-semibold text-red-600 text-left">
+          {error}
+        </div>
+      )}
+
       <form className="space-y-5 text-left" onSubmit={handleSubmit}>
         <div>
           <label
@@ -41,9 +70,12 @@ export function LoginPage({ onLogin, onNavigate }: LoginPageProps) {
           <input
             type="email"
             id="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             className="w-full px-4 py-3.5 rounded-xl border border-sproutly-forest/20 bg-white text-sproutly-forest placeholder-sproutly-forest/40 focus:outline-none focus:ring-2 focus:ring-sproutly-sage focus:border-transparent transition-all"
             placeholder="you@example.com"
             required
+            disabled={isLoading}
           />
         </div>
 
@@ -58,15 +90,19 @@ export function LoginPage({ onLogin, onNavigate }: LoginPageProps) {
             <input
               type={showPassword ? 'text' : 'password'}
               id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="w-full px-4 py-3.5 rounded-xl border border-sproutly-forest/20 bg-white text-sproutly-forest placeholder-sproutly-forest/40 focus:outline-none focus:ring-2 focus:ring-sproutly-sage focus:border-transparent transition-all pr-12"
               placeholder="••••••••"
               required
+              disabled={isLoading}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-4 top-1/2 -translate-y-1/2 text-sproutly-forest/40 hover:text-sproutly-forest transition-colors"
               aria-label={showPassword ? 'Hide password' : 'Show password'}
+              disabled={isLoading}
             >
               {showPassword ? (
                 <EyeOff className="w-5 h-5" />
@@ -97,9 +133,17 @@ export function LoginPage({ onLogin, onNavigate }: LoginPageProps) {
 
         <button
           type="submit"
-          className="w-full bg-sproutly-forest text-sproutly-cream py-4 rounded-full text-base font-medium hover:bg-sproutly-forest/90 transition-colors shadow-lg shadow-sproutly-forest/20 mt-4"
+          disabled={isLoading}
+          className="w-full bg-sproutly-forest text-sproutly-cream py-4 rounded-full text-base font-medium hover:bg-sproutly-forest/90 transition-colors shadow-lg shadow-sproutly-forest/20 mt-4 flex items-center justify-center gap-2 disabled:opacity-75 disabled:cursor-not-allowed"
         >
-          Sign in
+          {isLoading ? (
+            <>
+              <Loader2 className="w-5 h-5 animate-spin" />
+              Signing in...
+            </>
+          ) : (
+            'Sign in'
+          )}
         </button>
       </form>
 
