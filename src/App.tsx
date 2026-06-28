@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PlantProvider, usePlants } from './context/PlantContext';
+import { supabase } from './utils/supabaseClient';
 import { BottomNav } from './components/Navigation/BottomNav';
 import { HamburgerMenu } from './components/Navigation/HamburgerMenu';
 import { Sidebar } from './components/Navigation/Sidebar';
@@ -51,7 +52,7 @@ const MainContent: React.FC<MainContentProps> = ({ onLogout }) => {
           <button
             onClick={() => setIsMenuOpen(true)}
             className="p-2 -ml-2 text-sproutly-primary hover:bg-sproutly-secondary/10 rounded-full transition-colors">
-            
+
             <Menu size={24} />
           </button>
           <div className="flex items-center gap-2 text-sproutly-primary">
@@ -83,7 +84,7 @@ const MainContent: React.FC<MainContentProps> = ({ onLogout }) => {
               duration: 0.2
             }}
             className="min-h-full">
-            
+
             {renderTab()}
           </motion.div>
         </AnimatePresence>
@@ -95,7 +96,7 @@ const MainContent: React.FC<MainContentProps> = ({ onLogout }) => {
           isOpen={isMenuOpen}
           onClose={() => setIsMenuOpen(false)}
           onLogout={onLogout} />
-        
+
         <BottomNav />
       </div>
     </div>);
@@ -103,44 +104,57 @@ const MainContent: React.FC<MainContentProps> = ({ onLogout }) => {
 };
 
 export function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    try {
-      return window.localStorage.getItem('sproutly:auth:v1') === 'true';
-    } catch {
-      return false;
-    }
-  });
-
+  const [session, setSession] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [preLoginState, setPreLoginState] = useState<'landing' | 'login' | 'signup'>('landing');
 
-  const handleLogin = () => {
-    try {
-      window.localStorage.setItem('sproutly:auth:v1', 'true');
-    } catch (e) {
-      console.error(e);
-    }
-    setIsLoggedIn(true);
-  };
+  useEffect(() => {
+    // Check active session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setLoading(false);
+    });
 
-  const handleLogout = () => {
+    // Listen to session changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      setLoading(false);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  const handleLogout = async () => {
     try {
-      window.localStorage.removeItem('sproutly:auth:v1');
+      await supabase.auth.signOut();
     } catch (e) {
       console.error(e);
     }
     setPreLoginState('landing');
-    setIsLoggedIn(false);
   };
 
-  if (!isLoggedIn) {
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-sproutly-bg flex flex-col items-center justify-center gap-3">
+        <div className="flex items-center gap-2 text-sproutly-primary animate-pulse">
+          <Leaf className="fill-sproutly-primary animate-bounce" size={32} />
+          <span className="font-bold tracking-tight text-2xl font-serif">Sproutly</span>
+        </div>
+        <p className="text-sm font-semibold text-sproutly-secondary">Tending to your garden...</p>
+      </div>
+    );
+  }
+
+  if (!session) {
     switch (preLoginState) {
       case 'landing':
         return <PreLoginPage onNavigate={setPreLoginState} />;
       case 'login':
-        return <LoginPage onLogin={handleLogin} onNavigate={setPreLoginState} />;
+        return <LoginPage onLogin={() => {}} onNavigate={setPreLoginState} />;
       case 'signup':
-        return <SignupPage onLogin={handleLogin} onNavigate={setPreLoginState} />;
+        return <SignupPage onLogin={() => {}} onNavigate={setPreLoginState} />;
       default:
         return <PreLoginPage onNavigate={setPreLoginState} />;
     }

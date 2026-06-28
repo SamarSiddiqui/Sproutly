@@ -22,3 +22,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Future roadmaps and ideas documentation
+docs/
+
+# Environment variables
+.env
+.env.*
+
