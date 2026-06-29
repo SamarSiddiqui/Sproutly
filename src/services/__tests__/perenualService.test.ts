@@ -92,6 +92,9 @@ describe('perenualService - API methods', () => {
 
   test('searchSpecies fetches and maps query results successfully (standard "data" envelope)', async () => {
     const mockResponse = {
+      current_page: 1,
+      last_page: 1,
+      total: 1,
       data: [
         {
           id: 1,
@@ -109,10 +112,13 @@ describe('perenualService - API methods', () => {
 
     const results = await perenualService.searchSpecies('fern');
     expect(global.fetch).toHaveBeenCalledWith(
-      expect.stringContaining('https://perenual.com/api/species-list?key=sk-qyct6a40bc826256918455&q=fern')
+      expect.stringContaining('https://perenual.com/api/species-list?key=sk-qyct6a40bc826256918455&q=fern&page=1')
     );
-    expect(results).toHaveLength(1);
-    expect(results[0]).toEqual({
+    expect(results.data).toHaveLength(1);
+    expect(results.currentPage).toBe(1);
+    expect(results.lastPage).toBe(1);
+    expect(results.total).toBe(1);
+    expect(results.data[0]).toEqual({
       id: 1,
       common_name: 'Fern',
       scientific_name: 'Polypodiopsida',
@@ -122,6 +128,9 @@ describe('perenualService - API methods', () => {
 
   test('searchSpecies fetches and maps query results successfully (custom "results" envelope)', async () => {
     const mockResponse = {
+      current_page: 1,
+      last_page: 1,
+      total: 1,
       results: [
         {
           id: 2963,
@@ -138,8 +147,11 @@ describe('perenualService - API methods', () => {
     });
 
     const results = await perenualService.searchSpecies('Ficus');
-    expect(results).toHaveLength(1);
-    expect(results[0]).toEqual({
+    expect(results.data).toHaveLength(1);
+    expect(results.currentPage).toBe(1);
+    expect(results.lastPage).toBe(1);
+    expect(results.total).toBe(1);
+    expect(results.data[0]).toEqual({
       id: 2963,
       common_name: 'Ficus lyrata',
       scientific_name: 'Ficus lyrata',
@@ -147,24 +159,27 @@ describe('perenualService - API methods', () => {
     });
   });
 
-  test('searchSpecies returns empty array if response is not ok', async () => {
+  test('searchSpecies returns empty structure if response is not ok', async () => {
     (global.fetch as any).mockResolvedValue({
       ok: false,
       status: 500
     });
 
     const results = await perenualService.searchSpecies('test');
-    expect(results).toEqual([]);
+    expect(results).toEqual({ data: [], currentPage: 1, lastPage: 1, total: 0 });
   });
 
-  test('searchSpecies returns empty array for blank queries without making API call', async () => {
+  test('searchSpecies returns empty structure for blank queries without making API call', async () => {
     const results = await perenualService.searchSpecies('   ');
     expect(global.fetch).not.toHaveBeenCalled();
-    expect(results).toEqual([]);
+    expect(results).toEqual({ data: [], currentPage: 1, lastPage: 1, total: 0 });
   });
 
   test('getFeaturedSpecies fetches and normalizes default species listing', async () => {
     const mockResponse = {
+      current_page: 1,
+      last_page: 1,
+      total: 1,
       data: [
         {
           id: 5,
@@ -182,10 +197,13 @@ describe('perenualService - API methods', () => {
 
     const results = await perenualService.getFeaturedSpecies();
     expect(global.fetch).toHaveBeenCalledWith(
-      'https://perenual.com/api/species-list?key=sk-qyct6a40bc826256918455'
+      'https://perenual.com/api/species-list?key=sk-qyct6a40bc826256918455&page=1'
     );
-    expect(results).toHaveLength(1);
-    expect(results[0].common_name).toBe('Rose');
-    expect(results[0].scientific_name).toBe('Rosa');
+    expect(results.data).toHaveLength(1);
+    expect(results.data[0].common_name).toBe('Rose');
+    expect(results.data[0].scientific_name).toBe('Rosa');
+    expect(results.currentPage).toBe(1);
+    expect(results.lastPage).toBe(1);
+    expect(results.total).toBe(1);
   });
 });
