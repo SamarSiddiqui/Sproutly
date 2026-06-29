@@ -5,6 +5,13 @@ export interface NormalizedPlantSpecies {
   image_url: string;
 }
 
+export interface PaginatedSpeciesResponse {
+  data: NormalizedPlantSpecies[];
+  currentPage: number;
+  lastPage: number;
+  total: number;
+}
+
 const API_KEY = import.meta.env.VITE_PERENUAL_API_KEY || 'sk-qyct6a40bc826256918455';
 const BASE_URL = 'https://perenual.com/api/species-list';
 
@@ -65,14 +72,15 @@ export const perenualService = {
   /**
    * Search for plant species in the Perenual database
    * @param query Search query keyword
+   * @param page Page number to fetch (default: 1)
    */
-  searchSpecies: async (query: string): Promise<NormalizedPlantSpecies[]> => {
+  searchSpecies: async (query: string, page: number = 1): Promise<PaginatedSpeciesResponse> => {
     if (!query || query.trim() === '') {
-      return [];
+      return { data: [], currentPage: 1, lastPage: 1, total: 0 };
     }
 
     try {
-      const url = `${BASE_URL}?key=${API_KEY}&q=${encodeURIComponent(query)}`;
+      const url = `${BASE_URL}?key=${API_KEY}&q=${encodeURIComponent(query)}&page=${page}`;
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`Perenual API request failed with status: ${response.status}`);
@@ -82,23 +90,27 @@ export const perenualService = {
       
       // Support standard API format (`data`) and search formats matching (`results`)
       const list = json.data || json.results;
-      if (!Array.isArray(list)) {
-        return [];
-      }
+      const data = Array.isArray(list) ? list.map(normalizeSpecies) : [];
 
-      return list.map(normalizeSpecies);
+      return {
+        data,
+        currentPage: json.current_page || 1,
+        lastPage: json.last_page || 1,
+        total: json.total || data.length
+      };
     } catch (error) {
       console.error('Error fetching plant search results:', error);
-      return [];
+      return { data: [], currentPage: 1, lastPage: 1, total: 0 };
     }
   },
 
   /**
    * Get default/featured species listings
+   * @param page Page number to fetch (default: 1)
    */
-  getFeaturedSpecies: async (): Promise<NormalizedPlantSpecies[]> => {
+  getFeaturedSpecies: async (page: number = 1): Promise<PaginatedSpeciesResponse> => {
     try {
-      const url = `${BASE_URL}?key=${API_KEY}`;
+      const url = `${BASE_URL}?key=${API_KEY}&page=${page}`;
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`Perenual API request failed with status: ${response.status}`);
@@ -106,14 +118,17 @@ export const perenualService = {
 
       const json = await response.json();
       const list = json.data || json.results;
-      if (!Array.isArray(list)) {
-        return [];
-      }
+      const data = Array.isArray(list) ? list.map(normalizeSpecies) : [];
 
-      return list.map(normalizeSpecies);
+      return {
+        data,
+        currentPage: json.current_page || 1,
+        lastPage: json.last_page || 1,
+        total: json.total || data.length
+      };
     } catch (error) {
       console.error('Error fetching featured plant species:', error);
-      return [];
+      return { data: [], currentPage: 1, lastPage: 1, total: 0 };
     }
   }
 };

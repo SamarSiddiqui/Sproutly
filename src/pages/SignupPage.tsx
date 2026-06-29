@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { AuthLayout } from '../components/PreLogin/AuthLayout';
+import { supabase } from '../utils/supabaseClient';
 
 interface SignupPageProps {
   onLogin: () => void;
@@ -10,6 +11,10 @@ interface SignupPageProps {
 export function SignupPage({ onLogin, onNavigate }: SignupPageProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   // Simple password strength calculation
   const getStrength = () => {
@@ -20,9 +25,38 @@ export function SignupPage({ onLogin, onNavigate }: SignupPageProps) {
   };
   const strength = getStrength();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onLogin();
+    setError('');
+    setIsLoading(true);
+
+    try {
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            display_name: fullName
+          }
+        }
+      });
+
+      if (signUpError) {
+        setError(signUpError.message);
+      } else {
+        // If email confirmation is enabled, notify.
+        // If not, Supabase will log them in immediately.
+        if (data.session === null && data.user) {
+          setError('Success! Please check your email inbox to confirm your registration.');
+        } else {
+          onLogin();
+        }
+      }
+    } catch (err: any) {
+      setError(err?.message || 'An unexpected error occurred during signup.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -40,6 +74,16 @@ export function SignupPage({ onLogin, onNavigate }: SignupPageProps) {
         </p>
       </div>
 
+      {error && (
+        <div className={`mb-6 p-4 rounded-xl text-sm font-semibold text-left border ${
+          error.startsWith('Success!') 
+            ? 'bg-green-50 border-green-200 text-green-600' 
+            : 'bg-red-50 border-red-200 text-red-600'
+        }`}>
+          {error}
+        </div>
+      )}
+
       <form className="space-y-4 text-left" onSubmit={handleSubmit}>
         <div>
           <label
@@ -51,9 +95,12 @@ export function SignupPage({ onLogin, onNavigate }: SignupPageProps) {
           <input
             type="text"
             id="name"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
             className="w-full px-4 py-3.5 rounded-xl border border-sproutly-forest/20 bg-white text-sproutly-forest placeholder-sproutly-forest/40 focus:outline-none focus:ring-2 focus:ring-sproutly-sage focus:border-transparent transition-all"
             placeholder="Jane Doe"
             required
+            disabled={isLoading}
           />
         </div>
 
@@ -67,9 +114,12 @@ export function SignupPage({ onLogin, onNavigate }: SignupPageProps) {
           <input
             type="email"
             id="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             className="w-full px-4 py-3.5 rounded-xl border border-sproutly-forest/20 bg-white text-sproutly-forest placeholder-sproutly-forest/40 focus:outline-none focus:ring-2 focus:ring-sproutly-sage focus:border-transparent transition-all"
             placeholder="you@example.com"
             required
+            disabled={isLoading}
           />
         </div>
 
@@ -89,12 +139,14 @@ export function SignupPage({ onLogin, onNavigate }: SignupPageProps) {
               className="w-full px-4 py-3.5 rounded-xl border border-sproutly-forest/20 bg-white text-sproutly-forest placeholder-sproutly-forest/40 focus:outline-none focus:ring-2 focus:ring-sproutly-sage focus:border-transparent transition-all pr-12"
               placeholder="••••••••"
               required
+              disabled={isLoading}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-4 top-1/2 -translate-y-1/2 text-sproutly-forest/40 hover:text-sproutly-forest transition-colors"
               aria-label={showPassword ? 'Hide password' : 'Show password'}
+              disabled={isLoading}
             >
               {showPassword ? (
                 <EyeOff className="w-5 h-5" />
@@ -103,58 +155,46 @@ export function SignupPage({ onLogin, onNavigate }: SignupPageProps) {
               )}
             </button>
           </div>
-
-          {/* Password Strength Indicator */}
-          <div className="flex gap-1 mt-2">
-            <div
-              className={`h-1 flex-1 rounded-full transition-colors duration-300 ${
-                strength >= 1 ? 'bg-sproutly-sage' : 'bg-sproutly-forest/10'
-              }`}
-            ></div>
-            <div
-              className={`h-1 flex-1 rounded-full transition-colors duration-300 ${
-                strength >= 2 ? 'bg-sproutly-sage' : 'bg-sproutly-forest/10'
-              }`}
-            ></div>
-            <div
-              className={`h-1 flex-1 rounded-full transition-colors duration-300 ${
-                strength >= 3 ? 'bg-sproutly-sage' : 'bg-sproutly-forest/10'
-              }`}
-            ></div>
-          </div>
-        </div>
-
-        <div className="pt-2">
-          <label className="flex items-start gap-3 cursor-pointer group">
-            <input
-              type="checkbox"
-              className="mt-1 w-4 h-4 rounded border-sproutly-forest/20 text-sproutly-sage focus:ring-sproutly-sage cursor-pointer"
-              required
-            />
-            <span className="text-sm text-sproutly-forest/70 group-hover:text-sproutly-forest transition-colors leading-relaxed">
-              I agree to the{' '}
-              <a
-                href="#"
-                className="font-medium hover:text-sproutly-sage underline underline-offset-2"
-              >
-                Terms of Service
-              </a>{' '}
-              and{' '}
-              <a
-                href="#"
-                className="font-medium hover:text-sproutly-sage underline underline-offset-2"
-              >
-                Privacy Policy
-              </a>
-            </span>
-          </label>
+          {password.length > 0 && (
+            <div className="mt-2.5">
+              <div className="flex gap-1.5 h-1">
+                {[...Array(3)].map((_, i) => (
+                  <div
+                    key={i}
+                    className={`flex-grow rounded-full transition-colors ${
+                      i < strength
+                        ? strength === 1
+                          ? 'bg-red-500'
+                          : strength === 2
+                          ? 'bg-yellow-500'
+                          : 'bg-green-600'
+                        : 'bg-sproutly-forest/10'
+                    }`}
+                  />
+                ))}
+              </div>
+              <span className="text-[11px] text-sproutly-forest/50 mt-1.5 block">
+                {strength === 1 && 'Weak password'}
+                {strength === 2 && 'Good password'}
+                {strength === 3 && 'Strong green-thumb password!'}
+              </span>
+            </div>
+          )}
         </div>
 
         <button
           type="submit"
-          className="w-full bg-sproutly-forest text-sproutly-cream py-4 rounded-full text-base font-medium hover:bg-sproutly-forest/90 transition-colors shadow-lg shadow-sproutly-forest/20 mt-4"
+          disabled={isLoading}
+          className="w-full bg-sproutly-forest text-sproutly-cream py-4 rounded-full text-base font-medium hover:bg-sproutly-forest/90 transition-colors shadow-lg shadow-sproutly-forest/20 mt-4 flex items-center justify-center gap-2 disabled:opacity-75 disabled:cursor-not-allowed"
         >
-          Create account
+          {isLoading ? (
+            <>
+              <Loader2 className="w-5 h-5 animate-spin" />
+              Creating account...
+            </>
+          ) : (
+            'Create account'
+          )}
         </button>
       </form>
 
@@ -189,13 +229,13 @@ export function SignupPage({ onLogin, onNavigate }: SignupPageProps) {
         </button>
       </div>
 
-      <p className="text-center mt-8 text-sm text-sproutly-forest/70">
+      <p className="text-center mt-6 text-sm text-sproutly-forest/70">
         Already have an account?{' '}
         <button
           onClick={() => onNavigate('login')}
           className="font-semibold text-sproutly-forest hover:text-sproutly-sage transition-colors underline underline-offset-4"
         >
-          Sign in →
+          Sign in instead
         </button>
       </p>
     </AuthLayout>
