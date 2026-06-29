@@ -15,7 +15,9 @@ import {
   Loader2,
   Database,
   ArrowLeft,
-  PenSquare
+  PenSquare,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { perenualService, NormalizedPlantSpecies } from '../services/perenualService';
@@ -272,6 +274,9 @@ const PlantFormModal = ({ plant, onClose, onSave }: any) => {
   const [step, setStep] = useState<'select' | 'customize'>(plant ? 'customize' : 'select');
   const [dbSearchQuery, setDbSearchQuery] = useState('');
   const [dbResults, setDbResults] = useState<NormalizedPlantSpecies[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [lastPage, setLastPage] = useState(1);
+  const [totalResults, setTotalResults] = useState(0);
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState('');
 
@@ -293,14 +298,17 @@ const PlantFormModal = ({ plant, onClose, onSave }: any) => {
     }
   );
 
-  // Load featured species on mount or if query is cleared
+  // Load featured species on mount
   useEffect(() => {
     if (searchMode === 'search' && step === 'select' && dbSearchQuery.trim() === '') {
       setIsSearching(true);
       setSearchError('');
-      perenualService.getFeaturedSpecies()
-        .then((results) => {
-          setDbResults(results);
+      setCurrentPage(1);
+      perenualService.getFeaturedSpecies(1)
+        .then((res) => {
+          setDbResults(res.data);
+          setLastPage(res.lastPage);
+          setTotalResults(res.total);
         })
         .catch((err) => {
           console.error(err);
@@ -312,16 +320,21 @@ const PlantFormModal = ({ plant, onClose, onSave }: any) => {
     }
   }, [searchMode, step]);
 
-  const handleDbSearch = async () => {
+  const handleDbSearch = async (page: number = 1) => {
     setIsSearching(true);
     setSearchError('');
+    setCurrentPage(page);
     try {
       if (dbSearchQuery.trim() === '') {
-        const results = await perenualService.getFeaturedSpecies();
-        setDbResults(results);
+        const res = await perenualService.getFeaturedSpecies(page);
+        setDbResults(res.data);
+        setLastPage(res.lastPage);
+        setTotalResults(res.total);
       } else {
-        const results = await perenualService.searchSpecies(dbSearchQuery);
-        setDbResults(results);
+        const res = await perenualService.searchSpecies(dbSearchQuery, page);
+        setDbResults(res.data);
+        setLastPage(res.lastPage);
+        setTotalResults(res.total);
       }
     } catch (err) {
       console.error(err);
@@ -331,9 +344,15 @@ const PlantFormModal = ({ plant, onClose, onSave }: any) => {
     }
   };
 
+  const handlePageChange = (pageNumber: number) => {
+    if (pageNumber >= 1 && pageNumber <= lastPage) {
+      handleDbSearch(pageNumber);
+    }
+  };
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
-      handleDbSearch();
+      handleDbSearch(1);
     }
   };
 
@@ -458,10 +477,18 @@ const PlantFormModal = ({ plant, onClose, onSave }: any) => {
                   No plant species found. Try searching for something else or add a custom plant!
                 </div>
               ) : (
-                <div className="space-y-3">
-                  <h3 className="text-xs font-bold text-sproutly-secondary uppercase tracking-wider">
-                    {dbSearchQuery ? 'Search Results' : 'Suggested Plants (Perenual API)'}
-                  </h3>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-xs font-bold text-sproutly-secondary uppercase tracking-wider">
+                      {dbSearchQuery ? 'Search Results' : 'Suggested Plants (Perenual API)'}
+                    </h3>
+                    {totalResults > 0 && (
+                      <span className="text-xs font-semibold text-sproutly-secondary bg-white px-2 py-1 rounded-lg border border-sproutly-secondary/10">
+                        {totalResults} items found
+                      </span>
+                    )}
+                  </div>
+                  
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {dbResults.map((dbPlant) => (
                       <div
@@ -485,6 +512,60 @@ const PlantFormModal = ({ plant, onClose, onSave }: any) => {
                       </div>
                     ))}
                   </div>
+
+                  {/* Pagination Controller */}
+                  {lastPage > 1 && (
+                    <div className="flex items-center justify-center gap-1.5 border-t border-sproutly-secondary/10 pt-4 mt-6">
+                      <button
+                        type="button"
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        disabled={currentPage === 1 || isSearching}
+                        className="p-2.5 rounded-xl border border-sproutly-secondary/20 text-sproutly-secondary hover:text-sproutly-primary hover:bg-white disabled:opacity-35 disabled:cursor-not-allowed transition-all"
+                        title="Previous Page"
+                      >
+                        <ChevronLeft size={15} />
+                      </button>
+                      
+                      {/* Page Number Tabs */}
+                      {Array.from({ length: Math.min(5, lastPage) }, (_, i) => {
+                        let pageNum = i + 1;
+                        if (currentPage > 3) {
+                          pageNum = currentPage - 3 + i;
+                        }
+                        if (pageNum + (4 - i) > lastPage) {
+                          pageNum = lastPage - 4 + i;
+                        }
+                        if (pageNum < 1) pageNum = i + 1;
+                        if (pageNum > lastPage) return null;
+
+                        return (
+                          <button
+                            key={pageNum}
+                            type="button"
+                            onClick={() => handlePageChange(pageNum)}
+                            disabled={isSearching}
+                            className={`w-9 h-9 rounded-xl font-bold text-xs transition-all ${
+                              currentPage === pageNum
+                                ? 'bg-sproutly-primary text-white shadow-sm'
+                                : 'border border-sproutly-secondary/20 text-sproutly-secondary hover:text-sproutly-primary hover:bg-white'
+                            }`}
+                          >
+                            {pageNum}
+                          </button>
+                        );
+                      })}
+
+                      <button
+                        type="button"
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        disabled={currentPage === lastPage || isSearching}
+                        className="p-2.5 rounded-xl border border-sproutly-secondary/20 text-sproutly-secondary hover:text-sproutly-primary hover:bg-white disabled:opacity-35 disabled:cursor-not-allowed transition-all"
+                        title="Next Page"
+                      >
+                        <ChevronRight size={15} />
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
