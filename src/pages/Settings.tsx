@@ -19,6 +19,8 @@ type SproutlySettings = {
     environmentView: EnvironmentView;
     aiTone: 'gentle' | 'direct';
     reduceMotion: boolean;
+    latitude?: number;
+    longitude?: number;
   };
 };
 
@@ -62,7 +64,9 @@ const loadSettings = (): SproutlySettings => {
       preferences: {
         environmentView: parsed.preferences?.environmentView === 'bars' ? 'bars' : 'chart',
         aiTone: parsed.preferences?.aiTone === 'direct' ? 'direct' : 'gentle',
-        reduceMotion: parsed.preferences?.reduceMotion ?? defaultSettings.preferences.reduceMotion
+        reduceMotion: parsed.preferences?.reduceMotion ?? defaultSettings.preferences.reduceMotion,
+        latitude: parsed.preferences?.latitude,
+        longitude: parsed.preferences?.longitude
       }
     };
   } catch {
@@ -109,6 +113,42 @@ export const SettingsPage: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [gpsLoading, setGpsLoading] = useState(false);
+  const [gpsError, setGpsError] = useState('');
+
+  const handleGetGPS = () => {
+    if (!navigator.geolocation) {
+      setGpsError('Geolocation is not supported by your browser.');
+      return;
+    }
+    setGpsLoading(true);
+    setGpsError('');
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setSettings((prev) => ({
+          ...prev,
+          profile: {
+            ...prev.profile,
+            location: 'GPS Location'
+          },
+          preferences: {
+            ...prev.preferences,
+            latitude,
+            longitude
+          }
+        }));
+        setGpsLoading(false);
+      },
+      (error) => {
+        console.error('GPS error:', error);
+        setGpsError('Failed to get location. Check browser permission.');
+        setGpsLoading(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
+
   const [settings, setSettings] = useState<SproutlySettings>(() => {
     const s = loadSettings();
     if (typeof window === 'undefined') return s;
@@ -157,7 +197,9 @@ export const SettingsPage: React.FC = () => {
             preferences: {
               environmentView: data.preferences?.environmentView ?? defaultSettings.preferences.environmentView,
               aiTone: data.preferences?.aiTone ?? defaultSettings.preferences.aiTone,
-              reduceMotion: data.preferences?.reduceMotion ?? defaultSettings.preferences.reduceMotion
+              reduceMotion: data.preferences?.reduceMotion ?? defaultSettings.preferences.reduceMotion,
+              latitude: data.preferences?.latitude,
+              longitude: data.preferences?.longitude
             }
           });
         } else {
@@ -375,19 +417,43 @@ export const SettingsPage: React.FC = () => {
             <label className="block text-sm font-bold text-sproutly-primary mb-2">
               Location
             </label>
+            <div className="flex gap-2">
             <input
               value={settings.profile.location}
               onChange={(e) =>
-                setSettings((prev) => ({
-                  ...prev,
-                  profile: {
-                    ...prev.profile,
-                    location: e.target.value
+                setSettings((prev) => {
+                  const next = {
+                    ...prev,
+                    profile: {
+                      ...prev.profile,
+                      location: e.target.value
+                    }
+                  };
+                  if (next.preferences.latitude || next.preferences.longitude) {
+                    next.preferences = {
+                      ...next.preferences,
+                      latitude: undefined,
+                      longitude: undefined
+                    };
                   }
-                }))
+                  return next;
+                })
               }
               placeholder="e.g., Mumbai"
-              className="w-full bg-sproutly-bg rounded-xl py-3 px-4 font-medium text-sproutly-primary focus:outline-none focus:ring-2 focus:ring-sproutly-light" />
+              className="flex-1 bg-sproutly-bg rounded-xl py-3 px-4 font-medium text-sproutly-primary focus:outline-none focus:ring-2 focus:ring-sproutly-light" />
+            <button
+              type="button"
+              onClick={handleGetGPS}
+              disabled={gpsLoading}
+              className="bg-sproutly-primary hover:bg-sproutly-secondary disabled:opacity-50 text-white px-4 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 shrink-0 font-semibold"
+            >
+              <span>📍</span>
+              <span>{gpsLoading ? 'Locating...' : 'Use GPS'}</span>
+            </button>
+          </div>
+          {gpsError && (
+            <p className="text-xs text-red-500 font-bold mt-1">{gpsError}</p>
+          )}
           </div>
         </div>
       </section>
