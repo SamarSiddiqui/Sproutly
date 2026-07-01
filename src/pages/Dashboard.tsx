@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { usePlants } from '../context/PlantContext';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { supabase } from '../utils/supabaseClient';
 import {
   Droplets,
   Scissors,
@@ -15,6 +16,67 @@ import {
 import { motion } from 'framer-motion';
 export const Dashboard: React.FC = () => {
   const { plants, setActiveTab, setSelectedPlantId, weather, weatherLoading, refreshWeather } = usePlants();
+  const [gpsLoading, setGpsLoading] = useState(false);
+  const [gpsError, setGpsError] = useState('');
+
+  const handleDashboardGPS = async () => {
+    if (!navigator.geolocation) {
+      setGpsError('Geolocation is not supported by your browser.');
+      return;
+    }
+    setGpsLoading(true);
+    setGpsError('');
+    
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user) {
+            // Fetch existing profile to preserve other values
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', user.id)
+              .single();
+              
+            const defaultPrefs = { environmentView: 'chart', aiTone: 'gentle', reduceMotion: false };
+            const existingPrefs = profile?.preferences || defaultPrefs;
+            
+            await supabase
+              .from('profiles')
+              .upsert({
+                id: user.id,
+                display_name: profile?.display_name || user.user_metadata?.display_name || '',
+                location: 'GPS Location',
+                reminders: profile?.reminders || {},
+                preferences: {
+                  ...existingPrefs,
+                  latitude,
+                  longitude
+                },
+                updated_at: new Date().toISOString()
+              });
+              
+            // Refresh weather context in real-time
+            await refreshWeather();
+          }
+        } catch (err) {
+          console.error(err);
+          setGpsError('Failed to save GPS location.');
+        } finally {
+          setGpsLoading(false);
+        }
+      },
+      (error) => {
+        console.error('GPS error:', error);
+        setGpsError('Failed to get location. Check browser permission.');
+        setGpsLoading(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
+
   const [environmentView, setEnvironmentView] = useState<'chart' | 'bars'>(() => {
     if (typeof window === 'undefined') return 'chart';
     const saved = window.localStorage.getItem('sproutly:dashboard:environmentView');
@@ -112,11 +174,22 @@ export const Dashboard: React.FC = () => {
   });
   return (
     <div className="pt-20 pb-24 lg:pt-8 lg:pb-8 px-4 lg:px-8 max-w-7xl mx-auto space-y-8">
-      <header>
-        <h1 className="text-3xl font-bold text-sproutly-primary mb-1">
-          Command Center
-        </h1>
-        <p className="text-sproutly-secondary">{today}</p>
+      <header className="flex justify-between items-start gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-sproutly-primary mb-1">
+            Command Center
+          </h1>
+          <p className="text-sproutly-secondary">{today}</p>
+        </div>
+        {weather && (
+          <div className="flex items-center gap-2.5 bg-white px-4 py-2.5 rounded-2xl shadow-sm border border-sproutly-secondary/5 select-none shrink-0" title={`${weather.cityName}: ${weather.text}`}>
+            <span className="text-2xl filter drop-shadow-sm select-none">{weather.icon}</span>
+            <div className="text-right">
+              <div className="text-sm font-extrabold text-sproutly-primary leading-tight font-semibold">{weather.temp}°C</div>
+              <div className="text-[10px] font-bold text-sproutly-secondary uppercase tracking-wider">{weather.text}</div>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Weather Widget Section */}
@@ -180,16 +253,31 @@ export const Dashboard: React.FC = () => {
             <span className="text-2xl select-none">🌦️</span>
             <div>
               <h4 className="font-bold text-sproutly-primary text-sm">Enable weather-based smart watering</h4>
-              <p className="text-xs text-sproutly-secondary font-medium">Add your city location under Settings to pause watering alerts on rainy days.</p>
+              <p className="text-xs text-sproutly-secondary font-medium">Use your real-time GPS location or set your city manually in Settings.</p>
+              {gpsError && (
+                <p className="text-xs text-red-500 font-bold mt-1">{gpsError}</p>
+              )}
             </div>
           </div>
-          <button
-            type="button"
-            onClick={() => setActiveTab('settings')}
-            className="bg-white hover:bg-sproutly-bg text-sproutly-primary border border-sproutly-secondary/20 px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm shrink-0"
-          >
-            Set Location
-          </button>
+          <div className="flex gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={handleDashboardGPS}
+              disabled={gpsLoading}
+              className="bg-sproutly-primary hover:bg-sproutly-secondary disabled:opacity-50 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 shrink-0 font-semibold"
+            >
+              <span>📍</span>
+              <span>{gpsLoading ? 'Locating...' : 'Use GPS'}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('settings')}
+              disabled={gpsLoading}
+              className="bg-white hover:bg-sproutly-bg text-sproutly-primary border border-sproutly-secondary/20 px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm shrink-0 font-semibold"
+            >
+              Set Manually
+            </button>
+          </div>
         </div>
       )}
 

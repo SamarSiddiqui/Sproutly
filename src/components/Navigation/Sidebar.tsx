@@ -17,40 +17,49 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
-  const { activeTab, setActiveTab, plants } = usePlants();
+  const { activeTab, setActiveTab, plants, weather } = usePlants();
   const menuItems = [
-  {
-    id: 'dashboard',
-    icon: LayoutDashboard,
-    label: 'Command Center'
-  },
-  {
-    id: 'collection',
-    icon: Leaf,
-    label: 'My Collection',
-    badge: plants.length
-  },
-  {
-    id: 'care',
-    icon: Droplets,
-    label: 'Care Cycle'
-  },
-  {
-    id: 'knowledge',
-    icon: BookOpen,
-    label: 'Knowledge Hub'
-  },
-  {
-    id: 'ai',
-    icon: Sparkles,
-    label: 'Sproutly AI'
-  }];
+    {
+      id: 'dashboard',
+      icon: LayoutDashboard,
+      label: 'Command Center'
+    },
+    {
+      id: 'collection',
+      icon: Leaf,
+      label: 'My Collection',
+      badge: plants.length
+    },
+    {
+      id: 'care',
+      icon: Droplets,
+      label: 'Care Cycle'
+    },
+    {
+      id: 'knowledge',
+      icon: BookOpen,
+      label: 'Knowledge Hub'
+    },
+    {
+      id: 'ai',
+      icon: Sparkles,
+      label: 'Sproutly AI'
+    }
+  ];
 
   return (
     <div className="hidden lg:flex flex-col w-64 fixed top-0 left-0 bottom-0 bg-white border-r border-sproutly-secondary/10 z-40">
-      <div className="p-6 flex items-center gap-2 text-sproutly-primary mb-6">
-        <Leaf className="fill-sproutly-primary" size={28} />
-        <span className="text-2xl font-bold tracking-tight">Sproutly</span>
+      <div className="p-6 flex items-center justify-between text-sproutly-primary mb-6 border-b border-sproutly-secondary/5 pb-5">
+        <div className="flex items-center gap-2">
+          <Leaf className="fill-sproutly-primary" size={28} />
+          <span className="text-2xl font-bold tracking-tight">Sproutly</span>
+        </div>
+        {weather && (
+          <span className="flex items-center gap-1 bg-sproutly-bg px-2.5 py-1.5 rounded-xl border border-sproutly-secondary/10 text-xs font-bold select-none" title={`${weather.cityName}: ${weather.text}`}>
+            <span>{weather.icon}</span>
+            <span>{weather.temp}°</span>
+          </span>
+        )}
       </div>
 
       <nav className="flex-1 px-4 space-y-2">

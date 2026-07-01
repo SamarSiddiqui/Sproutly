@@ -21,7 +21,7 @@ interface MainContentProps {
 }
 
 const MainContent: React.FC<MainContentProps> = ({ onLogout }) => {
-  const { activeTab } = usePlants();
+  const { activeTab, weather, weatherLoading } = usePlants();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const renderTab = () => {
     switch (activeTab) {
@@ -59,7 +59,18 @@ const MainContent: React.FC<MainContentProps> = ({ onLogout }) => {
             <Leaf className="fill-sproutly-primary" size={20} />
             <span className="font-bold tracking-tight text-lg">Sproutly</span>
           </div>
-          <div className="w-10" /> {/* Spacer for centering */}
+          <div className="flex items-center justify-end gap-1 text-xs font-bold text-sproutly-primary shrink-0 select-none">
+            {weatherLoading ? (
+              <div className="w-5 h-5 rounded-full border-2 border-sproutly-primary/30 border-t-sproutly-primary animate-spin" />
+            ) : weather ? (
+              <span className="flex items-center gap-1 bg-white/60 px-2.5 py-1 rounded-xl border border-sproutly-secondary/10" title={weather.text}>
+                <span>{weather.icon}</span>
+                <span>{weather.temp}°</span>
+              </span>
+            ) : (
+              <div className="w-10" />
+            )}
+          </div>
         </div>
       </div>
 
