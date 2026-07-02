@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { usePlants } from '../context/PlantContext';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { supabase } from '../utils/supabaseClient';
 import {
   Droplets,
   Scissors,
@@ -14,7 +15,68 @@ import {
 'lucide-react';
 import { motion } from 'framer-motion';
 export const Dashboard: React.FC = () => {
-  const { plants, setActiveTab, setSelectedPlantId } = usePlants();
+  const { plants, setActiveTab, setSelectedPlantId, weather, weatherLoading, refreshWeather } = usePlants();
+  const [gpsLoading, setGpsLoading] = useState(false);
+  const [gpsError, setGpsError] = useState('');
+
+  const handleDashboardGPS = async () => {
+    if (!navigator.geolocation) {
+      setGpsError('Geolocation is not supported by your browser.');
+      return;
+    }
+    setGpsLoading(true);
+    setGpsError('');
+    
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user) {
+            // Fetch existing profile to preserve other values
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', user.id)
+              .single();
+              
+            const defaultPrefs = { environmentView: 'chart', aiTone: 'gentle', reduceMotion: false };
+            const existingPrefs = profile?.preferences || defaultPrefs;
+            
+            await supabase
+              .from('profiles')
+              .upsert({
+                id: user.id,
+                display_name: profile?.display_name || user.user_metadata?.display_name || '',
+                location: 'GPS Location',
+                reminders: profile?.reminders || {},
+                preferences: {
+                  ...existingPrefs,
+                  latitude,
+                  longitude
+                },
+                updated_at: new Date().toISOString()
+              });
+              
+            // Refresh weather context in real-time
+            await refreshWeather();
+          }
+        } catch (err) {
+          console.error(err);
+          setGpsError('Failed to save GPS location.');
+        } finally {
+          setGpsLoading(false);
+        }
+      },
+      (error) => {
+        console.error('GPS error:', error);
+        setGpsError('Failed to get location. Check browser permission.');
+        setGpsLoading(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
+
   const [environmentView, setEnvironmentView] = useState<'chart' | 'bars'>(() => {
     if (typeof window === 'undefined') return 'chart';
     const saved = window.localStorage.getItem('sproutly:dashboard:environmentView');
@@ -61,39 +123,45 @@ export const Dashboard: React.FC = () => {
     };
   }, [plants]);
   const alerts = [
-  ...plants.
-  filter((p) => p.healthStatus === 'needs-water').
-  map((p) => ({
-    id: p.id,
-    type: 'water',
-    message: `${p.name} needs water`,
-    urgency: 'high',
-    icon: Droplets,
-    color: 'text-sproutly-urgent',
-    bg: 'bg-sproutly-urgent/10'
-  })),
-  ...plants.
-  filter((p) => p.healthStatus === 'needs-pruning').
-  map((p) => ({
-    id: p.id,
-    type: 'prune',
-    message: `${p.name} needs pruning`,
-    urgency: 'medium',
-    icon: Scissors,
-    color: 'text-sproutly-warning',
-    bg: 'bg-sproutly-warning/10'
-  })),
-  ...plants.
-  filter((p) => p.healthStatus === 'needs-fertilizer').
-  map((p) => ({
-    id: p.id,
-    type: 'fertilizer',
-    message: `${p.name} needs fertilizer`,
-    urgency: 'medium',
-    icon: FlaskConical,
-    color: 'text-sproutly-warning',
-    bg: 'bg-sproutly-warning/10'
-  }))];
+    ...plants.
+    filter((p) => p.healthStatus === 'needs-water').
+    map((p) => {
+      const isRainDelay = weather && weather.rainProbability > 50;
+      return {
+        id: p.id,
+        type: 'water',
+        message: isRainDelay 
+          ? `${p.name} needs water (Skip: Rain Forecast)` 
+          : `${p.name} needs water`,
+        urgency: isRainDelay ? 'low' : 'high',
+        icon: Droplets,
+        color: isRainDelay ? 'text-green-600' : 'text-sproutly-urgent',
+        bg: isRainDelay ? 'bg-green-50' : 'bg-sproutly-urgent/10'
+      };
+    }),
+    ...plants.
+    filter((p) => p.healthStatus === 'needs-pruning').
+    map((p) => ({
+      id: p.id,
+      type: 'prune',
+      message: `${p.name} needs pruning`,
+      urgency: 'medium',
+      icon: Scissors,
+      color: 'text-sproutly-warning',
+      bg: 'bg-sproutly-warning/10'
+    })),
+    ...plants.
+    filter((p) => p.healthStatus === 'needs-fertilizer').
+    map((p) => ({
+      id: p.id,
+      type: 'fertilizer',
+      message: `${p.name} needs fertilizer`,
+      urgency: 'medium',
+      icon: FlaskConical,
+      color: 'text-sproutly-warning',
+      bg: 'bg-sproutly-warning/10'
+    }))
+  ];
 
   const handleAlertClick = (plantId: string) => {
     setSelectedPlantId(plantId);
@@ -106,12 +174,112 @@ export const Dashboard: React.FC = () => {
   });
   return (
     <div className="pt-20 pb-24 lg:pt-8 lg:pb-8 px-4 lg:px-8 max-w-7xl mx-auto space-y-8">
-      <header>
-        <h1 className="text-3xl font-bold text-sproutly-primary mb-1">
-          Command Center
-        </h1>
-        <p className="text-sproutly-secondary">{today}</p>
+      <header className="flex justify-between items-start gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-sproutly-primary mb-1">
+            Command Center
+          </h1>
+          <p className="text-sproutly-secondary">{today}</p>
+        </div>
+        {weather && (
+          <div className="flex items-center gap-2.5 bg-white px-4 py-2.5 rounded-2xl shadow-sm border border-sproutly-secondary/5 select-none shrink-0" title={`${weather.cityName}: ${weather.text}`}>
+            <span className="text-2xl filter drop-shadow-sm select-none">{weather.icon}</span>
+            <div className="text-right">
+              <div className="text-sm font-extrabold text-sproutly-primary leading-tight font-semibold">{weather.temp}°C</div>
+              <div className="text-[10px] font-bold text-sproutly-secondary uppercase tracking-wider">{weather.text}</div>
+            </div>
+          </div>
+        )}
       </header>
+
+      {/* Weather Widget Section */}
+      {weatherLoading ? (
+        <div className="bg-white p-5 rounded-3xl shadow-sm animate-pulse flex items-center justify-between border border-sproutly-secondary/5">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-sproutly-bg animate-pulse" />
+            <div className="space-y-2">
+              <div className="w-24 h-4 bg-sproutly-bg rounded" />
+              <div className="w-16 h-3 bg-sproutly-bg rounded" />
+            </div>
+          </div>
+          <div className="w-20 h-4 bg-sproutly-bg rounded" />
+        </div>
+      ) : weather ? (
+        <div className="bg-white p-5 rounded-3xl shadow-sm border border-sproutly-secondary/5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <span className="text-4xl filter drop-shadow-sm select-none" role="img" aria-label="weather status">
+              {weather.icon}
+            </span>
+            <div>
+              <div className="text-sm font-bold text-sproutly-secondary uppercase tracking-wider font-semibold">Local Weather</div>
+              <h3 className="font-bold text-sproutly-primary text-xl flex items-baseline gap-2">
+                <span>{weather.temp}°C</span>
+                <span className="text-sm font-medium text-sproutly-secondary">{weather.text}</span>
+              </h3>
+            </div>
+          </div>
+
+          {/* Smart weather warning banner */}
+          <div className="flex-1 max-w-xl">
+            {weather.rainProbability > 50 ? (
+              <div className="bg-green-50 text-green-700 border border-green-200 px-4 py-3 rounded-2xl text-xs font-bold flex items-center gap-2">
+                <span className="text-base select-none">🌧️</span>
+                <span>Smart Delay: {weather.rainProbability}% precipitation expected in {weather.cityName}. Outdoor watering delayed.</span>
+              </div>
+            ) : weather.temp > 38 ? (
+              <div className="bg-orange-50 text-orange-700 border border-orange-200 px-4 py-3 rounded-2xl text-xs font-bold flex items-center gap-2">
+                <span className="text-base select-none">🔥</span>
+                <span>Heatwave Alert: High of {weather.maxTemp}°C forecast in {weather.cityName}. Balcony containers dry out quickly.</span>
+              </div>
+            ) : (
+              <div className="bg-sproutly-light/10 text-sproutly-primary border border-sproutly-light/20 px-4 py-3 rounded-2xl text-xs font-bold flex items-center gap-2">
+                <span className="text-base select-none">🌤️</span>
+                <span>Optimal: High of {weather.maxTemp}°C in {weather.cityName}. Keep standard moisture schedules.</span>
+              </div>
+            )}
+          </div>
+          
+          <button 
+            type="button" 
+            onClick={() => refreshWeather()}
+            className="text-xs font-bold text-sproutly-secondary hover:text-sproutly-primary bg-sproutly-bg px-3 py-2 rounded-xl transition-all self-start md:self-center"
+          >
+            Refresh
+          </button>
+        </div>
+      ) : (
+        <div className="bg-sproutly-light/5 border border-dashed border-sproutly-secondary/25 p-5 rounded-3xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl select-none">🌦️</span>
+            <div>
+              <h4 className="font-bold text-sproutly-primary text-sm">Enable weather-based smart watering</h4>
+              <p className="text-xs text-sproutly-secondary font-medium">Use your real-time GPS location or set your city manually in Settings.</p>
+              {gpsError && (
+                <p className="text-xs text-red-500 font-bold mt-1">{gpsError}</p>
+              )}
+            </div>
+          </div>
+          <div className="flex gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={handleDashboardGPS}
+              disabled={gpsLoading}
+              className="bg-sproutly-primary hover:bg-sproutly-secondary disabled:opacity-50 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 shrink-0 font-semibold"
+            >
+              <span>📍</span>
+              <span>{gpsLoading ? 'Locating...' : 'Use GPS'}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('settings')}
+              disabled={gpsLoading}
+              className="bg-white hover:bg-sproutly-bg text-sproutly-primary border border-sproutly-secondary/20 px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm shrink-0 font-semibold"
+            >
+              Set Manually
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Total Garden Count */}
       <section>

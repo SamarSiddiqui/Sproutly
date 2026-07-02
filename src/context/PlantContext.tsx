@@ -1,6 +1,7 @@
 import React, { useEffect, useState, createContext, useContext, ReactNode } from 'react';
 import { Plant, initialPlants } from '../data/plants';
 import { supabase } from '../utils/supabaseClient';
+import { weatherService, WeatherReport } from '../services/weatherService';
 
 interface PlantContextType {
   plants: Plant[];
@@ -16,6 +17,9 @@ interface PlantContextType {
   setActiveTab: (tab: string) => void;
   aiContext: string;
   setAiContext: (context: string) => void;
+  weather: WeatherReport | null;
+  weatherLoading: boolean;
+  refreshWeather: () => Promise<void>;
 }
 
 const PlantContext = createContext<PlantContextType | undefined>(undefined);
@@ -95,6 +99,8 @@ export const PlantProvider: React.FC<{
   const [selectedPlantId, setSelectedPlantId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>('dashboard');
   const [aiContext, setAiContext] = useState<string>('');
+  const [weather, setWeather] = useState<WeatherReport | null>(null);
+  const [weatherLoading, setWeatherLoading] = useState(false);
 
   const fetchPlants = async () => {
     try {
@@ -147,9 +153,76 @@ export const PlantProvider: React.FC<{
     }
   };
 
+  const fetchWeatherForUser = async () => {
+    try {
+      setWeatherLoading(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setWeather(null);
+        return;
+      }
+
+      // Fetch profile location
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('location, preferences')
+        .eq('id', user.id)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        throw error;
+      }
+
+      if (!profile) {
+        setWeather(null);
+        return;
+      }
+
+      const hasCoordinates = profile.preferences?.latitude && profile.preferences?.longitude;
+
+      if (hasCoordinates) {
+        // Query Open-Meteo for coordinates forecast directly
+        const report = await weatherService.getWeather(
+          profile.preferences.latitude,
+          profile.preferences.longitude,
+          profile.location || 'GPS Location'
+        );
+        setWeather(report);
+      } else {
+        if (!profile.location || profile.location.trim() === '') {
+          setWeather(null);
+          return;
+        }
+
+        // Geocode city string to coordinates
+        const geo = await weatherService.geocodeCity(profile.location);
+        if (!geo) {
+          setWeather(null);
+          return;
+        }
+
+        // Query Open-Meteo for coordinates forecast
+        const report = await weatherService.getWeather(geo.latitude, geo.longitude, geo.name);
+        setWeather(report);
+      }
+    } catch (err) {
+      console.error('Error fetching weather inside PlantContext:', err);
+      setWeather(null);
+    } finally {
+      setWeatherLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchPlants();
   }, []);
+
+  // Silently refresh weather dynamically whenever user switches back to Dashboard tab
+  useEffect(() => {
+    if (activeTab === 'dashboard') {
+      fetchWeatherForUser();
+    }
+  }, [activeTab]);
 
   const addPlant = async (newPlantData: Omit<Plant, 'id'>) => {
     try {
@@ -287,7 +360,10 @@ export const PlantProvider: React.FC<{
         activeTab,
         setActiveTab,
         aiContext,
-        setAiContext
+        setAiContext,
+        weather,
+        weatherLoading,
+        refreshWeather: fetchWeatherForUser
       }}>
       {children}
     </PlantContext.Provider>
