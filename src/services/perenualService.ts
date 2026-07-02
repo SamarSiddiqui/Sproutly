@@ -12,7 +12,9 @@ export interface PaginatedSpeciesResponse {
   total: number;
 }
 
-const API_KEY = import.meta.env.VITE_PERENUAL_API_KEY || 'sk-qyct6a40bc826256918455';
+const API_KEY = 
+  (typeof process !== 'undefined' ? process.env.NEXT_PUBLIC_PERENUAL_API_KEY || process.env.VITE_PERENUAL_API_KEY : undefined) ||
+  'sk-qyct6a40bc826256918455';
 const BASE_URL = 'https://perenual.com/api/species-list';
 
 // A high-quality Unsplash image to use if no regular_url is provided
@@ -74,7 +76,7 @@ export const perenualService = {
    * @param query Search query keyword
    * @param page Page number to fetch (default: 1)
    */
-  searchSpecies: async (query: string, page: number = 1): Promise<PaginatedSpeciesResponse> => {
+  searchSpecies: async (query: string, page = 1): Promise<PaginatedSpeciesResponse> => {
     if (!query || query.trim() === '') {
       return { data: [], currentPage: 1, lastPage: 1, total: 0 };
     }
@@ -108,7 +110,7 @@ export const perenualService = {
    * Get default/featured species listings
    * @param page Page number to fetch (default: 1)
    */
-  getFeaturedSpecies: async (page: number = 1): Promise<PaginatedSpeciesResponse> => {
+  getFeaturedSpecies: async (page = 1): Promise<PaginatedSpeciesResponse> => {
     try {
       const url = `${BASE_URL}?key=${API_KEY}&page=${page}`;
       const response = await fetch(url);
