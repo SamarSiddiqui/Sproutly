@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useRef, useMemo } from 'react';
+import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { usePlants } from '../../../hooks/usePlants';
 import { Sparkles, Send, Bot, User, Loader2 } from 'lucide-react';
@@ -39,45 +39,59 @@ export default function SproutlyAIPage() {
     return plants.slice(0, 3).map((p) => `How do I prune my ${p.name}?`);
   }, [plants]);
 
-  const handleSend = (text: string) => {
+  const handleSend = useCallback(async (text: string) => {
     if (!text.trim()) return;
     const userMsg: Message = {
       id: Date.now().toString(),
       sender: 'user',
       text
     };
-    setMessages((prev) => [...prev, userMsg]);
+    
+    const nextMessages = [...messages, userMsg];
+    setMessages(nextMessages);
     setInput('');
     setIsTyping(true);
 
-    // Simulate AI response
-    setTimeout(() => {
-      let responseText =
-        "That's a great question! Make sure to check the soil moisture first. If you need specific guidance, check the Care Cycle tab.";
-      
-      const lowerText = text.toLowerCase();
-      if (lowerText.includes('prune') && lowerText.includes('bougainvillea')) {
-        responseText =
-          'For your Bougainvillea, prune right after its flowering cycle ends. Cut back the long, leggy stems to encourage bushier growth and more blooms next season. Wear gloves, those thorns are sharp!';
-      } else if (lowerText.includes('water') || lowerText.includes('watering')) {
-        responseText =
-          "Always check the top 2 inches of soil. If it's dry, give it a thorough watering until it drains out the bottom. Don't let it sit in standing water!";
-      } else if (lowerText.includes('fertilize') || lowerText.includes('nutrition')) {
-        responseText =
-          'Use a balanced, water-soluble fertilizer diluted to half strength during the active growing season. Pause fertilizing during winter dormancy.';
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: nextMessages,
+          plants,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch chat response');
       }
+
+      const data = await response.json();
       
       setMessages((prev) => [
         ...prev,
         {
-          id: (Date.now() + 1).toString(),
+          id: Date.now().toString(),
           sender: 'ai',
-          text: responseText
+          text: data.text || 'I encountered an issue communicating with the service.'
         }
       ]);
+    } catch (error) {
+      console.error('Chat error:', error);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now().toString(),
+          sender: 'ai',
+          text: 'Oops! I am having trouble connecting right now. Please try again in a moment.'
+        }
+      ]);
+    } finally {
       setIsTyping(false);
-    }, 1500);
-  };
+    }
+  }, [messages, plants]);
 
   // Read URL query context on mount
   const initialContext = searchParams.get('context');
@@ -94,7 +108,7 @@ export default function SproutlyAIPage() {
       params.delete('context');
       router.replace(`/ai?${params.toString()}`);
     }
-  }, [initialContext, loading, router]);
+  }, [initialContext, loading, router, handleSend]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({

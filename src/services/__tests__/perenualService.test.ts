@@ -84,6 +84,7 @@ describe('perenualService - normalizeSpecies', () => {
 describe('perenualService - API methods', () => {
   beforeEach(() => {
     vi.stubGlobal('fetch', vi.fn());
+    process.env.NEXT_PUBLIC_PERENUAL_API_KEY = 'sk-qyct6a40bc826256918455';
   });
 
   afterEach(() => {

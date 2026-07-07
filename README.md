@@ -14,3 +14,9 @@ Sproutly is a cozy plant-care dashboard that helps you keep your leafy little ro
 
 1. Run `npm install`
 2. Run `npm run dev`
+
+
+Steps to do : 
+1. remove hardcoded env values from the files and update the vercel with the NEXT_PUBLIC prefix for all the env values
+2. Also tell the agent that the new project is in next so remove the vite from everywhere . 
+3. integrate mistral key tHeqy70EEVR1OfH9ykNCUREdvxbO5bT0 to the ai chat.

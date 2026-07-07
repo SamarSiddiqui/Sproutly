@@ -5,14 +5,15 @@ module.exports = {
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:react-hooks/recommended',
+    'next/core-web-vitals',
   ],
-  ignorePatterns: ['dist', '.eslintrc.cjs'],
+  ignorePatterns: ['dist', '.eslintrc.cjs', '.next'],
   parser: '@typescript-eslint/parser',
-  plugins: ['react-refresh'],
+  plugins: [],
   rules: {
-    'react-refresh/only-export-components': [
-      'warn',
-      { allowConstantExport: true },
-    ],
+    '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/no-unused-vars': ['warn', { 'argsIgnorePattern': '^_' }],
+    'react/no-unescaped-entities': 'off',
+    '@next/next/no-img-element': 'off',
   },
 }
