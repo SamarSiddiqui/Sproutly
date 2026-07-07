@@ -62,6 +62,7 @@ export default function SettingsPage() {
   const [gpsLoading, setGpsLoading] = useState(false);
   const [gpsError, setGpsError] = useState('');
   const [saving, setSaving] = useState(false);
+  const hasInitialized = useRef(false);
 
   // Local settings state
   const [displayName, setDisplayName] = useState('');
@@ -73,9 +74,9 @@ export default function SettingsPage() {
   const [aiTone, setAiTone] = useState<'gentle' | 'direct'>('gentle');
   const [reduceMotion, setReduceMotion] = useState(false);
 
-  // Sync profile to local state on load
+  // Sync profile to local state on initial load
   useEffect(() => {
-    if (profile) {
+    if (profile && !hasInitialized.current) {
       setDisplayName(profile.displayName);
       setLocation(profile.location);
       setEnableCareReminders(profile.reminders.enableCareReminders);
@@ -84,12 +85,32 @@ export default function SettingsPage() {
       setEnvironmentView(profile.preferences.environmentView);
       setAiTone(profile.preferences.aiTone);
       setReduceMotion(profile.preferences.reduceMotion);
+      hasInitialized.current = true;
     }
   }, [profile]);
 
   // Debounced cloud upsert on local state changes
   useEffect(() => {
     if (loadingProfile || !profile) return;
+
+    // Check if there are actual changes compared to current profile values
+    const hasChanges =
+      displayName !== profile.displayName ||
+      location !== profile.location ||
+      enableCareReminders !== profile.reminders.enableCareReminders ||
+      reminderTime !== profile.reminders.reminderTime ||
+      weeklyDigest !== profile.reminders.weeklyDigest ||
+      environmentView !== profile.preferences.environmentView ||
+      aiTone !== profile.preferences.aiTone ||
+      reduceMotion !== profile.preferences.reduceMotion;
+
+    if (!hasChanges) return;
+
+    // Determine if GPS coordinates should be kept or cleared.
+    // If the location is manually changed from 'GPS Location', clear the latitude/longitude coordinates.
+    const isGPSLocation = location === 'GPS Location';
+    const latitude = isGPSLocation ? profile.preferences.latitude : undefined;
+    const longitude = isGPSLocation ? profile.preferences.longitude : undefined;
 
     const timer = setTimeout(async () => {
       try {
@@ -106,8 +127,8 @@ export default function SettingsPage() {
             environmentView,
             aiTone,
             reduceMotion,
-            latitude: profile.preferences.latitude,
-            longitude: profile.preferences.longitude,
+            latitude,
+            longitude,
           },
         });
       } catch (err) {
