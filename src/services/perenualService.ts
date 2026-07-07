@@ -12,10 +12,8 @@ export interface PaginatedSpeciesResponse {
   total: number;
 }
 
-const API_KEY = 
-  (typeof process !== 'undefined' ? process.env.NEXT_PUBLIC_PERENUAL_API_KEY || process.env.VITE_PERENUAL_API_KEY : undefined) ||
-  'sk-qyct6a40bc826256918455';
 const BASE_URL = 'https://perenual.com/api/species-list';
+const getApiKey = () => process.env.NEXT_PUBLIC_PERENUAL_API_KEY || '';
 
 // A high-quality Unsplash image to use if no regular_url is provided
 const DEFAULT_FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1463936575829-25148e1db1b8?auto=format&fit=crop&q=80&w=800';
@@ -82,7 +80,7 @@ export const perenualService = {
     }
 
     try {
-      const url = `${BASE_URL}?key=${API_KEY}&q=${encodeURIComponent(query)}&page=${page}`;
+      const url = `${BASE_URL}?key=${getApiKey()}&q=${encodeURIComponent(query)}&page=${page}`;
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`Perenual API request failed with status: ${response.status}`);
@@ -112,7 +110,7 @@ export const perenualService = {
    */
   getFeaturedSpecies: async (page = 1): Promise<PaginatedSpeciesResponse> => {
     try {
-      const url = `${BASE_URL}?key=${API_KEY}&page=${page}`;
+      const url = `${BASE_URL}?key=${getApiKey()}&page=${page}`;
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`Perenual API request failed with status: ${response.status}`);

@@ -14,3 +14,5 @@ Sproutly is a cozy plant-care dashboard that helps you keep your leafy little ro
 
 1. Run `npm install`
 2. Run `npm run dev`
+
+

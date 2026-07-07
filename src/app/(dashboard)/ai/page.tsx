@@ -1,83 +1,213 @@
 'use client';
 
-import React, { useEffect, useState, useRef, useMemo } from 'react';
+import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { usePlants } from '../../../hooks/usePlants';
-import { Sparkles, Send, Bot, User, Loader2 } from 'lucide-react';
+import { useChat } from '../../../hooks/useChat';
+import { Send, User, Loader2, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-interface Message {
-  id: string;
-  sender: 'ai' | 'user';
-  text: string;
+function FormattedMessageText({ text }: { text: string }) {
+  // Split into lines
+  const lines = text.split('\n');
+  const renderedElements: React.ReactNode[] = [];
+  
+  let currentList: React.ReactNode[] = [];
+  let isInsideList = false;
+
+  const renderInline = (inlineText: string, key: string | number) => {
+    // Basic bold parsing: split by '**'
+    const parts = inlineText.split('**');
+    return (
+      <span key={key}>
+        {parts.map((part, index) => {
+          const isBold = index % 2 === 1;
+          
+          // Parse italics inside: split by '*'
+          const italicParts = part.split('*');
+          const segmentContent = italicParts.map((subpart, subidx) => {
+            if (subidx % 2 === 1) {
+              return <em key={subidx} className="italic font-medium">{subpart}</em>;
+            }
+            return subpart;
+          });
+
+          if (isBold) {
+            return (
+              <strong key={index} className="font-extrabold text-sproutly-primary">
+                {segmentContent}
+              </strong>
+            );
+          }
+          return <span key={index}>{segmentContent}</span>;
+        })}
+      </span>
+    );
+  };
+
+  const flushList = (key: string | number) => {
+    if (currentList.length > 0) {
+      renderedElements.push(
+        <ul key={key} className="list-disc pl-5 my-2 space-y-1 text-inherit">
+          {currentList}
+        </ul>
+      );
+      currentList = [];
+    }
+  };
+
+  lines.forEach((line, idx) => {
+    const trimmedLine = line.trim();
+    
+    // Check if line starts with header marker
+    const headerMatch = trimmedLine.match(/^(#{1,6})\s+(.*)/);
+    // Check if line starts with bullet list marker
+    const bulletMatch = trimmedLine.match(/^[-*+]\s+(.*)/);
+    
+    if (headerMatch) {
+      if (isInsideList) {
+        flushList(`list-${idx}`);
+        isInsideList = false;
+      }
+      const level = headerMatch[1].length;
+      const content = headerMatch[2];
+      
+      let headingClasses = "font-extrabold text-sproutly-primary mt-3 mb-1 ";
+      if (level === 1) headingClasses += "text-base";
+      else if (level === 2) headingClasses += "text-sm";
+      else headingClasses += "text-xs uppercase tracking-wider";
+      
+      renderedElements.push(
+        <div key={idx} className={headingClasses}>
+          {renderInline(content, `header-${idx}`)}
+        </div>
+      );
+    } else if (bulletMatch) {
+      isInsideList = true;
+      const content = bulletMatch[1];
+      currentList.push(
+        <li key={idx} className="leading-relaxed">
+          {renderInline(content, `bullet-${idx}`)}
+        </li>
+      );
+    } else {
+      if (isInsideList) {
+        flushList(`list-${idx}`);
+        isInsideList = false;
+      }
+      
+      if (trimmedLine === '') {
+        renderedElements.push(<div key={`br-${idx}`} className="h-2" />);
+      } else {
+        // Render regular paragraph line
+        renderedElements.push(
+          <p key={idx} className="leading-relaxed my-1">
+            {renderInline(line, `inline-${idx}`)}
+          </p>
+        );
+      }
+    }
+  });
+
+  // Flush any remaining list at the end
+  if (isInsideList) {
+    flushList(`list-end`);
+  }
+
+  return <div className="space-y-1">{renderedElements}</div>;
+}
+
+function SproutlyAILogo({ size = 24, className = "" }: { size?: number; className?: string }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+    >
+      {/* Glowing background leaf */}
+      <path
+        d="M2 22C2 22 10 20 15 13C18.5 8.1 19 4 19 4C19 4 14.9 4.5 10 8C3 13 2 22 2 22Z"
+        fill="currentColor"
+        className="text-sproutly-light/40"
+      />
+      {/* Leaf outline and stem */}
+      <path
+        d="M2 22C2 22 10 20 15 13C18.5 8.1 19 4 19 4C19 4 14.9 4.5 10 8C3 13 2 22 2 22Z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="text-sproutly-primary"
+      />
+      <path
+        d="M2 22C7 17 12 14 19 4"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        className="text-sproutly-primary"
+      />
+      {/* AI Sparkles */}
+      <path
+        d="M22 6L20.5 4.5L19 6L20.5 7.5L22 6Z"
+        fill="currentColor"
+        className="text-sproutly-secondary animate-pulse"
+      />
+      <path
+        d="M15 3.5L14 2.5L13 3.5L14 4.5L15 3.5Z"
+        fill="currentColor"
+        className="text-sproutly-light animate-pulse"
+      />
+      <path
+        d="M21 11.5L20.5 11L20 11.5L20.5 12L21 11.5Z"
+        fill="currentColor"
+        className="text-sproutly-secondary animate-pulse"
+      />
+    </svg>
+  );
 }
 
 export default function SproutlyAIPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { plants, loading } = usePlants();
+  const { plants, loading: plantsLoading } = usePlants();
+  const { messages, loading: chatLoading, isSending, sendMessage, clearChat } = useChat(plants);
   
-  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Set initial welcome message once plants are loaded
-  useEffect(() => {
-    if (!loading && messages.length === 0) {
-      setMessages([
+  const loading = plantsLoading || chatLoading;
+
+  // Prepend visual welcome message if database chat history is empty
+  const displayMessages = useMemo(() => {
+    if (messages.length === 0) {
+      return [
         {
-          id: '1',
-          sender: 'ai',
+          id: 'welcome',
+          sender: 'ai' as const,
           text: `Hi! I'm Sproutly AI. I see you have ${plants.length} plants in your collection. How can I help you care for them today?`
         }
-      ]);
+      ];
     }
-  }, [plants, loading, messages.length]);
+    return messages;
+  }, [messages, plants.length]);
 
   const suggestions = useMemo(() => {
     return plants.slice(0, 3).map((p) => `How do I prune my ${p.name}?`);
   }, [plants]);
 
-  const handleSend = (text: string) => {
-    if (!text.trim()) return;
-    const userMsg: Message = {
-      id: Date.now().toString(),
-      sender: 'user',
-      text
-    };
-    setMessages((prev) => [...prev, userMsg]);
+  const handleSend = useCallback(async (text: string) => {
+    if (!text.trim() || isSending) return;
     setInput('');
-    setIsTyping(true);
 
-    // Simulate AI response
-    setTimeout(() => {
-      let responseText =
-        "That's a great question! Make sure to check the soil moisture first. If you need specific guidance, check the Care Cycle tab.";
-      
-      const lowerText = text.toLowerCase();
-      if (lowerText.includes('prune') && lowerText.includes('bougainvillea')) {
-        responseText =
-          'For your Bougainvillea, prune right after its flowering cycle ends. Cut back the long, leggy stems to encourage bushier growth and more blooms next season. Wear gloves, those thorns are sharp!';
-      } else if (lowerText.includes('water') || lowerText.includes('watering')) {
-        responseText =
-          "Always check the top 2 inches of soil. If it's dry, give it a thorough watering until it drains out the bottom. Don't let it sit in standing water!";
-      } else if (lowerText.includes('fertilize') || lowerText.includes('nutrition')) {
-        responseText =
-          'Use a balanced, water-soluble fertilizer diluted to half strength during the active growing season. Pause fertilizing during winter dormancy.';
-      }
-      
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: (Date.now() + 1).toString(),
-          sender: 'ai',
-          text: responseText
-        }
-      ]);
-      setIsTyping(false);
-    }, 1500);
-  };
+    try {
+      await sendMessage(text);
+    } catch (error) {
+      console.error('Chat error:', error);
+    }
+  }, [sendMessage, isSending]);
 
   // Read URL query context on mount
   const initialContext = searchParams.get('context');
@@ -94,18 +224,20 @@ export default function SproutlyAIPage() {
       params.delete('context');
       router.replace(`/ai?${params.toString()}`);
     }
-  }, [initialContext, loading, router]);
+  }, [initialContext, loading, router, handleSend]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({
       behavior: 'smooth'
     });
-  }, [messages, isTyping]);
+  }, [displayMessages, isSending]);
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh] gap-3">
-        <Loader2 className="animate-spin text-sproutly-primary" size={32} />
+      <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
+        <div className="animate-bounce text-sproutly-primary">
+          <SproutlyAILogo size={48} />
+        </div>
         <p className="text-sm font-semibold text-sproutly-secondary">Waking Sproutly AI...</p>
       </div>
     );
@@ -115,8 +247,8 @@ export default function SproutlyAIPage() {
     <div className="flex flex-col h-[calc(100vh-64px)] lg:h-screen max-w-2xl mx-auto bg-white lg:border-x lg:border-sproutly-secondary/10 shadow-sm">
       <header className="px-6 py-4 border-b border-sproutly-secondary/10 bg-white z-10 flex items-center justify-between mt-16 lg:mt-0">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-sproutly-light/20 rounded-xl text-sproutly-primary">
-            <Sparkles size={24} />
+          <div className="p-2 bg-sproutly-light/20 rounded-xl">
+            <SproutlyAILogo size={26} />
           </div>
           <div>
             <h1 className="font-bold text-sproutly-primary text-lg">
@@ -128,11 +260,21 @@ export default function SproutlyAIPage() {
             </p>
           </div>
         </div>
+        {messages.length > 0 && (
+          <button
+            onClick={clearChat}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50 rounded-xl border border-red-200 transition-colors"
+            title="Clear conversation history"
+          >
+            <Trash2 size={14} />
+            <span>Clear Chat</span>
+          </button>
+        )}
       </header>
 
       <div className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-6 bg-sproutly-bg/30">
         <AnimatePresence initial={false}>
-          {messages.map((msg) => (
+          {displayMessages.map((msg) => (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -141,10 +283,10 @@ export default function SproutlyAIPage() {
             >
               <div
                 className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-sm ${
-                  msg.sender === 'user' ? 'bg-sproutly-primary text-white' : 'bg-sproutly-light/30 text-sproutly-primary'
+                  msg.sender === 'user' ? 'bg-sproutly-primary text-white' : 'bg-sproutly-light/20'
                 }`}
               >
-                {msg.sender === 'user' ? <User size={20} /> : <Bot size={20} />}
+                {msg.sender === 'user' ? <User size={20} /> : <SproutlyAILogo size={22} />}
               </div>
               <div
                 className={`p-4 rounded-2xl max-w-[75%] text-sm font-medium leading-relaxed ${
@@ -153,14 +295,14 @@ export default function SproutlyAIPage() {
                     : 'bg-white text-sproutly-primary shadow-sm border border-sproutly-secondary/10 rounded-tl-sm'
                 }`}
               >
-                {msg.text}
+                {msg.sender === 'user' ? msg.text : <FormattedMessageText text={msg.text} />}
               </div>
             </motion.div>
           ))}
-          {isTyping && (
+          {isSending && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-4">
-              <div className="w-10 h-10 rounded-full bg-sproutly-light/30 text-sproutly-primary flex items-center justify-center shrink-0 shadow-sm">
-                <Bot size={20} />
+              <div className="w-10 h-10 rounded-full bg-sproutly-light/20 flex items-center justify-center shrink-0 shadow-sm">
+                <SproutlyAILogo size={22} />
               </div>
               <div className="bg-white p-5 rounded-2xl rounded-tl-sm shadow-sm border border-sproutly-secondary/10 flex gap-1.5 items-center">
                 <div
@@ -183,7 +325,7 @@ export default function SproutlyAIPage() {
       </div>
 
       <div className="p-4 lg:p-6 bg-white border-t border-sproutly-secondary/10 mb-16 lg:mb-0">
-        {messages.length === 1 && suggestions.length > 0 && (
+        {displayMessages.length === 1 && suggestions.length > 0 && (
           <div className="flex flex-wrap gap-2 pb-4">
             {suggestions.map((s, i) => (
               <button
