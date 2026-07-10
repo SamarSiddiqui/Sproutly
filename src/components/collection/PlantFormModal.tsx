@@ -15,7 +15,7 @@ import {
   ChevronRight,
   ArrowLeft
 } from 'lucide-react';
-import { NormalizedPlantSpecies } from '../../services/perenualService';
+import type { NormalizedPlantSpecies } from '../../services/plantSearchService';
 import { useSpeciesSearch } from '../../hooks/useSpeciesSearch';
 import { Plant } from '../../data/plants';
 

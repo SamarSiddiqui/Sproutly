@@ -25,41 +25,32 @@ export const mapPlantToDbRow = (plant: Partial<Plant>, userId?: string): any => 
   if (plant.name !== undefined) row.name = plant.name;
   if (plant.species !== undefined) row.species = plant.species;
   if (plant.image !== undefined) {
-    row.image = plant.image;
     row.image_url = plant.image;
   }
   if (plant.category !== undefined) row.category = plant.category;
   if (plant.growthStage !== undefined) {
     row.growth_stage = plant.growthStage;
-    row.growthStage = plant.growthStage;
   }
   if (plant.lastWatered !== undefined) {
     row.last_watered = plant.lastWatered;
-    row.lastWatered = plant.lastWatered;
   }
   if (plant.nextWatering !== undefined) {
     row.next_watering = plant.nextWatering;
-    row.nextWatering = plant.nextWatering;
   }
   if (plant.fertilizerCycle !== undefined) {
     row.fertilizer_cycle = plant.fertilizerCycle;
-    row.fertilizerCycle = plant.fertilizerCycle;
   }
   if (plant.lastFertilized !== undefined) {
     row.last_fertilized = plant.lastFertilized;
-    row.lastFertilized = plant.lastFertilized;
   }
   if (plant.pruningSeasons !== undefined) {
     row.pruning_seasons = plant.pruningSeasons;
-    row.pruningSeasons = plant.pruningSeasons;
   }
   if (plant.pottingStatus !== undefined) {
     row.potting_status = plant.pottingStatus;
-    row.pottingStatus = plant.pottingStatus;
   }
   if (plant.healthStatus !== undefined) {
     row.health_status = plant.healthStatus;
-    row.healthStatus = plant.healthStatus;
   }
   if (plant.notes !== undefined) row.notes = plant.notes;
   return row;
