@@ -4,7 +4,7 @@ import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation';
 import { usePlants } from '../../../hooks/usePlants';
 import { useChat } from '../../../hooks/useChat';
-import { Send, User, Loader2, Trash2 } from 'lucide-react';
+import { Send, User, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 function FormattedMessageText({ text }: { text: string }) {
