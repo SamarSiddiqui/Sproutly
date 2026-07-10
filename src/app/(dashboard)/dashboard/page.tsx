@@ -18,6 +18,7 @@ import {
   Leaf
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { SeasonalAdvisorWidget } from '../../../components/dashboard/SeasonalAdvisorWidget';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -291,6 +292,9 @@ export default function DashboardPage() {
           </div>
         </div>
       )}
+
+      {/* Seasonal Advisor Widget */}
+      <SeasonalAdvisorWidget location={profile?.location || ''} plants={plants} />
 
       {/* Total Garden Count */}
       <section>
