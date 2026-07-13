@@ -3,6 +3,9 @@
 import React, { useEffect, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { usePlants } from '../../../hooks/usePlants';
+import { useProfile } from '../../../hooks/useProfile';
+import { useWeather } from '../../../hooks/useWeather';
+import { useAISchedule } from '../../../hooks/useAISchedule';
 import {
   Droplets,
   FlaskConical,
@@ -18,6 +21,8 @@ export default function CareCyclePage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { plants, loading } = usePlants();
+  const { profile } = useProfile();
+  const { data: weather } = useWeather(undefined, undefined, profile?.location);
 
   // Selected plant from URL search params, fallback to first plant
   const selectedPlantId = searchParams.get('plantId');
@@ -44,17 +49,24 @@ export default function CareCyclePage() {
     router.push(`/ai?context=${query}`);
   };
 
+  const { data: aiSchedule } = useAISchedule(plant, weather?.forecast);
+
   const wateringMetrics = useMemo(() => {
-    if (!plant) return { progress: 0, daysLeft: 0 };
+    if (!plant) return { progress: 0, daysLeft: 0, aiAdjustedDays: 0 };
     const lastW = new Date(plant.lastWatered).getTime();
     const nextW = new Date(plant.nextWatering).getTime();
     const now = Date.now();
-    const totalDuration = nextW - lastW;
+    
+    const aiAdjustedDays = aiSchedule?.adjusted ? aiSchedule.daysOff : 0;
+    const adjustedNextW = nextW + (aiAdjustedDays * 24 * 60 * 60 * 1000);
+
+    const totalDuration = adjustedNextW - lastW;
     const elapsed = now - lastW;
     const progress = Math.max(0, Math.min(100, (elapsed / (totalDuration || 1)) * 100));
-    const daysLeft = Math.ceil((nextW - now) / (1000 * 60 * 60 * 24));
-    return { progress, daysLeft };
-  }, [plant]);
+    const daysLeft = Math.ceil((adjustedNextW - now) / (1000 * 60 * 60 * 24));
+    
+    return { progress, daysLeft, aiAdjustedDays };
+  }, [plant, aiSchedule]);
 
   if (loading) {
     return (
@@ -225,13 +237,22 @@ export default function CareCyclePage() {
                   </span>
                   <span>
                     Next:{' '}
-                    {new Date(plant.nextWatering).toLocaleDateString(undefined, {
+                    {new Date(plant.nextWatering + (wateringMetrics.aiAdjustedDays * 24 * 60 * 60 * 1000)).toLocaleDateString(undefined, {
                       month: 'short',
                       day: 'numeric'
                     })}
                   </span>
                 </div>
               </div>
+
+              {aiSchedule?.adjusted && (
+                <div className="mb-4 bg-sproutly-light/10 border border-sproutly-primary/20 rounded-xl p-3 flex gap-3 items-start">
+                  <Sparkles size={18} className="text-sproutly-primary shrink-0 mt-0.5 animate-pulse" />
+                  <p className="text-xs text-sproutly-primary font-bold leading-relaxed">
+                    {aiSchedule.reason}
+                  </p>
+                </div>
+              )}
 
               <div className="bg-sproutly-bg p-5 rounded-2xl flex gap-3 items-start mt-auto">
                 <Info size={20} className="text-sproutly-secondary shrink-0 mt-0.5" />

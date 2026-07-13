@@ -1,3 +1,9 @@
+export interface DailyForecast {
+  date: string;
+  rainProbability: number;
+  maxTemp: number;
+}
+
 export interface WeatherReport {
   temp: number;
   text: string;
@@ -5,6 +11,7 @@ export interface WeatherReport {
   rainProbability: number;
   maxTemp: number;
   cityName: string;
+  forecast: DailyForecast[];
 }
 
 export interface GeocodeResult {
@@ -83,13 +90,20 @@ export const weatherService = {
       const rainProbability = json.daily?.precipitation_probability_max?.[0] ?? 0;
       const maxTemp = json.daily?.temperature_2m_max?.[0] ?? current.temperature;
 
+      const forecast: DailyForecast[] = (json.daily?.time || []).map((t: string, i: number) => ({
+        date: t,
+        rainProbability: json.daily?.precipitation_probability_max?.[i] ?? 0,
+        maxTemp: json.daily?.temperature_2m_max?.[i] ?? current.temperature
+      }));
+
       return {
         temp: current.temperature,
         text: mapped.text,
         icon: mapped.icon,
         rainProbability,
         maxTemp,
-        cityName
+        cityName,
+        forecast
       };
     } catch (error) {
       console.error('Error fetching weather:', error);
