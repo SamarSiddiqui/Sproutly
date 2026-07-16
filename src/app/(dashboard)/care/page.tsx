@@ -15,7 +15,10 @@ import {
   Info,
   Loader2
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useAICareInsights } from '../../../hooks/useAICareInsights';
+import { useFertilizerLogs } from '../../../hooks/useFertilizerLogs';
+import { FertilizerModal } from '../../../components/care/FertilizerModal';
 
 export default function CareCyclePage() {
   const searchParams = useSearchParams();
@@ -49,7 +52,10 @@ export default function CareCyclePage() {
     router.push(`/ai?context=${query}`);
   };
 
+  const [selectedDate, setSelectedDate] = React.useState<string | null>(null);
   const { data: aiSchedule } = useAISchedule(plant, weather?.forecast);
+  const { data: aiInsights } = useAICareInsights(plant, weather);
+  const { logs } = useFertilizerLogs(plant?.id);
 
   const wateringMetrics = useMemo(() => {
     if (!plant) return { progress: 0, daysLeft: 0, aiAdjustedDays: 0 };
@@ -163,6 +169,20 @@ export default function CareCyclePage() {
 
       {/* Right Panel: Care Details */}
       <div className="flex-1 flex flex-col gap-6 lg:overflow-y-auto lg:pr-2 lg:pb-8">
+        {/* AI Daily Vibe Banner */}
+        <AnimatePresence>
+          {aiInsights?.dailyVibe && (
+            <motion.div 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="hidden lg:flex bg-gradient-to-r from-sproutly-primary/10 to-transparent border-l-4 border-sproutly-primary p-4 rounded-r-2xl items-center gap-3"
+            >
+              <Sparkles className="text-sproutly-primary animate-pulse shrink-0" size={24} />
+              <p className="text-sproutly-primary font-bold">{aiInsights.dailyVibe}</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Desktop Header for selected plant */}
         <div className="hidden lg:flex items-center gap-6 bg-white p-6 rounded-3xl shadow-sm">
           <img
@@ -175,13 +195,20 @@ export default function CareCyclePage() {
               {plant.name}
             </h2>
             <p className="text-sproutly-secondary mb-2">{plant.species}</p>
-            <div className="flex gap-2">
+            <div className="flex gap-2 relative">
               <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-sproutly-bg text-sproutly-primary">
                 {plant.category}
               </span>
-              <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-sproutly-light/20 text-sproutly-primary">
-                {plant.growthStage}
-              </span>
+              <div className="group relative">
+                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-sproutly-light/20 text-sproutly-primary cursor-pointer hover:bg-sproutly-primary hover:text-white transition-colors block">
+                  {plant.growthStage}
+                </span>
+                {aiInsights?.growthInsights && (
+                  <div className="absolute left-0 top-full mt-2 w-64 p-3 bg-gray-900 text-white text-xs rounded-xl opacity-0 group-hover:opacity-100 transition-opacity z-50 pointer-events-none shadow-xl">
+                    {aiInsights.growthInsights}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -304,23 +331,35 @@ export default function CareCyclePage() {
                 ))}
               </div>
               <div className="grid grid-cols-7 gap-2">
-                {Array.from({ length: 14 }).map((_, i) => {
-                  const isFeedDay = i === 5;
+                {Array.from({ length: 28 }).map((_, i) => {
+                  const d = new Date();
+                  d.setDate(d.getDate() - 14 + i);
+                  const dateStr = d.toISOString().split('T')[0];
+                  const hasLog = logs.some(l => l.log_date === dateStr);
+                  const isToday = dateStr === new Date().toISOString().split('T')[0];
+                  
                   return (
-                    <div
+                    <button
                       key={i}
-                      className={`aspect-square rounded-full flex items-center justify-center text-sm font-bold ${
-                        isFeedDay ? 'bg-sproutly-warning text-white shadow-md' : 'text-sproutly-primary hover:bg-sproutly-bg'
+                      type="button"
+                      onClick={() => setSelectedDate(dateStr)}
+                      className={`aspect-square rounded-full flex flex-col items-center justify-center text-[10px] sm:text-xs font-bold transition-transform hover:scale-110 ${
+                        hasLog 
+                          ? 'bg-sproutly-warning text-white shadow-md' 
+                          : isToday 
+                          ? 'border-2 border-sproutly-primary text-sproutly-primary' 
+                          : 'text-sproutly-primary hover:bg-sproutly-bg'
                       }`}
                     >
-                      {i + 1}
-                    </div>
+                      {d.getDate()}
+                      {hasLog && <span className="w-1 h-1 bg-white rounded-full mt-0.5" />}
+                    </button>
                   );
                 })}
               </div>
               <div className="mt-5 text-sm font-medium text-sproutly-secondary flex items-center gap-3 bg-sproutly-bg p-3 rounded-xl">
-                <div className="w-3 h-3 rounded-full bg-sproutly-warning shrink-0" />
-                Feed with balanced liquid fertilizer
+                <div className="w-3 h-3 rounded-full bg-sproutly-warning shrink-0 animate-pulse" />
+                Click a date to log or view AI fertilizer tips
               </div>
             </div>
           </section>
@@ -353,22 +392,39 @@ export default function CareCyclePage() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            {[
+            {(aiInsights?.pruningSteps || [
               'Remove dead or yellowing leaves at the base.',
               'Trim leggy stems just above a leaf node.',
               'Use sterilized shears to prevent infection.'
-            ].map((instruction, idx) => (
-              <div key={idx} className="flex gap-4 items-start bg-sproutly-bg p-5 rounded-2xl">
+            ]).map((instruction, idx) => (
+              <div key={idx} className="flex gap-4 items-start bg-sproutly-bg p-5 rounded-2xl relative overflow-hidden group">
+                {aiInsights?.pruningSteps && (
+                   <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-100 transition-opacity">
+                     <Sparkles size={16} className="text-sproutly-primary" />
+                   </div>
+                )}
                 <div className="w-8 h-8 rounded-full bg-white text-sproutly-primary flex items-center justify-center text-sm font-bold shrink-0 shadow-sm">
                   {idx + 1}
                 </div>
-                <p className="text-sm font-medium text-sproutly-primary leading-relaxed">
+                <p className="text-sm font-medium text-sproutly-primary leading-relaxed pr-2">
                   {instruction}
                 </p>
               </div>
             ))}
           </div>
         </section>
+        
+        <AnimatePresence>
+          {selectedDate && (
+            <FertilizerModal
+              isOpen={!!selectedDate}
+              onClose={() => setSelectedDate(null)}
+              plantId={plant.id}
+              selectedDate={selectedDate}
+              aiRecommendation={aiInsights?.fertilizerRecommendations}
+            />
+          )}
+        </AnimatePresence>
         
         {/* Optimization Note */}
         <footer className="pt-2 border-t border-sproutly-secondary/10 text-[11px] font-bold text-sproutly-secondary">

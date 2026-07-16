@@ -1,3 +1,7 @@
 {
-  "/(dashboard)/dashboard/page": "app/(dashboard)/dashboard/page.js"
+  "/_not-found/page": "app/_not-found/page.js",
+  "/(dashboard)/care/page": "app/(dashboard)/care/page.js",
+  "/(dashboard)/dashboard/page": "app/(dashboard)/dashboard/page.js",
+  "/(dashboard)/ai/page": "app/(dashboard)/ai/page.js",
+  "/(dashboard)/collection/page": "app/(dashboard)/collection/page.js"
 }
