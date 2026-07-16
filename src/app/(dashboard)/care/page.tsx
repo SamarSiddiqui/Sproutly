@@ -25,9 +25,11 @@ import { FertilizerModal } from '../../../components/care/FertilizerModal';
 export default function CareCyclePage() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { plants, loading } = usePlants();
+  const { plants, loading, updatePlant } = usePlants();
   const { profile } = useProfile();
   const { data: weather } = useWeather(undefined, undefined, profile?.location);
+
+  const [isWatering, setIsWatering] = React.useState(false);
 
   // Selected plant from URL search params, fallback to first plant
   const selectedPlantId = searchParams.get('plantId');
@@ -54,9 +56,31 @@ export default function CareCyclePage() {
     router.push(`/ai?context=${query}`);
   };
 
+  const handleWaterNow = async () => {
+    if (!plant) return;
+    setIsWatering(true);
+    try {
+      const now = new Date();
+      const lastW = new Date(plant.lastWatered).getTime();
+      const nextW = new Date(plant.nextWatering).getTime();
+      const intervalMs = nextW - lastW || (7 * 24 * 60 * 60 * 1000); // Fallback 7 days
+      
+      const newNextW = new Date(now.getTime() + intervalMs);
+      
+      await updatePlant(plant.id, {
+        lastWatered: now.toISOString(),
+        nextWatering: newNextW.toISOString()
+      });
+    } catch (error) {
+      console.error("Failed to update watering:", error);
+    } finally {
+      setIsWatering(false);
+    }
+  };
+
   const [selectedDate, setSelectedDate] = React.useState<string | null>(null);
   const { data: aiSchedule } = useAISchedule(plant, weather?.forecast);
-  const { data: aiInsights } = useAICareInsights(plant, weather);
+  const { data: aiInsights, isLoading: aiInsightsLoading } = useAICareInsights(plant, weather);
   const { logs } = useFertilizerLogs(plant?.id);
 
   const wateringMetrics = useMemo(() => {
@@ -172,18 +196,25 @@ export default function CareCyclePage() {
       {/* Right Panel: Care Details */}
       <div className="flex-1 flex flex-col gap-6 lg:overflow-y-auto lg:pr-2 lg:pb-8">
         {/* AI Daily Vibe Banner */}
-        <AnimatePresence>
-          {aiInsights?.dailyVibe && (
-            <motion.div 
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="hidden lg:flex bg-gradient-to-r from-sproutly-primary/10 to-transparent border-l-4 border-sproutly-primary p-4 rounded-r-2xl items-center gap-3"
-            >
-              <Sparkles className="text-sproutly-primary animate-pulse shrink-0" size={24} />
-              <p className="text-sproutly-primary font-bold">{aiInsights.dailyVibe}</p>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {aiInsightsLoading ? (
+          <div className="hidden lg:flex bg-sproutly-light/10 border-l-4 border-sproutly-light/20 p-4 rounded-r-2xl items-center gap-3 animate-pulse h-[68px]">
+            <div className="w-6 h-6 rounded-full bg-sproutly-secondary/10 shrink-0" />
+            <div className="h-4 bg-sproutly-secondary/10 rounded-full w-2/3" />
+          </div>
+        ) : (
+          <AnimatePresence>
+            {aiInsights?.dailyVibe && (
+              <motion.div 
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="hidden lg:flex bg-gradient-to-r from-sproutly-primary/10 to-transparent border-l-4 border-sproutly-primary p-4 rounded-r-2xl items-center gap-3"
+              >
+                <Sparkles className="text-sproutly-primary animate-pulse shrink-0" size={24} />
+                <p className="text-sproutly-primary font-bold">{aiInsights.dailyVibe}</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        )}
 
         {/* Desktop Header for selected plant */}
         <div className="hidden lg:flex items-center gap-6 bg-white p-6 rounded-3xl shadow-sm">
@@ -238,25 +269,36 @@ export default function CareCyclePage() {
                     </p>
                   </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => askAI('watering')}
-                  className="p-2.5 text-sproutly-light hover:text-sproutly-primary bg-sproutly-bg rounded-xl transition-colors"
-                  title="Ask AI about watering"
-                >
-                  <Sparkles size={20} />
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={handleWaterNow}
+                    disabled={isWatering}
+                    className="flex items-center gap-2 px-3 lg:px-4 py-2.5 text-xs lg:text-sm font-bold text-white bg-blue-500 hover:bg-blue-600 rounded-xl transition-colors disabled:opacity-50 shadow-sm"
+                  >
+                    {isWatering ? <Loader2 size={16} className="animate-spin" /> : <Droplets size={16} />}
+                    <span className="hidden sm:inline">Water</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => askAI('watering')}
+                    className="p-2.5 text-sproutly-light hover:text-sproutly-primary bg-sproutly-bg rounded-xl transition-colors"
+                    title="Ask AI about watering"
+                  >
+                    <Sparkles size={20} />
+                  </button>
+                </div>
               </div>
 
               <div className="mb-8">
-                <div className="h-4 bg-sproutly-bg rounded-full overflow-hidden mb-3">
+                <div className="h-4 bg-sproutly-bg rounded-full overflow-hidden mb-3 relative">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${wateringMetrics.progress}%` }}
-                    className={`h-full rounded-full ${wateringMetrics.progress > 90 ? 'bg-sproutly-urgent' : 'bg-blue-400'}`}
+                    className={`h-full rounded-full transition-colors ${wateringMetrics.progress > 90 ? 'bg-sproutly-urgent' : 'bg-gradient-to-r from-blue-500 via-teal-400 to-amber-300'}`}
                   />
                 </div>
-                <div className="flex justify-between text-sm text-sproutly-secondary font-semibold">
+                <div className="flex justify-between text-sm text-sproutly-secondary font-semibold mb-4">
                   <span>
                     Last:{' '}
                     {new Date(plant.lastWatered).toLocaleDateString(undefined, {
@@ -266,12 +308,32 @@ export default function CareCyclePage() {
                   </span>
                   <span>
                     Next:{' '}
-                    {new Date(plant.nextWatering + (wateringMetrics.aiAdjustedDays * 24 * 60 * 60 * 1000)).toLocaleDateString(undefined, {
+                    {new Date(new Date(plant.nextWatering).getTime() + (wateringMetrics.aiAdjustedDays * 24 * 60 * 60 * 1000)).toLocaleDateString(undefined, {
                       month: 'short',
                       day: 'numeric'
                     })}
                   </span>
                 </div>
+
+                {weather?.forecast && weather.forecast.length >= 3 && (
+                  <div className="flex justify-between gap-2 p-3 bg-sproutly-light/5 rounded-xl border border-sproutly-secondary/10 mt-2 mb-2">
+                    {weather.forecast.slice(0, 3).map((day, idx) => {
+                      const dateObj = new Date(day.date);
+                      const isToday = idx === 0;
+                      return (
+                        <div key={idx} className="flex flex-col items-center flex-1 text-[10px] sm:text-xs">
+                          <span className="text-sproutly-secondary font-bold mb-1">
+                            {isToday ? 'Today' : dateObj.toLocaleDateString(undefined, { weekday: 'short' })}
+                          </span>
+                          <span className="font-bold text-sproutly-primary flex items-center gap-1">
+                            {day.rainProbability > 50 ? '🌧️' : day.rainProbability > 20 ? '⛅' : '☀️'}
+                            {day.rainProbability}%
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
               {aiSchedule?.adjusted && (
