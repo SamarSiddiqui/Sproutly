@@ -56,7 +56,7 @@ export default function CareCyclePage() {
 
   const [selectedDate, setSelectedDate] = React.useState<string | null>(null);
   const { data: aiSchedule } = useAISchedule(plant, weather?.forecast);
-  const { data: aiInsights } = useAICareInsights(plant, weather);
+  const { data: aiInsights, isLoading: aiInsightsLoading } = useAICareInsights(plant, weather);
   const { logs } = useFertilizerLogs(plant?.id);
 
   const wateringMetrics = useMemo(() => {
@@ -172,18 +172,25 @@ export default function CareCyclePage() {
       {/* Right Panel: Care Details */}
       <div className="flex-1 flex flex-col gap-6 lg:overflow-y-auto lg:pr-2 lg:pb-8">
         {/* AI Daily Vibe Banner */}
-        <AnimatePresence>
-          {aiInsights?.dailyVibe && (
-            <motion.div 
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="hidden lg:flex bg-gradient-to-r from-sproutly-primary/10 to-transparent border-l-4 border-sproutly-primary p-4 rounded-r-2xl items-center gap-3"
-            >
-              <Sparkles className="text-sproutly-primary animate-pulse shrink-0" size={24} />
-              <p className="text-sproutly-primary font-bold">{aiInsights.dailyVibe}</p>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {aiInsightsLoading ? (
+          <div className="hidden lg:flex bg-sproutly-light/10 border-l-4 border-sproutly-light/20 p-4 rounded-r-2xl items-center gap-3 animate-pulse h-[68px]">
+            <div className="w-6 h-6 rounded-full bg-sproutly-secondary/10 shrink-0" />
+            <div className="h-4 bg-sproutly-secondary/10 rounded-full w-2/3" />
+          </div>
+        ) : (
+          <AnimatePresence>
+            {aiInsights?.dailyVibe && (
+              <motion.div 
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="hidden lg:flex bg-gradient-to-r from-sproutly-primary/10 to-transparent border-l-4 border-sproutly-primary p-4 rounded-r-2xl items-center gap-3"
+              >
+                <Sparkles className="text-sproutly-primary animate-pulse shrink-0" size={24} />
+                <p className="text-sproutly-primary font-bold">{aiInsights.dailyVibe}</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        )}
 
         {/* Desktop Header for selected plant */}
         <div className="hidden lg:flex items-center gap-6 bg-white p-6 rounded-3xl shadow-sm">
