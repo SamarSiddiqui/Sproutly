@@ -5,7 +5,7 @@ import { WeatherReport } from '../services/weatherService';
 export interface AICareInsights {
   dailyVibe: string;
   growthInsights: string;
-  pruningSteps: string[];
+  coreCareTips: { title: string; tip: string; }[];
   fertilizerRecommendations: string;
 }
 

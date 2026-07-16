@@ -27,7 +27,11 @@ Return ONLY a valid JSON object matching this exact schema, with no markdown cod
 {
   "dailyVibe": string (A one-sentence, glowing and enthusiastic summary of how the plant is doing today and the most immediate care advice. E.g. "Your Monstera is thriving in this 25°C weather; just remember to wipe its leaves this weekend!"),
   "growthInsights": string (A concise tip about what this specific plant species needs right now during its current 'Growth Stage' phase. E.g. "During the Flowering stage, this plant needs extra phosphorus to support bloom development."),
-  "pruningSteps": [string, string, string] (An array of exactly 3 expert, species-specific pruning instructions.),
+  "coreCareTips": [
+    { "title": "Pruning", "tip": string },
+    { "title": "Environment", "tip": string },
+    { "title": "Core Care", "tip": string }
+  ] (An array of exactly 3 expert, species-specific tips covering pruning, environment/sunlight, and general core care.),
   "fertilizerRecommendations": string (A short paragraph recommending the ideal N-P-K ratio and organic fertilizer alternatives for this specific plant species and growth stage.)
 }`;
 
@@ -69,7 +73,11 @@ Return ONLY a valid JSON object matching this exact schema, with no markdown cod
       return NextResponse.json({ 
         dailyVibe: 'Your plant is looking great today!',
         growthInsights: 'Provide adequate light and water for optimal growth.',
-        pruningSteps: ['Remove yellow leaves.', 'Trim dead stems.', 'Keep shears clean.'],
+        coreCareTips: [
+          { title: 'Pruning', tip: 'Remove yellow leaves.' },
+          { title: 'Environment', tip: 'Keep away from drafts.' },
+          { title: 'Core Care', tip: 'Wipe leaves with a damp cloth.' }
+        ],
         fertilizerRecommendations: 'Use a balanced all-purpose fertilizer during the growing season.'
       });
     }

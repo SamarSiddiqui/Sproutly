@@ -13,7 +13,9 @@ import {
   Sparkles,
   Calendar as CalendarIcon,
   Info,
-  Loader2
+  Loader2,
+  Sun,
+  Leaf
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAICareInsights } from '../../../hooks/useAICareInsights';
@@ -365,50 +367,55 @@ export default function CareCyclePage() {
           </section>
         </div>
 
-        {/* Pruning Section */}
+        {/* Core Care Section */}
         <section className="bg-white rounded-3xl p-6 lg:p-8 shadow-sm">
           <div className="flex justify-between items-start mb-8">
             <div className="flex items-center gap-4">
               <div className="p-3.5 bg-sproutly-light/20 text-sproutly-primary rounded-2xl">
-                <Scissors size={28} />
+                <Leaf size={28} />
               </div>
               <div>
                 <h2 className="text-xl font-bold text-sproutly-primary">
-                  Pruning
+                  Core Care Insights
                 </h2>
                 <p className="text-sm font-medium text-sproutly-secondary font-semibold">
-                  {plant.pruningSeasons.join(', ')}
+                  Personalized for {plant.species}
                 </p>
               </div>
             </div>
             <button
               type="button"
-              onClick={() => askAI('pruning')}
+              onClick={() => askAI('general care')}
               className="p-2.5 text-sproutly-light hover:text-sproutly-primary bg-sproutly-bg rounded-xl transition-colors"
-              title="Ask AI about pruning"
+              title="Ask AI about core care"
             >
               <Sparkles size={20} />
             </button>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            {(aiInsights?.pruningSteps || [
-              'Remove dead or yellowing leaves at the base.',
-              'Trim leggy stems just above a leaf node.',
-              'Use sterilized shears to prevent infection.'
-            ]).map((instruction, idx) => (
-              <div key={idx} className="flex gap-4 items-start bg-sproutly-bg p-5 rounded-2xl relative overflow-hidden group">
-                {aiInsights?.pruningSteps && (
+            {(aiInsights?.coreCareTips || [
+              { title: 'Pruning', tip: 'Remove dead or yellowing leaves at the base.' },
+              { title: 'Environment', tip: 'Provide bright, indirect sunlight.' },
+              { title: 'Core Care', tip: 'Wipe leaves monthly to prevent dust buildup.' }
+            ]).map((insight, idx) => (
+              <div key={idx} className="flex flex-col gap-3 items-start bg-sproutly-bg p-5 rounded-2xl relative overflow-hidden group">
+                {aiInsights?.coreCareTips && (
                    <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-100 transition-opacity">
                      <Sparkles size={16} className="text-sproutly-primary" />
                    </div>
                 )}
-                <div className="w-8 h-8 rounded-full bg-white text-sproutly-primary flex items-center justify-center text-sm font-bold shrink-0 shadow-sm">
-                  {idx + 1}
+                <div className="w-10 h-10 rounded-xl bg-white text-sproutly-primary flex items-center justify-center shadow-sm">
+                  {insight.title.toLowerCase().includes('prun') ? <Scissors size={18} /> : 
+                   insight.title.toLowerCase().includes('env') || insight.title.toLowerCase().includes('sun') ? <Sun size={18} /> : 
+                   <Leaf size={18} />}
                 </div>
-                <p className="text-sm font-medium text-sproutly-primary leading-relaxed pr-2">
-                  {instruction}
-                </p>
+                <div>
+                  <h3 className="font-bold text-sproutly-primary text-sm mb-1">{insight.title}</h3>
+                  <p className="text-xs font-medium text-sproutly-secondary leading-relaxed pr-2">
+                    {insight.tip}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
