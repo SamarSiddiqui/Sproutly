@@ -25,9 +25,11 @@ import { FertilizerModal } from '../../../components/care/FertilizerModal';
 export default function CareCyclePage() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { plants, loading } = usePlants();
+  const { plants, loading, updatePlant } = usePlants();
   const { profile } = useProfile();
   const { data: weather } = useWeather(undefined, undefined, profile?.location);
+
+  const [isWatering, setIsWatering] = React.useState(false);
 
   // Selected plant from URL search params, fallback to first plant
   const selectedPlantId = searchParams.get('plantId');
@@ -52,6 +54,28 @@ export default function CareCyclePage() {
     if (!plant) return;
     const query = encodeURIComponent(`How do I handle ${topic} for my ${plant.name} (${plant.species})?`);
     router.push(`/ai?context=${query}`);
+  };
+
+  const handleWaterNow = async () => {
+    if (!plant) return;
+    setIsWatering(true);
+    try {
+      const now = new Date();
+      const lastW = new Date(plant.lastWatered).getTime();
+      const nextW = new Date(plant.nextWatering).getTime();
+      const intervalMs = nextW - lastW || (7 * 24 * 60 * 60 * 1000); // Fallback 7 days
+      
+      const newNextW = new Date(now.getTime() + intervalMs);
+      
+      await updatePlant(plant.id, {
+        lastWatered: now.toISOString(),
+        nextWatering: newNextW.toISOString()
+      });
+    } catch (error) {
+      console.error("Failed to update watering:", error);
+    } finally {
+      setIsWatering(false);
+    }
   };
 
   const [selectedDate, setSelectedDate] = React.useState<string | null>(null);
@@ -245,25 +269,36 @@ export default function CareCyclePage() {
                     </p>
                   </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => askAI('watering')}
-                  className="p-2.5 text-sproutly-light hover:text-sproutly-primary bg-sproutly-bg rounded-xl transition-colors"
-                  title="Ask AI about watering"
-                >
-                  <Sparkles size={20} />
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={handleWaterNow}
+                    disabled={isWatering}
+                    className="flex items-center gap-2 px-3 lg:px-4 py-2.5 text-xs lg:text-sm font-bold text-white bg-blue-500 hover:bg-blue-600 rounded-xl transition-colors disabled:opacity-50 shadow-sm"
+                  >
+                    {isWatering ? <Loader2 size={16} className="animate-spin" /> : <Droplets size={16} />}
+                    <span className="hidden sm:inline">Water</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => askAI('watering')}
+                    className="p-2.5 text-sproutly-light hover:text-sproutly-primary bg-sproutly-bg rounded-xl transition-colors"
+                    title="Ask AI about watering"
+                  >
+                    <Sparkles size={20} />
+                  </button>
+                </div>
               </div>
 
               <div className="mb-8">
-                <div className="h-4 bg-sproutly-bg rounded-full overflow-hidden mb-3">
+                <div className="h-4 bg-sproutly-bg rounded-full overflow-hidden mb-3 relative">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${wateringMetrics.progress}%` }}
-                    className={`h-full rounded-full ${wateringMetrics.progress > 90 ? 'bg-sproutly-urgent' : 'bg-blue-400'}`}
+                    className={`h-full rounded-full transition-colors ${wateringMetrics.progress > 90 ? 'bg-sproutly-urgent' : 'bg-gradient-to-r from-blue-500 via-teal-400 to-amber-300'}`}
                   />
                 </div>
-                <div className="flex justify-between text-sm text-sproutly-secondary font-semibold">
+                <div className="flex justify-between text-sm text-sproutly-secondary font-semibold mb-4">
                   <span>
                     Last:{' '}
                     {new Date(plant.lastWatered).toLocaleDateString(undefined, {
@@ -279,6 +314,26 @@ export default function CareCyclePage() {
                     })}
                   </span>
                 </div>
+
+                {weather?.forecast && weather.forecast.length >= 3 && (
+                  <div className="flex justify-between gap-2 p-3 bg-sproutly-light/5 rounded-xl border border-sproutly-secondary/10 mt-2 mb-2">
+                    {weather.forecast.slice(0, 3).map((day, idx) => {
+                      const dateObj = new Date(day.date);
+                      const isToday = idx === 0;
+                      return (
+                        <div key={idx} className="flex flex-col items-center flex-1 text-[10px] sm:text-xs">
+                          <span className="text-sproutly-secondary font-bold mb-1">
+                            {isToday ? 'Today' : dateObj.toLocaleDateString(undefined, { weekday: 'short' })}
+                          </span>
+                          <span className="font-bold text-sproutly-primary flex items-center gap-1">
+                            {day.rainProbability > 50 ? '🌧️' : day.rainProbability > 20 ? '⛅' : '☀️'}
+                            {day.rainProbability}%
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
               {aiSchedule?.adjusted && (
