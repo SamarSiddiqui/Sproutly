@@ -273,7 +273,7 @@ export default function CareCyclePage() {
                   </span>
                   <span>
                     Next:{' '}
-                    {new Date(plant.nextWatering + (wateringMetrics.aiAdjustedDays * 24 * 60 * 60 * 1000)).toLocaleDateString(undefined, {
+                    {new Date(new Date(plant.nextWatering).getTime() + (wateringMetrics.aiAdjustedDays * 24 * 60 * 60 * 1000)).toLocaleDateString(undefined, {
                       month: 'short',
                       day: 'numeric'
                     })}
