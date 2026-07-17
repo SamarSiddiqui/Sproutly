@@ -56,6 +56,17 @@ export default function CollectionPage() {
     }
   };
 
+  React.useEffect(() => {
+    const isSentence = searchQuery.trim().split(' ').length > 2 || searchQuery.length > 20;
+    
+    if (isSentence && filterMode !== 'ai') {
+      const handler = setTimeout(() => {
+        handleAISearch();
+      }, 800);
+      return () => clearTimeout(handler);
+    }
+  }, [searchQuery, filterMode]);
+
   const handleAISearch = async () => {
     if (!searchQuery.trim()) return;
     setFilterMode('ai');
@@ -147,7 +158,7 @@ export default function CollectionPage() {
               
               <input
                 type="text"
-                placeholder="Ask Sproutly AI anything about your garden..."
+                placeholder="Search or ask AI anything..."
                 value={searchQuery}
                 onChange={handleSearchChange}
                 onKeyDown={(e) => {
@@ -215,12 +226,12 @@ export default function CollectionPage() {
               exit={{ opacity: 0 }}
               className="absolute inset-0 z-50 pointer-events-none rounded-3xl overflow-hidden"
             >
-              <div className="w-full h-full bg-sproutly-primary/5 backdrop-blur-[1px]" />
+              <div className="w-full h-full bg-sproutly-primary/10 backdrop-blur-[2px]" />
               <motion.div 
                 initial={{ top: '-10%' }}
                 animate={{ top: '110%' }}
-                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                className="absolute left-0 right-0 h-32 bg-gradient-to-b from-transparent via-sproutly-light/40 to-transparent opacity-60"
+                transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                className="absolute left-0 right-0 h-40 bg-gradient-to-b from-transparent via-sproutly-primary/60 to-transparent shadow-[0_0_30px_rgba(42,107,63,0.4)]"
               />
             </motion.div>
           )}
@@ -230,13 +241,15 @@ export default function CollectionPage() {
           {filteredPlants.length === 0 && filterMode === 'ai' && !isSearchingAI && (
             <motion.div 
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="col-span-full py-16 text-center"
+              className="col-span-full py-20 text-center flex flex-col items-center justify-center"
             >
-              <div className="inline-block p-4 bg-sproutly-light/10 rounded-full text-sproutly-primary mb-3">
-                <Sparkles size={32} />
+              <div className="text-5xl mb-4">
+                🕵️‍♀️🌱
               </div>
-              <h3 className="text-xl font-bold text-sproutly-primary mb-1">No matches found</h3>
-              <p className="text-sm font-semibold text-sproutly-secondary">Try asking your garden something else!</p>
+              <h3 className="text-2xl font-bold text-sproutly-primary mb-2">Hmm, no plants matched that!</h3>
+              <p className="text-sm font-semibold text-sproutly-secondary max-w-sm mx-auto">
+                Sproutly AI looked under every leaf, but couldn't find anything matching your request in your jungle. Try asking something else!
+              </p>
             </motion.div>
           )}
 
