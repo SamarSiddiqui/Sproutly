@@ -13,7 +13,9 @@ import {
   Edit2,
   Trash2,
   AlertTriangle,
-  Loader2
+  Loader2,
+  Sparkles,
+  X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PlantFormModal } from '../../../components/collection/PlantFormModal';
@@ -29,11 +31,71 @@ export default function CollectionPage() {
   const [editingPlant, setEditingPlant] = useState<Plant | null>(null);
   const [activeChecklist, setActiveChecklist] = useState<string | null>(null);
 
-  const filteredPlants = plants.filter(
-    (p) =>
-      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.species.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // AI Search States
+  const [filterMode, setFilterMode] = useState<'standard' | 'ai'>('standard');
+  const [aiFilteredIds, setAiFilteredIds] = useState<string[] | null>(null);
+  const [isSearchingAI, setIsSearchingAI] = useState(false);
+
+  const isLikelySentence = searchQuery.trim().split(' ').length > 2 || searchQuery.length > 20;
+
+  const filteredPlants = filterMode === 'ai' && aiFilteredIds !== null
+    ? plants.filter(p => aiFilteredIds.includes(p.id))
+    : isLikelySentence 
+      ? plants // Don't aggressively string-filter if they are typing a long question
+      : plants.filter(
+          (p) =>
+            p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            p.species.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+    if (filterMode === 'ai') {
+      setFilterMode('standard');
+      setAiFilteredIds(null);
+    }
+  };
+
+  React.useEffect(() => {
+    const isSentence = searchQuery.trim().split(' ').length > 2 || searchQuery.length > 20;
+    
+    if (isSentence && filterMode !== 'ai') {
+      const handler = setTimeout(() => {
+        handleAISearch();
+      }, 800);
+      return () => clearTimeout(handler);
+    }
+  }, [searchQuery, filterMode]);
+
+  const handleAISearch = async () => {
+    if (!searchQuery.trim()) return;
+    setFilterMode('ai');
+    setIsSearchingAI(true);
+    try {
+      const simplifiedPlants = plants.map(p => ({
+        id: p.id,
+        name: p.name,
+        species: p.species,
+        category: p.category,
+        growthStage: p.growthStage,
+        lastWatered: p.lastWatered,
+        nextWatering: p.nextWatering,
+      }));
+
+      const res = await fetch('/api/ai-collection-search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: searchQuery, plants: simplifiedPlants })
+      });
+      const data = await res.json();
+      setAiFilteredIds(data.matchingIds || []);
+    } catch (err) {
+      console.error("AI search failed", err);
+      setAiFilteredIds([]);
+    } finally {
+      setIsSearchingAI(false);
+    }
+  };
 
   const handleEdit = (e: React.MouseEvent, plant: Plant) => {
     e.stopPropagation();
@@ -74,18 +136,54 @@ export default function CollectionPage() {
         </h1>
 
         <div className="flex items-center gap-3 flex-1 lg:max-w-xl lg:ml-auto">
-          <div className="relative flex-1">
-            <Search
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-sproutly-secondary/50"
-              size={20}
-            />
-            <input
-              type="text"
-              placeholder="Search plants..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white rounded-xl py-3 pl-10 pr-4 shadow-sm focus:outline-none focus:ring-2 focus:ring-sproutly-light text-sproutly-primary font-semibold"
-            />
+          <div className={`relative flex-1 rounded-2xl transition-all duration-500 overflow-hidden ${
+            isSearchingAI 
+              ? 'ring-2 ring-sproutly-primary/60 shadow-[0_0_30px_rgba(42,107,63,0.4)] scale-[1.02]' 
+              : filterMode === 'ai' 
+              ? 'ring-2 ring-sproutly-primary shadow-[0_0_15px_rgba(42,107,63,0.3)]' 
+              : 'ring-1 ring-sproutly-primary/20 hover:ring-sproutly-primary/40 shadow-sm'
+          }`}>
+            
+            {/* Animated Gradient Background during AI Search */}
+            {isSearchingAI && (
+              <div className="absolute inset-0 bg-gradient-to-r from-sproutly-primary/10 via-sproutly-light/20 to-sproutly-primary/10 bg-[length:200%_100%] animate-[gradient_2s_linear_infinite]" />
+            )}
+
+            <div className="relative z-10 flex items-center w-full">
+              {isSearchingAI ? (
+                <Sparkles className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sproutly-primary animate-[spin_3s_linear_infinite]" size={20} />
+              ) : (
+                <Sparkles className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sproutly-primary/60" size={20} />
+              )}
+              
+              <input
+                type="text"
+                placeholder="Search or ask AI anything..."
+                value={searchQuery}
+                onChange={handleSearchChange}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleAISearch();
+                }}
+                className="w-full bg-transparent rounded-2xl py-3.5 pl-11 pr-14 border-none focus:outline-none text-sproutly-primary font-semibold placeholder:text-sproutly-secondary/60 placeholder:font-medium"
+              />
+
+              {searchQuery && (
+                <button
+                  onClick={filterMode === 'ai' ? () => { setSearchQuery(''); setFilterMode('standard'); setAiFilteredIds(null); } : handleAISearch}
+                  disabled={isSearchingAI}
+                  className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-xl transition-all duration-300 flex items-center justify-center ${
+                    filterMode === 'ai' 
+                      ? 'text-sproutly-secondary hover:bg-black/5' 
+                      : isLikelySentence
+                      ? 'bg-sproutly-primary text-white shadow-md hover:bg-sproutly-secondary scale-105'
+                      : 'bg-sproutly-light/20 text-sproutly-primary hover:bg-sproutly-light/40'
+                  }`}
+                  title={filterMode === 'ai' ? 'Clear Search' : 'Ask AI'}
+                >
+                  {filterMode === 'ai' ? <X size={18} /> : isSearchingAI ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} className={isLikelySentence ? "animate-pulse" : ""} />}
+                </button>
+              )}
+            </div>
           </div>
           <div className="bg-white rounded-xl p-1 shadow-sm flex items-center">
             <button
@@ -117,9 +215,44 @@ export default function CollectionPage() {
       </header>
 
       <div
-        className={`grid gap-4 lg:gap-6 ${viewMode === 'grid' ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4' : 'grid-cols-1'}`}
+        className={`grid gap-4 lg:gap-6 relative ${viewMode === 'grid' ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4' : 'grid-cols-1'}`}
       >
+        {/* Scanning Overlay Effect */}
         <AnimatePresence>
+          {isSearchingAI && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 z-50 pointer-events-none rounded-3xl overflow-hidden"
+            >
+              <div className="w-full h-full bg-sproutly-primary/10 backdrop-blur-[2px]" />
+              <motion.div 
+                initial={{ top: '-10%' }}
+                animate={{ top: '110%' }}
+                transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                className="absolute left-0 right-0 h-40 bg-gradient-to-b from-transparent via-sproutly-primary/60 to-transparent shadow-[0_0_30px_rgba(42,107,63,0.4)]"
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence mode="popLayout">
+          {filteredPlants.length === 0 && filterMode === 'ai' && !isSearchingAI && (
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="col-span-full py-20 text-center flex flex-col items-center justify-center"
+            >
+              <div className="text-5xl mb-4">
+                🕵️‍♀️🌱
+              </div>
+              <h3 className="text-2xl font-bold text-sproutly-primary mb-2">Hmm, no plants matched that!</h3>
+              <p className="text-sm font-semibold text-sproutly-secondary max-w-sm mx-auto">
+                Sproutly AI looked under every leaf, but couldn't find anything matching your request in your jungle. Try asking something else!
+              </p>
+            </motion.div>
+          )}
+
           {filteredPlants.map((plant) => (
             <motion.div
               layout
