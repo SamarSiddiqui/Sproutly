@@ -136,7 +136,7 @@ export default function CollectionPage() {
 
   return (
     <div className="pt-20 pb-24 lg:pt-8 lg:pb-8 px-4 lg:px-8 max-w-7xl mx-auto min-h-full">
-      <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">
+      <header className={`flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8 ${plants.length === 0 ? 'hidden lg:flex opacity-0 pointer-events-none' : ''}`}>
         <h1 className="text-3xl font-bold text-sproutly-primary whitespace-nowrap">
           My Collection
         </h1>
@@ -270,9 +270,39 @@ export default function CollectionPage() {
         </div>
       </header>
 
-      <div
-        className={`grid gap-4 lg:gap-6 relative ${viewMode === 'grid' ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4' : 'grid-cols-1'}`}
-      >
+      {plants.length === 0 ? (
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col items-center justify-center py-20 lg:py-32 text-center"
+        >
+          <div className="relative mb-8">
+            <div className="absolute inset-0 bg-sproutly-primary/10 rounded-full blur-3xl animate-pulse" />
+            <div className="text-8xl relative z-10 hover:scale-110 transition-transform duration-500 cursor-default">
+              🪴
+            </div>
+          </div>
+          <h2 className="text-4xl font-bold text-sproutly-primary mb-4 tracking-tight">
+            Your jungle awaits!
+          </h2>
+          <p className="text-lg text-sproutly-secondary font-medium max-w-md mx-auto mb-10 leading-relaxed">
+            Your digital greenhouse is currently empty. Let's plant your very first seed and start growing together!
+          </p>
+          <button
+            onClick={() => {
+              setEditingPlant(null);
+              setIsFormOpen(true);
+            }}
+            className="bg-sproutly-primary text-white px-8 py-4 rounded-2xl shadow-[0_10px_40px_-10px_rgba(42,107,63,0.5)] hover:bg-sproutly-secondary hover:shadow-[0_15px_50px_-10px_rgba(42,107,63,0.6)] hover:-translate-y-1 transition-all duration-300 font-bold text-lg flex items-center gap-3 group"
+          >
+            <Plus size={24} className="group-hover:rotate-90 transition-transform duration-300" />
+            Add Your First Plant
+          </button>
+        </motion.div>
+      ) : (
+        <div
+          className={`grid gap-4 lg:gap-6 relative ${viewMode === 'grid' ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4' : 'grid-cols-1'}`}
+        >
         {/* Scanning Overlay Effect */}
         <AnimatePresence>
           {isSearchingAI && (
@@ -434,6 +464,7 @@ export default function CollectionPage() {
           ))}
         </AnimatePresence>
       </div>
+      )}
 
       {/* Form Modal */}
       <AnimatePresence>

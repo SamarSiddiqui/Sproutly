@@ -26,24 +26,7 @@ export function usePlants() {
       }
 
       if (!data || data.length === 0) {
-        console.log('Seeding initial demo plants into Supabase for user:', user.id);
-        const seededPlants = initialPlants.map(p => {
-          const row = mapPlantToDbRow(p, user.id);
-          delete row.id; // database will generate a new UUID
-          return row;
-        });
-
-        const { data: insertedData, error: insertError } = await supabase
-          .from('plants')
-          .insert(seededPlants)
-          .select('*');
-
-        if (insertError) {
-          console.error('Error seeding initial plants into Supabase:', insertError);
-          return initialPlants;
-        }
-
-        return insertedData ? insertedData.map(mapDbRowToPlant) : [];
+        return [];
       }
 
       return data.map(mapDbRowToPlant);
