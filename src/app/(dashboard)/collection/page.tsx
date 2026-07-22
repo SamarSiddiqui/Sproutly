@@ -555,6 +555,7 @@ export default function CollectionPage() {
           ))}
         </AnimatePresence>
       </div>
+        </>
       )}
 
       {/* Floating Action Bar */}
