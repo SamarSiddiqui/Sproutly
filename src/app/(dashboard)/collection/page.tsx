@@ -37,9 +37,18 @@ export default function CollectionPage() {
   const [sortBy, setSortBy] = useState<'newest' | 'water_soonest' | 'name'>('newest');
   const [isSortOpen, setIsSortOpen] = useState(false);
   
-  // Batch Actions State
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isBatchWatering, setIsBatchWatering] = useState(false);
+  const [activeFilter, setActiveFilter] = useState<string>('All');
+
+  const filterChips = [
+    { id: 'All', label: 'All Plants', icon: '🌿' },
+    { id: 'Thirsty', label: 'Thirsty', icon: '💧' },
+    { id: 'Nursery', label: 'Nursery Pots', icon: '🪴' },
+    { id: 'Seedling', label: 'Seedlings', icon: '🌱' },
+    { id: 'DirectSun', label: 'Direct Sun', icon: '☀️' },
+    { id: 'NeedsPruning', label: 'Needs Pruning', icon: '✂️' },
+  ];
 
   const isLikelySentence = searchQuery.trim().split(' ').length > 2 || searchQuery.length > 20;
 
@@ -52,7 +61,15 @@ export default function CollectionPage() {
             p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             p.species.toLowerCase().includes(searchQuery.toLowerCase())
         )
-  ).sort((a, b) => {
+  ).filter(p => {
+    if (activeFilter === 'All') return true;
+    if (activeFilter === 'Thirsty') return p.healthStatus === 'needs-water' || new Date(p.nextWatering).getTime() <= Date.now() + 86400000; // Due within 24h
+    if (activeFilter === 'Nursery') return p.pottingStatus === 'nursery';
+    if (activeFilter === 'Seedling') return p.growthStage === 'Seedling';
+    if (activeFilter === 'DirectSun') return p.category === 'Direct Sun';
+    if (activeFilter === 'NeedsPruning') return p.healthStatus === 'needs-pruning';
+    return true;
+  }).sort((a, b) => {
     if (sortBy === 'name') return a.name.localeCompare(b.name);
     if (sortBy === 'water_soonest') return new Date(a.nextWatering).getTime() - new Date(b.nextWatering).getTime();
     return 0; // Default: rely on original array order from Supabase
@@ -342,9 +359,28 @@ export default function CollectionPage() {
           </button>
         </motion.div>
       ) : (
-        <div
-          className={`grid gap-4 lg:gap-6 relative ${viewMode === 'grid' ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4' : 'grid-cols-1'}`}
-        >
+        <>
+          {/* Smart Filter Chips */}
+          <div className="flex items-center gap-3 overflow-x-auto pb-4 mb-6 scrollbar-hide snap-x">
+            {filterChips.map(chip => (
+              <button
+                key={chip.id}
+                onClick={() => setActiveFilter(chip.id)}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-full whitespace-nowrap font-bold text-sm transition-all duration-300 snap-start shrink-0 ${
+                  activeFilter === chip.id 
+                    ? 'bg-sproutly-primary text-white shadow-md scale-105' 
+                    : 'bg-white text-sproutly-secondary hover:bg-sproutly-bg border border-sproutly-light/30'
+                }`}
+              >
+                <span className="text-base">{chip.icon}</span>
+                {chip.label}
+              </button>
+            ))}
+          </div>
+
+          <div
+            className={`grid gap-4 lg:gap-6 relative ${viewMode === 'grid' ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4' : 'grid-cols-1'}`}
+          >
         {/* Scanning Overlay Effect */}
         <AnimatePresence>
           {isSearchingAI && (
@@ -519,6 +555,7 @@ export default function CollectionPage() {
           ))}
         </AnimatePresence>
       </div>
+        </>
       )}
 
       {/* Floating Action Bar */}
