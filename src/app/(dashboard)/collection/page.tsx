@@ -402,17 +402,21 @@ export default function CollectionPage() {
         </AnimatePresence>
 
         <AnimatePresence mode="popLayout">
-          {filteredPlants.length === 0 && filterMode === 'ai' && !isSearchingAI && (
+          {filteredPlants.length === 0 && !isSearchingAI && (
             <motion.div 
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               className="col-span-full py-20 text-center flex flex-col items-center justify-center"
             >
               <div className="text-5xl mb-4">
-                🕵️‍♀️🌱
+                {filterMode === 'ai' ? '🕵️‍♀️🌱' : '🪴🔍'}
               </div>
-              <h3 className="text-2xl font-bold text-sproutly-primary mb-2">Hmm, no plants matched that!</h3>
+              <h3 className="text-2xl font-bold text-sproutly-primary mb-2">
+                {filterMode === 'ai' ? 'Hmm, no plants matched that!' : 'Nothing found!'}
+              </h3>
               <p className="text-sm font-semibold text-sproutly-secondary max-w-sm mx-auto">
-                Sproutly AI looked under every leaf, but couldn't find anything matching your request in your jungle. Try asking something else!
+                {filterMode === 'ai' 
+                  ? "Sproutly AI looked under every leaf, but couldn't find anything matching your request in your jungle. Try asking something else!"
+                  : "We couldn't find any plants matching your current search or filters. Try adjusting them!"}
               </p>
             </motion.div>
           )}
