@@ -31,22 +31,32 @@ export default function CollectionPage() {
   const [editingPlant, setEditingPlant] = useState<Plant | null>(null);
   const [activeChecklist, setActiveChecklist] = useState<string | null>(null);
 
-  // AI Search States
   const [filterMode, setFilterMode] = useState<'standard' | 'ai'>('standard');
   const [aiFilteredIds, setAiFilteredIds] = useState<string[] | null>(null);
   const [isSearchingAI, setIsSearchingAI] = useState(false);
+  const [sortBy, setSortBy] = useState<'newest' | 'water_soonest' | 'name'>('newest');
+  const [isSortOpen, setIsSortOpen] = useState(false);
+  
+  // Batch Actions State
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isBatchWatering, setIsBatchWatering] = useState(false);
 
   const isLikelySentence = searchQuery.trim().split(' ').length > 2 || searchQuery.length > 20;
 
-  const filteredPlants = filterMode === 'ai' && aiFilteredIds !== null
+  const filteredPlants = (filterMode === 'ai' && aiFilteredIds !== null
     ? plants.filter(p => aiFilteredIds.includes(p.id))
     : isLikelySentence 
-      ? plants // Don't aggressively string-filter if they are typing a long question
+      ? [...plants] 
       : plants.filter(
           (p) =>
             p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             p.species.toLowerCase().includes(searchQuery.toLowerCase())
-        );
+        )
+  ).sort((a, b) => {
+    if (sortBy === 'name') return a.name.localeCompare(b.name);
+    if (sortBy === 'water_soonest') return new Date(a.nextWatering).getTime() - new Date(b.nextWatering).getTime();
+    return 0; // Default: rely on original array order from Supabase
+  });
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -66,6 +76,13 @@ export default function CollectionPage() {
       return () => clearTimeout(handler);
     }
   }, [searchQuery, filterMode]);
+
+  // Clear selection when switching to Grid view
+  React.useEffect(() => {
+    if (viewMode === 'grid') {
+      setSelectedIds(new Set());
+    }
+  }, [viewMode]);
 
   const handleAISearch = async () => {
     if (!searchQuery.trim()) return;
@@ -119,6 +136,37 @@ export default function CollectionPage() {
     setActiveChecklist(id);
   };
 
+  const toggleSelection = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    const next = new Set(selectedIds);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setSelectedIds(next);
+  };
+
+  const handleBatchWater = async () => {
+    if (selectedIds.size === 0) return;
+    setIsBatchWatering(true);
+    
+    const now = new Date().toISOString();
+    
+    try {
+      const updates = Array.from(selectedIds).map(async (id) => {
+        const plant = plants.find(p => p.id === id);
+        if (!plant) return;
+        const nextWatering = new Date(Date.now() + plant.fertilizerCycle * 24 * 60 * 60 * 1000).toISOString();
+        await updatePlant(id, { lastWatered: now, nextWatering });
+      });
+      
+      await Promise.all(updates);
+      setSelectedIds(new Set());
+    } catch (err) {
+      console.error('Failed to batch water:', err);
+    } finally {
+      setIsBatchWatering(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] gap-3">
@@ -130,12 +178,12 @@ export default function CollectionPage() {
 
   return (
     <div className="pt-20 pb-24 lg:pt-8 lg:pb-8 px-4 lg:px-8 max-w-7xl mx-auto min-h-full">
-      <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">
-        <h1 className="text-3xl font-bold text-sproutly-primary">
+      <header className={`flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8 ${plants.length === 0 ? 'hidden lg:flex opacity-0 pointer-events-none' : ''}`}>
+        <h1 className="text-3xl font-bold text-sproutly-primary whitespace-nowrap">
           My Collection
         </h1>
 
-        <div className="flex items-center gap-3 flex-1 lg:max-w-xl lg:ml-auto">
+        <div className="flex items-center gap-3 flex-1 lg:ml-auto w-full">
           <div className={`relative flex-1 rounded-2xl transition-all duration-500 overflow-hidden ${
             isSearchingAI 
               ? 'ring-2 ring-sproutly-primary/60 shadow-[0_0_30px_rgba(42,107,63,0.4)] scale-[1.02]' 
@@ -185,7 +233,57 @@ export default function CollectionPage() {
               )}
             </div>
           </div>
-          <div className="bg-white rounded-xl p-1 shadow-sm flex items-center">
+          
+          {/* Custom Sort Dropdown */}
+          <div className="relative hidden sm:block">
+            <button
+              onClick={() => setIsSortOpen(!isSortOpen)}
+              onBlur={() => setTimeout(() => setIsSortOpen(false), 200)}
+              className="bg-white rounded-xl px-4 py-3 shadow-sm text-sm font-semibold text-sproutly-primary hover:bg-sproutly-bg transition-colors flex items-center gap-2 border border-sproutly-light/20 min-w-[170px] justify-between"
+            >
+              <span className="truncate">
+                {sortBy === 'newest' ? 'Newest First' : sortBy === 'water_soonest' ? 'Needs Water Soonest' : 'Alphabetical (A-Z)'}
+              </span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform duration-200 ${isSortOpen ? 'rotate-180' : ''}`}>
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+
+            <AnimatePresence>
+              {isSortOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-xl border border-sproutly-light/20 overflow-hidden z-50"
+                >
+                  <div className="p-1.5 flex flex-col gap-1">
+                    <button
+                      onClick={() => { setSortBy('newest'); setIsSortOpen(false); }}
+                      className={`text-left px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors ${sortBy === 'newest' ? 'bg-sproutly-primary/10 text-sproutly-primary' : 'text-sproutly-secondary hover:bg-sproutly-bg hover:text-sproutly-primary'}`}
+                    >
+                      Newest First
+                    </button>
+                    <button
+                      onClick={() => { setSortBy('water_soonest'); setIsSortOpen(false); }}
+                      className={`text-left px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors ${sortBy === 'water_soonest' ? 'bg-sproutly-primary/10 text-sproutly-primary' : 'text-sproutly-secondary hover:bg-sproutly-bg hover:text-sproutly-primary'}`}
+                    >
+                      Needs Water Soonest
+                    </button>
+                    <button
+                      onClick={() => { setSortBy('name'); setIsSortOpen(false); }}
+                      className={`text-left px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors ${sortBy === 'name' ? 'bg-sproutly-primary/10 text-sproutly-primary' : 'text-sproutly-secondary hover:bg-sproutly-bg hover:text-sproutly-primary'}`}
+                    >
+                      Alphabetical (A-Z)
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          <div className="bg-white rounded-xl p-1 shadow-sm flex items-center shrink-0">
             <button
               onClick={() => setViewMode('grid')}
               className={`p-2 rounded-lg transition-colors ${viewMode === 'grid' ? 'bg-sproutly-bg text-sproutly-primary' : 'text-sproutly-secondary/50'}`}
@@ -214,9 +312,39 @@ export default function CollectionPage() {
         </div>
       </header>
 
-      <div
-        className={`grid gap-4 lg:gap-6 relative ${viewMode === 'grid' ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4' : 'grid-cols-1'}`}
-      >
+      {plants.length === 0 ? (
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col items-center justify-center py-20 lg:py-32 text-center"
+        >
+          <div className="relative mb-8">
+            <div className="absolute inset-0 bg-sproutly-primary/10 rounded-full blur-3xl animate-pulse" />
+            <div className="text-8xl relative z-10 hover:scale-110 transition-transform duration-500 cursor-default">
+              🪴
+            </div>
+          </div>
+          <h2 className="text-4xl font-bold text-sproutly-primary mb-4 tracking-tight">
+            Your jungle awaits!
+          </h2>
+          <p className="text-lg text-sproutly-secondary font-medium max-w-md mx-auto mb-10 leading-relaxed">
+            Your digital greenhouse is currently empty. Let's plant your very first seed and start growing together!
+          </p>
+          <button
+            onClick={() => {
+              setEditingPlant(null);
+              setIsFormOpen(true);
+            }}
+            className="bg-sproutly-primary text-white px-8 py-4 rounded-2xl shadow-[0_10px_40px_-10px_rgba(42,107,63,0.5)] hover:bg-sproutly-secondary hover:shadow-[0_15px_50px_-10px_rgba(42,107,63,0.6)] hover:-translate-y-1 transition-all duration-300 font-bold text-lg flex items-center gap-3 group"
+          >
+            <Plus size={24} className="group-hover:rotate-90 transition-transform duration-300" />
+            Add Your First Plant
+          </button>
+        </motion.div>
+      ) : (
+        <div
+          className={`grid gap-4 lg:gap-6 relative ${viewMode === 'grid' ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4' : 'grid-cols-1'}`}
+        >
         {/* Scanning Overlay Effect */}
         <AnimatePresence>
           {isSearchingAI && (
@@ -265,6 +393,19 @@ export default function CollectionPage() {
                 viewMode === 'list' ? 'flex flex-col sm:flex-row items-start sm:items-center p-4 gap-4' : ''
               }`}
             >
+              {viewMode === 'list' && (
+                <button
+                  type="button"
+                  onClick={(e) => toggleSelection(e, plant.id)}
+                  className={`shrink-0 w-6 h-6 rounded-md border-2 flex items-center justify-center transition-colors ${
+                    selectedIds.has(plant.id) 
+                      ? 'bg-sproutly-primary border-sproutly-primary text-white' 
+                      : 'border-sproutly-secondary/30 hover:border-sproutly-primary'
+                  }`}
+                >
+                  {selectedIds.has(plant.id) && <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><polyline points="20 6 9 17 4 12"></polyline></svg>}
+                </button>
+              )}
               <div
                 className={`relative shrink-0 ${
                   viewMode === 'grid' ? 'h-40 w-full' : 'h-24 w-24 sm:h-20 sm:w-20 rounded-xl overflow-hidden'
@@ -378,6 +519,39 @@ export default function CollectionPage() {
           ))}
         </AnimatePresence>
       </div>
+      )}
+
+      {/* Floating Action Bar */}
+      <AnimatePresence>
+        {selectedIds.size > 0 && (
+          <motion.div
+            initial={{ y: 100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 100, opacity: 0 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-white/80 backdrop-blur-md rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.1)] border border-sproutly-light/30 p-4 flex items-center gap-6 min-w-[320px]"
+          >
+            <div className="flex-1">
+              <p className="font-bold text-sproutly-primary text-lg">{selectedIds.size} selected</p>
+              <p className="text-sm font-semibold text-sproutly-secondary">Ready for chores!</p>
+            </div>
+            
+            <button
+              onClick={() => setSelectedIds(new Set())}
+              className="text-sproutly-secondary hover:text-sproutly-primary font-semibold text-sm transition-colors"
+            >
+              Cancel
+            </button>
+            
+            <button
+              onClick={handleBatchWater}
+              disabled={isBatchWatering}
+              className="bg-sproutly-primary text-white px-5 py-2.5 rounded-xl shadow-md hover:bg-sproutly-secondary hover:shadow-lg transition-all duration-300 font-bold flex items-center gap-2"
+            >
+              {isBatchWatering ? <Loader2 size={18} className="animate-spin" /> : '💦 Water Selected'}
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Form Modal */}
       <AnimatePresence>
