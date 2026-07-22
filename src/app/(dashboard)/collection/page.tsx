@@ -36,6 +36,10 @@ export default function CollectionPage() {
   const [isSearchingAI, setIsSearchingAI] = useState(false);
   const [sortBy, setSortBy] = useState<'newest' | 'water_soonest' | 'name'>('newest');
   const [isSortOpen, setIsSortOpen] = useState(false);
+  
+  // Batch Actions State
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isBatchWatering, setIsBatchWatering] = useState(false);
 
   const isLikelySentence = searchQuery.trim().split(' ').length > 2 || searchQuery.length > 20;
 
@@ -72,6 +76,13 @@ export default function CollectionPage() {
       return () => clearTimeout(handler);
     }
   }, [searchQuery, filterMode]);
+
+  // Clear selection when switching to Grid view
+  React.useEffect(() => {
+    if (viewMode === 'grid') {
+      setSelectedIds(new Set());
+    }
+  }, [viewMode]);
 
   const handleAISearch = async () => {
     if (!searchQuery.trim()) return;
@@ -123,6 +134,37 @@ export default function CollectionPage() {
   const openChecklist = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
     setActiveChecklist(id);
+  };
+
+  const toggleSelection = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    const next = new Set(selectedIds);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setSelectedIds(next);
+  };
+
+  const handleBatchWater = async () => {
+    if (selectedIds.size === 0) return;
+    setIsBatchWatering(true);
+    
+    const now = new Date().toISOString();
+    
+    try {
+      const updates = Array.from(selectedIds).map(async (id) => {
+        const plant = plants.find(p => p.id === id);
+        if (!plant) return;
+        const nextWatering = new Date(Date.now() + plant.fertilizerCycle * 24 * 60 * 60 * 1000).toISOString();
+        await updatePlant(id, { lastWatered: now, nextWatering });
+      });
+      
+      await Promise.all(updates);
+      setSelectedIds(new Set());
+    } catch (err) {
+      console.error('Failed to batch water:', err);
+    } finally {
+      setIsBatchWatering(false);
+    }
   };
 
   if (loading) {
@@ -351,6 +393,19 @@ export default function CollectionPage() {
                 viewMode === 'list' ? 'flex flex-col sm:flex-row items-start sm:items-center p-4 gap-4' : ''
               }`}
             >
+              {viewMode === 'list' && (
+                <button
+                  type="button"
+                  onClick={(e) => toggleSelection(e, plant.id)}
+                  className={`shrink-0 w-6 h-6 rounded-md border-2 flex items-center justify-center transition-colors ${
+                    selectedIds.has(plant.id) 
+                      ? 'bg-sproutly-primary border-sproutly-primary text-white' 
+                      : 'border-sproutly-secondary/30 hover:border-sproutly-primary'
+                  }`}
+                >
+                  {selectedIds.has(plant.id) && <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><polyline points="20 6 9 17 4 12"></polyline></svg>}
+                </button>
+              )}
               <div
                 className={`relative shrink-0 ${
                   viewMode === 'grid' ? 'h-40 w-full' : 'h-24 w-24 sm:h-20 sm:w-20 rounded-xl overflow-hidden'
@@ -465,6 +520,38 @@ export default function CollectionPage() {
         </AnimatePresence>
       </div>
       )}
+
+      {/* Floating Action Bar */}
+      <AnimatePresence>
+        {selectedIds.size > 0 && (
+          <motion.div
+            initial={{ y: 100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 100, opacity: 0 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-white/80 backdrop-blur-md rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.1)] border border-sproutly-light/30 p-4 flex items-center gap-6 min-w-[320px]"
+          >
+            <div className="flex-1">
+              <p className="font-bold text-sproutly-primary text-lg">{selectedIds.size} selected</p>
+              <p className="text-sm font-semibold text-sproutly-secondary">Ready for chores!</p>
+            </div>
+            
+            <button
+              onClick={() => setSelectedIds(new Set())}
+              className="text-sproutly-secondary hover:text-sproutly-primary font-semibold text-sm transition-colors"
+            >
+              Cancel
+            </button>
+            
+            <button
+              onClick={handleBatchWater}
+              disabled={isBatchWatering}
+              className="bg-sproutly-primary text-white px-5 py-2.5 rounded-xl shadow-md hover:bg-sproutly-secondary hover:shadow-lg transition-all duration-300 font-bold flex items-center gap-2"
+            >
+              {isBatchWatering ? <Loader2 size={18} className="animate-spin" /> : '💦 Water Selected'}
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Form Modal */}
       <AnimatePresence>
