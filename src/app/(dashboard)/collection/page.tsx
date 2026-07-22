@@ -31,22 +31,27 @@ export default function CollectionPage() {
   const [editingPlant, setEditingPlant] = useState<Plant | null>(null);
   const [activeChecklist, setActiveChecklist] = useState<string | null>(null);
 
-  // AI Search States
   const [filterMode, setFilterMode] = useState<'standard' | 'ai'>('standard');
   const [aiFilteredIds, setAiFilteredIds] = useState<string[] | null>(null);
   const [isSearchingAI, setIsSearchingAI] = useState(false);
+  const [sortBy, setSortBy] = useState<'newest' | 'water_soonest' | 'name'>('newest');
 
   const isLikelySentence = searchQuery.trim().split(' ').length > 2 || searchQuery.length > 20;
 
-  const filteredPlants = filterMode === 'ai' && aiFilteredIds !== null
+  const filteredPlants = (filterMode === 'ai' && aiFilteredIds !== null
     ? plants.filter(p => aiFilteredIds.includes(p.id))
     : isLikelySentence 
-      ? plants // Don't aggressively string-filter if they are typing a long question
+      ? [...plants] 
       : plants.filter(
           (p) =>
             p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             p.species.toLowerCase().includes(searchQuery.toLowerCase())
-        );
+        )
+  ).sort((a, b) => {
+    if (sortBy === 'name') return a.name.localeCompare(b.name);
+    if (sortBy === 'water_soonest') return new Date(a.nextWatering).getTime() - new Date(b.nextWatering).getTime();
+    return 0; // Default: rely on original array order from Supabase
+  });
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -185,6 +190,18 @@ export default function CollectionPage() {
               )}
             </div>
           </div>
+          
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as any)}
+            className="bg-white rounded-xl px-4 py-3 shadow-sm text-sm font-semibold text-sproutly-primary border-none focus:ring-2 focus:ring-sproutly-light focus:outline-none hidden sm:block appearance-none cursor-pointer"
+            style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%232A6B3F' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.7rem top 50%', backgroundSize: '1rem auto', paddingRight: '2.5rem' }}
+          >
+            <option value="newest">Newest First</option>
+            <option value="water_soonest">Needs Water Soonest</option>
+            <option value="name">Alphabetical (A-Z)</option>
+          </select>
+
           <div className="bg-white rounded-xl p-1 shadow-sm flex items-center">
             <button
               onClick={() => setViewMode('grid')}
