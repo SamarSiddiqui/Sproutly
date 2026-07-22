@@ -35,6 +35,7 @@ export default function CollectionPage() {
   const [aiFilteredIds, setAiFilteredIds] = useState<string[] | null>(null);
   const [isSearchingAI, setIsSearchingAI] = useState(false);
   const [sortBy, setSortBy] = useState<'newest' | 'water_soonest' | 'name'>('newest');
+  const [isSortOpen, setIsSortOpen] = useState(false);
 
   const isLikelySentence = searchQuery.trim().split(' ').length > 2 || searchQuery.length > 20;
 
@@ -136,11 +137,11 @@ export default function CollectionPage() {
   return (
     <div className="pt-20 pb-24 lg:pt-8 lg:pb-8 px-4 lg:px-8 max-w-7xl mx-auto min-h-full">
       <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">
-        <h1 className="text-3xl font-bold text-sproutly-primary">
+        <h1 className="text-3xl font-bold text-sproutly-primary whitespace-nowrap">
           My Collection
         </h1>
 
-        <div className="flex items-center gap-3 flex-1 lg:max-w-xl lg:ml-auto">
+        <div className="flex items-center gap-3 flex-1 lg:ml-auto w-full">
           <div className={`relative flex-1 rounded-2xl transition-all duration-500 overflow-hidden ${
             isSearchingAI 
               ? 'ring-2 ring-sproutly-primary/60 shadow-[0_0_30px_rgba(42,107,63,0.4)] scale-[1.02]' 
@@ -191,18 +192,56 @@ export default function CollectionPage() {
             </div>
           </div>
           
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as any)}
-            className="bg-white rounded-xl px-4 py-3 shadow-sm text-sm font-semibold text-sproutly-primary border-none focus:ring-2 focus:ring-sproutly-light focus:outline-none hidden sm:block appearance-none cursor-pointer"
-            style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%232A6B3F' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.7rem top 50%', backgroundSize: '1rem auto', paddingRight: '2.5rem' }}
-          >
-            <option value="newest">Newest First</option>
-            <option value="water_soonest">Needs Water Soonest</option>
-            <option value="name">Alphabetical (A-Z)</option>
-          </select>
+          {/* Custom Sort Dropdown */}
+          <div className="relative hidden sm:block">
+            <button
+              onClick={() => setIsSortOpen(!isSortOpen)}
+              onBlur={() => setTimeout(() => setIsSortOpen(false), 200)}
+              className="bg-white rounded-xl px-4 py-3 shadow-sm text-sm font-semibold text-sproutly-primary hover:bg-sproutly-bg transition-colors flex items-center gap-2 border border-sproutly-light/20 min-w-[170px] justify-between"
+            >
+              <span className="truncate">
+                {sortBy === 'newest' ? 'Newest First' : sortBy === 'water_soonest' ? 'Needs Water Soonest' : 'Alphabetical (A-Z)'}
+              </span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform duration-200 ${isSortOpen ? 'rotate-180' : ''}`}>
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
 
-          <div className="bg-white rounded-xl p-1 shadow-sm flex items-center">
+            <AnimatePresence>
+              {isSortOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-xl border border-sproutly-light/20 overflow-hidden z-50"
+                >
+                  <div className="p-1.5 flex flex-col gap-1">
+                    <button
+                      onClick={() => { setSortBy('newest'); setIsSortOpen(false); }}
+                      className={`text-left px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors ${sortBy === 'newest' ? 'bg-sproutly-primary/10 text-sproutly-primary' : 'text-sproutly-secondary hover:bg-sproutly-bg hover:text-sproutly-primary'}`}
+                    >
+                      Newest First
+                    </button>
+                    <button
+                      onClick={() => { setSortBy('water_soonest'); setIsSortOpen(false); }}
+                      className={`text-left px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors ${sortBy === 'water_soonest' ? 'bg-sproutly-primary/10 text-sproutly-primary' : 'text-sproutly-secondary hover:bg-sproutly-bg hover:text-sproutly-primary'}`}
+                    >
+                      Needs Water Soonest
+                    </button>
+                    <button
+                      onClick={() => { setSortBy('name'); setIsSortOpen(false); }}
+                      className={`text-left px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors ${sortBy === 'name' ? 'bg-sproutly-primary/10 text-sproutly-primary' : 'text-sproutly-secondary hover:bg-sproutly-bg hover:text-sproutly-primary'}`}
+                    >
+                      Alphabetical (A-Z)
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          <div className="bg-white rounded-xl p-1 shadow-sm flex items-center shrink-0">
             <button
               onClick={() => setViewMode('grid')}
               className={`p-2 rounded-lg transition-colors ${viewMode === 'grid' ? 'bg-sproutly-bg text-sproutly-primary' : 'text-sproutly-secondary/50'}`}
