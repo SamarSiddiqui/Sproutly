@@ -44,6 +44,7 @@ export function PlantFormModal({ plant, onClose, onSave }: PlantFormModalProps) 
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [isMagicFilling, setIsMagicFilling] = useState(false);
 
   // Debounce search query to prevent hitting API on every keypress
   useEffect(() => {
@@ -83,6 +84,28 @@ export function PlantFormModal({ plant, onClose, onSave }: PlantFormModalProps) 
   const formImage = watch('image');
   const formName = watch('name');
   const formSpecies = watch('species');
+
+  const handleMagicFill = async () => {
+    if (!formName || formName.trim().length < 3) return;
+    setIsMagicFilling(true);
+    try {
+      const res = await fetch('/api/ai-magic-fill', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plantName: formName })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.species) setValue('species', data.species, { shouldValidate: true });
+        if (data.category) setValue('category', data.category as any, { shouldValidate: true });
+        if (data.waterInterval) setValue('fertilizerCycle', data.waterInterval, { shouldValidate: true });
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsMagicFilling(false);
+    }
+  };
 
   const handleSelectDbPlant = (dbPlant: NormalizedPlantSpecies) => {
     setValue('name', dbPlant.common_name);
@@ -301,9 +324,21 @@ export function PlantFormModal({ plant, onClose, onSave }: PlantFormModalProps) 
 
               {/* Form Input fields */}
               <div>
-                <label htmlFor="form-name" className="block text-sm font-semibold text-sproutly-secondary mb-1.5">
-                  Plant Nickname
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label htmlFor="form-name" className="block text-sm font-semibold text-sproutly-secondary">
+                    Plant Nickname
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleMagicFill}
+                    disabled={isMagicFilling || !formName || formName.trim().length < 3}
+                    className="text-xs font-bold text-sproutly-primary bg-sproutly-primary/10 hover:bg-sproutly-primary/20 px-3 py-1 rounded-lg transition-colors flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                    title="Type a nickname first, then let AI guess the botanical details!"
+                  >
+                    {isMagicFilling ? <Loader2 size={14} className="animate-spin" /> : '✨'} 
+                    {isMagicFilling ? 'Thinking...' : 'Magic Fill'}
+                  </button>
+                </div>
                 <input
                   type="text"
                   id="form-name"
