@@ -45,6 +45,18 @@ export function PlantFormModal({ plant, onClose, onSave }: PlantFormModalProps) 
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [isMagicFilling, setIsMagicFilling] = useState(false);
+  
+  const [imageSearchQuery, setImageSearchQuery] = useState('');
+  const [debouncedImageSearch, setDebouncedImageSearch] = useState('');
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedImageSearch(imageSearchQuery);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [imageSearchQuery]);
+
+  const { data: imageResults, isLoading: isSearchingImages } = useSpeciesSearch(debouncedImageSearch, 1);
 
   // Debounce search query to prevent hitting API on every keypress
   useEffect(() => {
@@ -436,16 +448,67 @@ export function PlantFormModal({ plant, onClose, onSave }: PlantFormModalProps) 
               </div>
 
               <div>
-                <label htmlFor="form-image" className="block text-sm font-semibold text-sproutly-secondary mb-1.5">
-                  Image URL
+                <label className="block text-sm font-semibold text-sproutly-secondary mb-3">
+                  Choose a Cover Photo
                 </label>
-                <input
-                  type="text"
-                  id="form-image"
-                  {...register('image')}
-                  placeholder="https://example.com/plant-image.jpg"
-                  className="w-full p-3.5 rounded-xl border border-sproutly-secondary/20 focus:outline-none focus:border-sproutly-light focus:ring-1 focus:ring-sproutly-light bg-white text-sproutly-primary text-xs font-mono"
-                />
+                
+                {/* Selected Image Preview & URL Input */}
+                <div className="flex gap-4 items-start mb-4 bg-sproutly-bg p-3 rounded-2xl border border-sproutly-secondary/10">
+                  <div className="w-16 h-16 rounded-xl bg-white shrink-0 overflow-hidden shadow-sm border border-sproutly-secondary/20">
+                    {formImage ? (
+                      <img src={formImage} alt="Preview" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-sproutly-secondary/50">
+                        <Database size={24} />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <input
+                      type="text"
+                      id="form-image"
+                      {...register('image')}
+                      placeholder="Paste any image URL here..."
+                      className="w-full p-2.5 rounded-xl border border-sproutly-secondary/20 focus:outline-none focus:border-sproutly-light focus:ring-1 focus:ring-sproutly-light bg-white text-sproutly-primary text-xs font-mono mb-1"
+                    />
+                    <p className="text-xs text-sproutly-secondary italic">Or select one from our curated Unsplash gallery below!</p>
+                  </div>
+                </div>
+
+                {/* Dynamic Image Search Gallery */}
+                <div className="bg-sproutly-bg p-4 rounded-2xl border border-sproutly-secondary/10">
+                  <div className="relative mb-3">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-sproutly-secondary/50" size={16} />
+                    <input
+                      type="text"
+                      value={imageSearchQuery}
+                      onChange={(e) => setImageSearchQuery(e.target.value)}
+                      placeholder="Search database for a photo (e.g. Fern)..."
+                      className="w-full bg-white rounded-xl py-2.5 pl-9 pr-4 shadow-sm border border-sproutly-secondary/20 focus:outline-none focus:ring-2 focus:ring-sproutly-light text-sproutly-primary text-sm font-semibold"
+                    />
+                  </div>
+                  
+                  {isSearchingImages ? (
+                    <div className="flex justify-center py-6"><Loader2 className="animate-spin text-sproutly-primary" size={24} /></div>
+                  ) : imageResults?.data && imageResults.data.filter(p => p.image_url && !p.image_url.includes('upgrade_access.jpg')).length > 0 ? (
+                    <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 max-h-[140px] overflow-y-auto scrollbar-hide p-1">
+                      {imageResults.data
+                        .filter(p => p.image_url && !p.image_url.includes('upgrade_access.jpg'))
+                        .map((dbPlant) => (
+                        <button
+                          key={`img-${dbPlant.id}`}
+                          type="button"
+                          onClick={() => setValue('image', dbPlant.image_url, { shouldValidate: true })}
+                          className={`relative aspect-square rounded-xl overflow-hidden shadow-sm transition-all duration-300 hover:scale-105 hover:shadow-md ${formImage === dbPlant.image_url ? 'ring-2 ring-sproutly-primary ring-offset-2 scale-105' : 'border border-sproutly-secondary/20'}`}
+                        >
+                          <img src={dbPlant.image_url} alt={dbPlant.common_name} className="w-full h-full object-cover" />
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-center text-sproutly-secondary py-6 font-semibold">No images found. Try a different search term!</p>
+                  )}
+                </div>
               </div>
 
               <div>
