@@ -1,6 +1,6 @@
 export type Category = 'Indoor' | 'Semi-Shade' | 'Direct Sun';
 export type GrowthStage = 'Seedling' | 'Growing' | 'Mature' | 'Flowering';
-export type PottingStatus = 'nursery' | 'own';
+export type PottingStatus = 'nursery' | 'own' | 'ground';
 export type HealthStatus =
 'healthy' |
 'needs-water' |

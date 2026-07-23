@@ -23,11 +23,11 @@ const plantFormSchema = z.object({
   name: z.string().min(1, 'Plant nickname is required'),
   species: z.string().min(1, 'Species/Scientific name is required'),
   category: z.enum(['Indoor', 'Semi-Shade', 'Direct Sun']),
-  pottingStatus: z.enum(['own', 'nursery']),
+  pottingStatus: z.enum(['own', 'nursery', 'ground']),
   growthStage: z.enum(['Seedling', 'Growing', 'Mature', 'Flowering']),
   waterInterval: z.coerce.number().min(1, 'Water interval must be at least 1 day').max(90),
   fertilizerCycle: z.coerce.number().min(1, 'Fertilizer cycle must be at least 1 day').max(180),
-  potSize: z.string().min(1, 'Pot size is required'),
+  potSize: z.string().optional(),
   location: z.string().min(1, 'Location is required'),
   isPetFriendly: z.boolean(),
   image: z.string().optional(),
@@ -104,6 +104,7 @@ export function PlantFormModal({ plant, onClose, onSave }: PlantFormModalProps) 
   const formImage = watch('image');
   const formName = watch('name');
   const formSpecies = watch('species');
+  const formPottingStatus = watch('pottingStatus');
 
   const handleMagicFill = async () => {
     if (!formName || formName.trim().length < 3) return;
@@ -418,6 +419,7 @@ export function PlantFormModal({ plant, onClose, onSave }: PlantFormModalProps) 
                   >
                     <option value="own">Own Pot</option>
                     <option value="nursery">Nursery Pot</option>
+                    <option value="ground">In Ground</option>
                   </select>
                 </div>
               </div>
@@ -474,22 +476,25 @@ export function PlantFormModal({ plant, onClose, onSave }: PlantFormModalProps) 
                     <p className="text-red-500 text-xs font-semibold mt-1">{errors.fertilizerCycle.message}</p>
                   )}
                 </div>
-                <div>
-                  <label htmlFor="form-pot-size" className="block text-sm font-semibold text-sproutly-secondary mb-1.5">
-                    Pot Size
-                  </label>
-                  <select
-                    id="form-pot-size"
-                    {...register('potSize')}
-                    className="w-full p-3.5 rounded-xl border border-sproutly-secondary/20 focus:outline-none focus:border-sproutly-light focus:ring-1 focus:ring-sproutly-light bg-white text-sproutly-primary font-semibold"
-                  >
-                    <option value='4"'>4" (Small)</option>
-                    <option value='6"'>6" (Medium)</option>
-                    <option value='8"'>8" (Large)</option>
-                    <option value='10"'>10" (X-Large)</option>
-                    <option value='12"+'>12"+ (Jumbo)</option>
-                  </select>
-                </div>
+                {formPottingStatus !== 'ground' && (
+                  <div>
+                    <label htmlFor="form-pot-size" className="block text-sm font-semibold text-sproutly-secondary mb-1.5">
+                      Pot Size
+                    </label>
+                    <input
+                      type="text"
+                      id="form-pot-size"
+                      {...register('potSize')}
+                      placeholder='e.g. 14", 16"'
+                      className={`w-full p-3.5 rounded-xl border ${
+                        errors.potSize ? 'border-red-500 focus:ring-red-500' : 'border-sproutly-secondary/20 focus:ring-sproutly-light'
+                      } focus:outline-none focus:ring-1 bg-white text-sproutly-primary font-semibold`}
+                    />
+                    {errors.potSize && (
+                      <p className="text-red-500 text-xs font-semibold mt-1">{errors.potSize.message}</p>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-5 items-end">
