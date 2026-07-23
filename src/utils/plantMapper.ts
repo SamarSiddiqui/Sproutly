@@ -16,6 +16,9 @@ export const mapDbRowToPlant = (row: any): Plant => {
     pruningSeasons: Array.isArray(row.pruning_seasons) ? row.pruning_seasons : (row.pruningSeasons || ['Spring']),
     pottingStatus: row.potting_status || row.pottingStatus || 'own',
     healthStatus: row.health_status || row.healthStatus || 'healthy',
+    potSize: row.pot_size || row.potSize || '6"',
+    location: row.location || 'Living Room',
+    isPetFriendly: row.is_pet_friendly ?? row.isPetFriendly ?? false,
     notes: row.notes || ''
   };
 };
@@ -49,6 +52,15 @@ export const mapPlantToDbRow = (plant: Partial<Plant>, userId?: string): any => 
   }
   if (plant.pruningSeasons !== undefined) {
     row.pruning_seasons = plant.pruningSeasons;
+  }
+  if (plant.potSize !== undefined) {
+    row.pot_size = plant.potSize;
+  }
+  if (plant.location !== undefined) {
+    row.location = plant.location;
+  }
+  if (plant.isPetFriendly !== undefined) {
+    row.is_pet_friendly = plant.isPetFriendly;
   }
   if (plant.pottingStatus !== undefined) {
     row.potting_status = plant.pottingStatus;

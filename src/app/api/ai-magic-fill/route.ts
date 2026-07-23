@@ -17,7 +17,8 @@ Return ONLY a valid JSON object matching this exact schema, with no markdown for
 {
   "species": string (The exact scientific/botanical name, e.g., "Monstera deliciosa"),
   "category": string (Must be exactly one of: "Indoor", "Semi-Shade", or "Direct Sun" based on ideal light conditions),
-  "waterInterval": number (The ideal average number of days between watering, e.g., 7 for a week, 14 for two weeks, 30 for succulents)
+  "waterInterval": number (The ideal average number of days between watering, e.g., 7 for a week, 14 for two weeks, 30 for succulents),
+  "isPetFriendly": boolean (true if the plant is non-toxic to cats and dogs, false if it is toxic)
 }`;
 
     const response = await fetch('https://api.mistral.ai/v1/chat/completions', {
@@ -55,7 +56,7 @@ Return ONLY a valid JSON object matching this exact schema, with no markdown for
       parsed = JSON.parse(reply);
     } catch (parseError) {
       console.error('Failed to parse Mistral JSON:', reply);
-      return NextResponse.json({ species: '', category: 'Indoor', waterInterval: 7 });
+      return NextResponse.json({ species: '', category: 'Indoor', waterInterval: 7, isPetFriendly: false });
     }
 
     return NextResponse.json(parsed);

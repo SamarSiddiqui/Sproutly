@@ -22,6 +22,9 @@ export interface Plant {
   pruningSeasons: string[];
   pottingStatus: PottingStatus;
   healthStatus: HealthStatus;
+  potSize: string;
+  location: string;
+  isPetFriendly: boolean;
   notes: string;
 }
 

@@ -27,6 +27,9 @@ const plantFormSchema = z.object({
   growthStage: z.enum(['Seedling', 'Growing', 'Mature', 'Flowering']),
   waterInterval: z.coerce.number().min(1, 'Water interval must be at least 1 day').max(90),
   fertilizerCycle: z.coerce.number().min(1, 'Fertilizer cycle must be at least 1 day').max(180),
+  potSize: z.string().min(1, 'Pot size is required'),
+  location: z.string().min(1, 'Location is required'),
+  isPetFriendly: z.boolean(),
   image: z.string().optional(),
   notes: z.string().optional(),
 });
@@ -90,6 +93,9 @@ export function PlantFormModal({ plant, onClose, onSave }: PlantFormModalProps) 
       growthStage: plant?.growthStage || 'Growing',
       waterInterval: plant?.waterInterval || 7,
       fertilizerCycle: plant?.fertilizerCycle || 30,
+      potSize: plant?.potSize || '6"',
+      location: plant?.location || 'Living Room',
+      isPetFriendly: plant?.isPetFriendly ?? false,
       image: plant?.image || '',
       notes: plant?.notes || '',
     },
@@ -113,6 +119,7 @@ export function PlantFormModal({ plant, onClose, onSave }: PlantFormModalProps) 
         if (data.species) setValue('species', data.species, { shouldValidate: true });
         if (data.category) setValue('category', data.category as any, { shouldValidate: true });
         if (data.waterInterval) setValue('waterInterval', data.waterInterval, { shouldValidate: true });
+        if (data.isPetFriendly !== undefined) setValue('isPetFriendly', data.isPetFriendly, { shouldValidate: true });
       }
     } catch (e) {
       console.error(e);
@@ -449,22 +456,71 @@ export function PlantFormModal({ plant, onClose, onSave }: PlantFormModalProps) 
                 </div>
               </div>
 
-              <div>
-                <label htmlFor="form-fert-cycle" className="block text-sm font-semibold text-sproutly-secondary mb-1.5">
-                  Fertilizer Cycle (days)
-                </label>
-                <input
-                  type="number"
-                  id="form-fert-cycle"
-                  {...register('fertilizerCycle')}
-                  placeholder="e.g. 30"
-                  className={`w-full p-3.5 rounded-xl border ${
-                    errors.fertilizerCycle ? 'border-red-500 focus:ring-red-500' : 'border-sproutly-secondary/20 focus:ring-sproutly-light'
-                  } focus:outline-none focus:ring-1 bg-white text-sproutly-primary font-semibold`}
-                />
-                {errors.fertilizerCycle && (
-                  <p className="text-red-500 text-xs font-semibold mt-1">{errors.fertilizerCycle.message}</p>
-                )}
+              <div className="grid grid-cols-2 gap-5">
+                <div>
+                  <label htmlFor="form-fert-cycle" className="block text-sm font-semibold text-sproutly-secondary mb-1.5">
+                    Fertilizer Cycle (days)
+                  </label>
+                  <input
+                    type="number"
+                    id="form-fert-cycle"
+                    {...register('fertilizerCycle')}
+                    placeholder="e.g. 30"
+                    className={`w-full p-3.5 rounded-xl border ${
+                      errors.fertilizerCycle ? 'border-red-500 focus:ring-red-500' : 'border-sproutly-secondary/20 focus:ring-sproutly-light'
+                    } focus:outline-none focus:ring-1 bg-white text-sproutly-primary font-semibold`}
+                  />
+                  {errors.fertilizerCycle && (
+                    <p className="text-red-500 text-xs font-semibold mt-1">{errors.fertilizerCycle.message}</p>
+                  )}
+                </div>
+                <div>
+                  <label htmlFor="form-pot-size" className="block text-sm font-semibold text-sproutly-secondary mb-1.5">
+                    Pot Size
+                  </label>
+                  <select
+                    id="form-pot-size"
+                    {...register('potSize')}
+                    className="w-full p-3.5 rounded-xl border border-sproutly-secondary/20 focus:outline-none focus:border-sproutly-light focus:ring-1 focus:ring-sproutly-light bg-white text-sproutly-primary font-semibold"
+                  >
+                    <option value='4"'>4" (Small)</option>
+                    <option value='6"'>6" (Medium)</option>
+                    <option value='8"'>8" (Large)</option>
+                    <option value='10"'>10" (X-Large)</option>
+                    <option value='12"+'>12"+ (Jumbo)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-5 items-end">
+                <div>
+                  <label htmlFor="form-location" className="block text-sm font-semibold text-sproutly-secondary mb-1.5">
+                    Location
+                  </label>
+                  <select
+                    id="form-location"
+                    {...register('location')}
+                    className="w-full p-3.5 rounded-xl border border-sproutly-secondary/20 focus:outline-none focus:border-sproutly-light focus:ring-1 focus:ring-sproutly-light bg-white text-sproutly-primary font-semibold"
+                  >
+                    <option value="Living Room">Living Room</option>
+                    <option value="Bedroom">Bedroom</option>
+                    <option value="Kitchen">Kitchen</option>
+                    <option value="Office">Office</option>
+                    <option value="Bathroom">Bathroom</option>
+                    <option value="Patio">Patio</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="flex items-center gap-3 p-3.5 border border-sproutly-secondary/20 rounded-xl cursor-pointer hover:bg-sproutly-bg transition-colors">
+                    <input
+                      type="checkbox"
+                      {...register('isPetFriendly')}
+                      className="w-5 h-5 rounded border-sproutly-secondary/30 text-sproutly-primary focus:ring-sproutly-light"
+                    />
+                    <span className="text-sm font-semibold text-sproutly-primary">Pet Friendly? 🐾</span>
+                  </label>
+                </div>
               </div>
 
               <div>
