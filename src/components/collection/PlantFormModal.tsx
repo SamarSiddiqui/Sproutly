@@ -25,7 +25,8 @@ const plantFormSchema = z.object({
   category: z.enum(['Indoor', 'Semi-Shade', 'Direct Sun']),
   pottingStatus: z.enum(['own', 'nursery']),
   growthStage: z.enum(['Seedling', 'Growing', 'Mature', 'Flowering']),
-  fertilizerCycle: z.coerce.number().min(1, 'Water interval must be at least 1 day').max(90),
+  waterInterval: z.coerce.number().min(1, 'Water interval must be at least 1 day').max(90),
+  fertilizerCycle: z.coerce.number().min(1, 'Fertilizer cycle must be at least 1 day').max(180),
   image: z.string().optional(),
   notes: z.string().optional(),
 });
@@ -87,7 +88,8 @@ export function PlantFormModal({ plant, onClose, onSave }: PlantFormModalProps) 
       category: plant?.category || 'Indoor',
       pottingStatus: plant?.pottingStatus || 'own',
       growthStage: plant?.growthStage || 'Growing',
-      fertilizerCycle: plant?.fertilizerCycle || 7,
+      waterInterval: plant?.waterInterval || 7,
+      fertilizerCycle: plant?.fertilizerCycle || 30,
       image: plant?.image || '',
       notes: plant?.notes || '',
     },
@@ -110,7 +112,7 @@ export function PlantFormModal({ plant, onClose, onSave }: PlantFormModalProps) 
         const data = await res.json();
         if (data.species) setValue('species', data.species, { shouldValidate: true });
         if (data.category) setValue('category', data.category as any, { shouldValidate: true });
-        if (data.waterInterval) setValue('fertilizerCycle', data.waterInterval, { shouldValidate: true });
+        if (data.waterInterval) setValue('waterInterval', data.waterInterval, { shouldValidate: true });
       }
     } catch (e) {
       console.error(e);
@@ -131,7 +133,7 @@ export function PlantFormModal({ plant, onClose, onSave }: PlantFormModalProps) 
     
     // Compute last/next watering dates based on interval
     const lastWatered = plant?.lastWatered || new Date().toISOString();
-    const nextWatering = new Date(Date.now() + data.fertilizerCycle * 24 * 60 * 60 * 1000).toISOString();
+    const nextWatering = new Date(Date.now() + data.waterInterval * 24 * 60 * 60 * 1000).toISOString();
     
     onSave({
       ...data,
@@ -436,15 +438,33 @@ export function PlantFormModal({ plant, onClose, onSave }: PlantFormModalProps) 
                   <input
                     type="number"
                     id="form-cycle"
-                    {...register('fertilizerCycle')}
+                    {...register('waterInterval')}
                     className={`w-full p-3.5 rounded-xl border ${
-                      errors.fertilizerCycle ? 'border-red-500 focus:ring-red-500' : 'border-sproutly-secondary/20 focus:ring-sproutly-light'
+                      errors.waterInterval ? 'border-red-500 focus:ring-red-500' : 'border-sproutly-secondary/20 focus:ring-sproutly-light'
                     } focus:outline-none focus:ring-1 bg-white text-sproutly-primary font-semibold`}
                   />
-                  {errors.fertilizerCycle && (
-                    <p className="text-red-500 text-xs font-semibold mt-1">{errors.fertilizerCycle.message}</p>
+                  {errors.waterInterval && (
+                    <p className="text-red-500 text-xs font-semibold mt-1">{errors.waterInterval.message}</p>
                   )}
                 </div>
+              </div>
+
+              <div>
+                <label htmlFor="form-fert-cycle" className="block text-sm font-semibold text-sproutly-secondary mb-1.5">
+                  Fertilizer Cycle (days)
+                </label>
+                <input
+                  type="number"
+                  id="form-fert-cycle"
+                  {...register('fertilizerCycle')}
+                  placeholder="e.g. 30"
+                  className={`w-full p-3.5 rounded-xl border ${
+                    errors.fertilizerCycle ? 'border-red-500 focus:ring-red-500' : 'border-sproutly-secondary/20 focus:ring-sproutly-light'
+                  } focus:outline-none focus:ring-1 bg-white text-sproutly-primary font-semibold`}
+                />
+                {errors.fertilizerCycle && (
+                  <p className="text-red-500 text-xs font-semibold mt-1">{errors.fertilizerCycle.message}</p>
+                )}
               </div>
 
               <div>

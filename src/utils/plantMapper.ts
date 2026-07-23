@@ -10,6 +10,7 @@ export const mapDbRowToPlant = (row: any): Plant => {
     growthStage: row.growth_stage || row.growthStage || 'Growing',
     lastWatered: row.last_watered || row.lastWatered || new Date().toISOString(),
     nextWatering: row.next_watering || row.nextWatering || new Date().toISOString(),
+    waterInterval: row.water_interval || row.waterInterval || 7,
     fertilizerCycle: row.fertilizer_cycle || row.fertilizerCycle || 30,
     lastFertilized: row.last_fertilized || row.lastFertilized || new Date().toISOString(),
     pruningSeasons: Array.isArray(row.pruning_seasons) ? row.pruning_seasons : (row.pruningSeasons || ['Spring']),
@@ -36,6 +37,9 @@ export const mapPlantToDbRow = (plant: Partial<Plant>, userId?: string): any => 
   }
   if (plant.nextWatering !== undefined) {
     row.next_watering = plant.nextWatering;
+  }
+  if (plant.waterInterval !== undefined) {
+    row.water_interval = plant.waterInterval;
   }
   if (plant.fertilizerCycle !== undefined) {
     row.fertilizer_cycle = plant.fertilizerCycle;

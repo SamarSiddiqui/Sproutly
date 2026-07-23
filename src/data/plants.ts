@@ -16,6 +16,7 @@ export interface Plant {
   growthStage: GrowthStage;
   lastWatered: string; // ISO date string
   nextWatering: string; // ISO date string
+  waterInterval: number; // in days
   fertilizerCycle: number; // in days
   lastFertilized: string; // ISO date string
   pruningSeasons: string[];
