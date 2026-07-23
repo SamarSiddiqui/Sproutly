@@ -171,7 +171,7 @@ export default function CollectionPage() {
       const updates = Array.from(selectedIds).map(async (id) => {
         const plant = plants.find(p => p.id === id);
         if (!plant) return;
-        const nextWatering = new Date(Date.now() + plant.fertilizerCycle * 24 * 60 * 60 * 1000).toISOString();
+        const nextWatering = new Date(Date.now() + plant.waterInterval * 24 * 60 * 60 * 1000).toISOString();
         await updatePlant(id, { lastWatered: now, nextWatering });
       });
       

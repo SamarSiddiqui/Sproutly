@@ -25,7 +25,11 @@ const plantFormSchema = z.object({
   category: z.enum(['Indoor', 'Semi-Shade', 'Direct Sun']),
   pottingStatus: z.enum(['own', 'nursery']),
   growthStage: z.enum(['Seedling', 'Growing', 'Mature', 'Flowering']),
-  fertilizerCycle: z.coerce.number().min(1, 'Water interval must be at least 1 day').max(90),
+  waterInterval: z.coerce.number().min(1, 'Water interval must be at least 1 day').max(90),
+  fertilizerCycle: z.coerce.number().min(1, 'Fertilizer cycle must be at least 1 day').max(180),
+  potSize: z.string().min(1, 'Pot size is required'),
+  location: z.string().min(1, 'Location is required'),
+  isPetFriendly: z.boolean(),
   image: z.string().optional(),
   notes: z.string().optional(),
 });
@@ -44,6 +48,19 @@ export function PlantFormModal({ plant, onClose, onSave }: PlantFormModalProps) 
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [isMagicFilling, setIsMagicFilling] = useState(false);
+  
+  const [imageSearchQuery, setImageSearchQuery] = useState('');
+  const [debouncedImageSearch, setDebouncedImageSearch] = useState('');
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedImageSearch(imageSearchQuery);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [imageSearchQuery]);
+
+  const { data: imageResults, isLoading: isSearchingImages } = useSpeciesSearch(debouncedImageSearch, 1);
 
   // Debounce search query to prevent hitting API on every keypress
   useEffect(() => {
@@ -74,7 +91,11 @@ export function PlantFormModal({ plant, onClose, onSave }: PlantFormModalProps) 
       category: plant?.category || 'Indoor',
       pottingStatus: plant?.pottingStatus || 'own',
       growthStage: plant?.growthStage || 'Growing',
-      fertilizerCycle: plant?.fertilizerCycle || 7,
+      waterInterval: plant?.waterInterval || 7,
+      fertilizerCycle: plant?.fertilizerCycle || 30,
+      potSize: plant?.potSize || '6"',
+      location: plant?.location || 'Living Room',
+      isPetFriendly: plant?.isPetFriendly ?? false,
       image: plant?.image || '',
       notes: plant?.notes || '',
     },
@@ -83,6 +104,29 @@ export function PlantFormModal({ plant, onClose, onSave }: PlantFormModalProps) 
   const formImage = watch('image');
   const formName = watch('name');
   const formSpecies = watch('species');
+
+  const handleMagicFill = async () => {
+    if (!formName || formName.trim().length < 3) return;
+    setIsMagicFilling(true);
+    try {
+      const res = await fetch('/api/ai-magic-fill', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plantName: formName })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.species) setValue('species', data.species, { shouldValidate: true });
+        if (data.category) setValue('category', data.category as any, { shouldValidate: true });
+        if (data.waterInterval) setValue('waterInterval', data.waterInterval, { shouldValidate: true });
+        if (data.isPetFriendly !== undefined) setValue('isPetFriendly', data.isPetFriendly, { shouldValidate: true });
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsMagicFilling(false);
+    }
+  };
 
   const handleSelectDbPlant = (dbPlant: NormalizedPlantSpecies) => {
     setValue('name', dbPlant.common_name);
@@ -96,7 +140,7 @@ export function PlantFormModal({ plant, onClose, onSave }: PlantFormModalProps) 
     
     // Compute last/next watering dates based on interval
     const lastWatered = plant?.lastWatered || new Date().toISOString();
-    const nextWatering = new Date(Date.now() + data.fertilizerCycle * 24 * 60 * 60 * 1000).toISOString();
+    const nextWatering = new Date(Date.now() + data.waterInterval * 24 * 60 * 60 * 1000).toISOString();
     
     onSave({
       ...data,
@@ -301,9 +345,21 @@ export function PlantFormModal({ plant, onClose, onSave }: PlantFormModalProps) 
 
               {/* Form Input fields */}
               <div>
-                <label htmlFor="form-name" className="block text-sm font-semibold text-sproutly-secondary mb-1.5">
-                  Plant Nickname
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label htmlFor="form-name" className="block text-sm font-semibold text-sproutly-secondary">
+                    Plant Nickname
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleMagicFill}
+                    disabled={isMagicFilling || !formName || formName.trim().length < 3}
+                    className="text-xs font-bold text-sproutly-primary bg-sproutly-primary/10 hover:bg-sproutly-primary/20 px-3 py-1 rounded-lg transition-colors flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                    title="Type a nickname first, then let AI guess the botanical details!"
+                  >
+                    {isMagicFilling ? <Loader2 size={14} className="animate-spin" /> : '✨'} 
+                    {isMagicFilling ? 'Thinking...' : 'Magic Fill'}
+                  </button>
+                </div>
                 <input
                   type="text"
                   id="form-name"
@@ -389,7 +445,27 @@ export function PlantFormModal({ plant, onClose, onSave }: PlantFormModalProps) 
                   <input
                     type="number"
                     id="form-cycle"
+                    {...register('waterInterval')}
+                    className={`w-full p-3.5 rounded-xl border ${
+                      errors.waterInterval ? 'border-red-500 focus:ring-red-500' : 'border-sproutly-secondary/20 focus:ring-sproutly-light'
+                    } focus:outline-none focus:ring-1 bg-white text-sproutly-primary font-semibold`}
+                  />
+                  {errors.waterInterval && (
+                    <p className="text-red-500 text-xs font-semibold mt-1">{errors.waterInterval.message}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-5">
+                <div>
+                  <label htmlFor="form-fert-cycle" className="block text-sm font-semibold text-sproutly-secondary mb-1.5">
+                    Fertilizer Cycle (days)
+                  </label>
+                  <input
+                    type="number"
+                    id="form-fert-cycle"
                     {...register('fertilizerCycle')}
+                    placeholder="e.g. 30"
                     className={`w-full p-3.5 rounded-xl border ${
                       errors.fertilizerCycle ? 'border-red-500 focus:ring-red-500' : 'border-sproutly-secondary/20 focus:ring-sproutly-light'
                     } focus:outline-none focus:ring-1 bg-white text-sproutly-primary font-semibold`}
@@ -398,19 +474,117 @@ export function PlantFormModal({ plant, onClose, onSave }: PlantFormModalProps) 
                     <p className="text-red-500 text-xs font-semibold mt-1">{errors.fertilizerCycle.message}</p>
                   )}
                 </div>
+                <div>
+                  <label htmlFor="form-pot-size" className="block text-sm font-semibold text-sproutly-secondary mb-1.5">
+                    Pot Size
+                  </label>
+                  <select
+                    id="form-pot-size"
+                    {...register('potSize')}
+                    className="w-full p-3.5 rounded-xl border border-sproutly-secondary/20 focus:outline-none focus:border-sproutly-light focus:ring-1 focus:ring-sproutly-light bg-white text-sproutly-primary font-semibold"
+                  >
+                    <option value='4"'>4" (Small)</option>
+                    <option value='6"'>6" (Medium)</option>
+                    <option value='8"'>8" (Large)</option>
+                    <option value='10"'>10" (X-Large)</option>
+                    <option value='12"+'>12"+ (Jumbo)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-5 items-end">
+                <div>
+                  <label htmlFor="form-location" className="block text-sm font-semibold text-sproutly-secondary mb-1.5">
+                    Location
+                  </label>
+                  <select
+                    id="form-location"
+                    {...register('location')}
+                    className="w-full p-3.5 rounded-xl border border-sproutly-secondary/20 focus:outline-none focus:border-sproutly-light focus:ring-1 focus:ring-sproutly-light bg-white text-sproutly-primary font-semibold"
+                  >
+                    <option value="Living Room">Living Room</option>
+                    <option value="Bedroom">Bedroom</option>
+                    <option value="Kitchen">Kitchen</option>
+                    <option value="Office">Office</option>
+                    <option value="Bathroom">Bathroom</option>
+                    <option value="Patio">Patio</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="flex items-center gap-3 p-3.5 border border-sproutly-secondary/20 rounded-xl cursor-pointer hover:bg-sproutly-bg transition-colors">
+                    <input
+                      type="checkbox"
+                      {...register('isPetFriendly')}
+                      className="w-5 h-5 rounded border-sproutly-secondary/30 text-sproutly-primary focus:ring-sproutly-light"
+                    />
+                    <span className="text-sm font-semibold text-sproutly-primary">Pet Friendly? 🐾</span>
+                  </label>
+                </div>
               </div>
 
               <div>
-                <label htmlFor="form-image" className="block text-sm font-semibold text-sproutly-secondary mb-1.5">
-                  Image URL
+                <label className="block text-sm font-semibold text-sproutly-secondary mb-3">
+                  Choose a Cover Photo
                 </label>
-                <input
-                  type="text"
-                  id="form-image"
-                  {...register('image')}
-                  placeholder="https://example.com/plant-image.jpg"
-                  className="w-full p-3.5 rounded-xl border border-sproutly-secondary/20 focus:outline-none focus:border-sproutly-light focus:ring-1 focus:ring-sproutly-light bg-white text-sproutly-primary text-xs font-mono"
-                />
+                
+                {/* Selected Image Preview & URL Input */}
+                <div className="flex gap-4 items-start mb-4 bg-sproutly-bg p-3 rounded-2xl border border-sproutly-secondary/10">
+                  <div className="w-16 h-16 rounded-xl bg-white shrink-0 overflow-hidden shadow-sm border border-sproutly-secondary/20">
+                    {formImage ? (
+                      <img src={formImage} alt="Preview" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-sproutly-secondary/50">
+                        <Database size={24} />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <input
+                      type="text"
+                      id="form-image"
+                      {...register('image')}
+                      placeholder="Paste any image URL here..."
+                      className="w-full p-2.5 rounded-xl border border-sproutly-secondary/20 focus:outline-none focus:border-sproutly-light focus:ring-1 focus:ring-sproutly-light bg-white text-sproutly-primary text-xs font-mono mb-1"
+                    />
+                    <p className="text-xs text-sproutly-secondary italic">Or select one from our curated Unsplash gallery below!</p>
+                  </div>
+                </div>
+
+                {/* Dynamic Image Search Gallery */}
+                <div className="bg-sproutly-bg p-4 rounded-2xl border border-sproutly-secondary/10">
+                  <div className="relative mb-3">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-sproutly-secondary/50" size={16} />
+                    <input
+                      type="text"
+                      value={imageSearchQuery}
+                      onChange={(e) => setImageSearchQuery(e.target.value)}
+                      placeholder="Search database for a photo (e.g. Fern)..."
+                      className="w-full bg-white rounded-xl py-2.5 pl-9 pr-4 shadow-sm border border-sproutly-secondary/20 focus:outline-none focus:ring-2 focus:ring-sproutly-light text-sproutly-primary text-sm font-semibold"
+                    />
+                  </div>
+                  
+                  {isSearchingImages ? (
+                    <div className="flex justify-center py-6"><Loader2 className="animate-spin text-sproutly-primary" size={24} /></div>
+                  ) : imageResults?.data && imageResults.data.filter(p => p.image_url && !p.image_url.includes('upgrade_access.jpg')).length > 0 ? (
+                    <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 max-h-[140px] overflow-y-auto scrollbar-hide p-1">
+                      {imageResults.data
+                        .filter(p => p.image_url && !p.image_url.includes('upgrade_access.jpg'))
+                        .map((dbPlant) => (
+                        <button
+                          key={`img-${dbPlant.id}`}
+                          type="button"
+                          onClick={() => setValue('image', dbPlant.image_url, { shouldValidate: true })}
+                          className={`relative aspect-square rounded-xl overflow-hidden shadow-sm transition-all duration-300 hover:scale-105 hover:shadow-md ${formImage === dbPlant.image_url ? 'ring-2 ring-sproutly-primary ring-offset-2 scale-105' : 'border border-sproutly-secondary/20'}`}
+                        >
+                          <img src={dbPlant.image_url} alt={dbPlant.common_name} className="w-full h-full object-cover" />
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-center text-sproutly-secondary py-6 font-semibold">No images found. Try a different search term!</p>
+                  )}
+                </div>
               </div>
 
               <div>
