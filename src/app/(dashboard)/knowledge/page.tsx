@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { usePlants } from '../../../hooks/usePlants';
 import {
@@ -16,6 +16,8 @@ import {
 export default function KnowledgeHubPage() {
   const router = useRouter();
   const { plants, loading } = usePlants();
+  const [activeCategory, setActiveCategory] = useState('All');
+  const categories = ['All', 'Pest Control', 'Watering', 'Propagation', 'Soil Health', 'Lighting'];
 
   const quickTips = [
     {
@@ -125,6 +127,23 @@ export default function KnowledgeHubPage() {
             Read Article <ArrowRight size={18} />
           </button>
         </div>
+      </section>
+
+      {/* Category Filter Chips */}
+      <section className="flex gap-3 overflow-x-auto hide-scrollbar pb-2 snap-x">
+        {categories.map((cat) => (
+          <button
+            key={cat}
+            onClick={() => setActiveCategory(cat)}
+            className={`snap-start shrink-0 px-5 py-2.5 rounded-full text-sm font-bold transition-all ${
+              activeCategory === cat
+                ? 'bg-sproutly-primary text-white shadow-md'
+                : 'bg-white text-sproutly-secondary hover:bg-sproutly-bg border border-sproutly-secondary/10'
+            }`}
+          >
+            {cat}
+          </button>
+        ))}
       </section>
 
       {/* Quick Tips */}
