@@ -94,6 +94,39 @@ export default function KnowledgeHubPage() {
         </p>
       </header>
 
+      {/* Featured Hero Banner */}
+      <section className="relative w-full h-[350px] lg:h-[400px] rounded-[32px] overflow-hidden shadow-sm group cursor-pointer">
+        <img
+          src="https://images.unsplash.com/photo-1585320806297-9794b3e4ce88?auto=format&fit=crop&q=80&w=1200"
+          alt="Featured Article"
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-sproutly-primary/90 via-sproutly-primary/40 to-transparent" />
+        
+        <div className="absolute inset-0 p-6 lg:p-12 flex flex-col justify-end">
+          <div className="flex gap-3 mb-4">
+            <span className="bg-sproutly-light text-sproutly-primary text-[10px] sm:text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">
+              Featured
+            </span>
+            <span className="bg-white/20 backdrop-blur-md text-white text-[10px] sm:text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5">
+              <BookOpen size={14} /> 5 min read
+            </span>
+          </div>
+          
+          <h2 className="text-2xl sm:text-3xl lg:text-5xl font-bold text-white mb-3 lg:mb-4 leading-tight max-w-2xl">
+            The Ultimate Guide to Overwintering Terrace Plants
+          </h2>
+          
+          <p className="text-white/80 text-sm lg:text-base font-medium max-w-xl mb-6 line-clamp-2">
+            Winter is coming, but your plants don't have to suffer. Learn how to protect your tropicals, manage watering cycles, and keep your terrace thriving during the cold months.
+          </p>
+          
+          <button className="bg-white text-sproutly-primary font-bold px-5 py-2.5 lg:px-6 lg:py-3 rounded-xl w-fit flex items-center gap-2 hover:bg-sproutly-bg transition-colors text-sm lg:text-base">
+            Read Article <ArrowRight size={18} />
+          </button>
+        </div>
+      </section>
+
       {/* Quick Tips */}
       <section>
         <h2 className="text-xl font-bold text-sproutly-primary mb-6 flex items-center gap-2">
