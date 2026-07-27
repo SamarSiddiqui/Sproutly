@@ -234,6 +234,7 @@ export default function KnowledgeHubPage() {
                     </div>
                   </div>
                 )}
+                </div>
               </div>
             );
           })}
