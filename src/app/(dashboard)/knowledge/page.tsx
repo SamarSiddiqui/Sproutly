@@ -19,29 +19,42 @@ export default function KnowledgeHubPage() {
   const [activeCategory, setActiveCategory] = useState('All');
   const categories = ['All', 'Pest Control', 'Watering', 'Propagation', 'Soil Health', 'Lighting'];
 
-  const quickTips = [
+  const articles = [
     {
       id: 'soil-health',
-      icon: Sprout,
-      title: 'Aerating Soil',
-      content: 'Gently poke holes in the topsoil with a chopstick before watering to improve oxygen flow to roots.',
+      category: 'Soil Health',
+      title: 'The Secret to Perfect Aeration',
+      content: 'Gently poke holes in the topsoil with a chopstick before watering to improve oxygen flow to roots and prevent compaction.',
+      readTime: '3 min read',
+      difficulty: 'Beginner',
+      image: 'https://images.unsplash.com/photo-1416879598555-220013f707f1?auto=format&fit=crop&q=80&w=600',
       relatedCategories: ['Indoor', 'Semi-Shade']
     },
     {
       id: 'pest-control',
-      icon: Bug,
-      title: 'Neem Oil Spray',
-      content: 'Mix 1tsp neem oil with 1L water and a drop of dish soap. Spray every 14 days to prevent mealybugs.',
+      category: 'Pest Control',
+      title: 'Organic Neem Oil Spray Guide',
+      content: 'Mix 1tsp neem oil with 1L water and a drop of dish soap. Spray every 14 days to prevent mealybugs and spider mites.',
+      readTime: '5 min read',
+      difficulty: 'Intermediate',
+      image: 'https://images.unsplash.com/photo-1595856950275-3453b3d4f195?auto=format&fit=crop&q=80&w=600',
       relatedCategories: ['Direct Sun']
     },
     {
-      id: 'drainage',
-      icon: Droplets,
-      title: 'The Pebble Myth',
-      content: 'Adding pebbles to the bottom of a pot actually raises the water table. Use a well-draining soil mix instead.',
+      id: 'watering',
+      category: 'Watering',
+      title: 'Busting the Pebble Drainage Myth',
+      content: 'Adding pebbles to the bottom of a pot actually raises the water table and causes root rot. Use a well-draining soil mix instead.',
+      readTime: '4 min read',
+      difficulty: 'Advanced',
+      image: 'https://images.unsplash.com/photo-1598282305597-4b71ffebbcbe?auto=format&fit=crop&q=80&w=600',
       relatedCategories: ['Indoor', 'Direct Sun', 'Semi-Shade']
     }
   ];
+
+  const filteredArticles = activeCategory === 'All' 
+    ? articles 
+    : articles.filter(a => a.category === activeCategory);
 
   const propagationGuides = [
     {
@@ -146,34 +159,57 @@ export default function KnowledgeHubPage() {
         ))}
       </section>
 
-      {/* Quick Tips */}
+      {/* Latest Articles */}
       <section>
         <h2 className="text-xl font-bold text-sproutly-primary mb-6 flex items-center gap-2">
-          <Lightbulb size={24} className="text-sproutly-warning" />
-          Quick Tips
+          <BookOpen size={24} className="text-sproutly-light" />
+          Latest Articles
         </h2>
+        
+        {filteredArticles.length === 0 && (
+          <div className="text-center py-12 text-sproutly-secondary font-medium">
+            No articles found for this category yet.
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {quickTips.map((tip) => {
-            const Icon = tip.icon;
-            const related = getRelatedPlants(tip.relatedCategories);
+          {filteredArticles.map((article) => {
+            const related = getRelatedPlants(article.relatedCategories);
             return (
               <div
-                key={tip.id}
-                className="bg-white rounded-3xl p-6 shadow-sm border border-sproutly-bg flex flex-col h-full"
+                key={article.id}
+                className="bg-white rounded-[32px] overflow-hidden shadow-sm border border-sproutly-bg flex flex-col h-full group cursor-pointer hover:shadow-md transition-all duration-300"
               >
-                <div className="flex gap-4 mb-4">
-                  <div className="p-3 bg-sproutly-bg rounded-2xl h-fit text-sproutly-primary shrink-0">
-                    <Icon size={24} />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-sproutly-primary mb-2">
-                      {tip.title}
-                    </h3>
-                    <p className="text-sm text-sproutly-secondary leading-relaxed font-medium">
-                      {tip.content}
-                    </p>
+                <div className="h-48 relative overflow-hidden">
+                  <img 
+                    src={article.image} 
+                    alt={article.title} 
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                  <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs font-bold text-sproutly-primary">
+                    {article.category}
                   </div>
                 </div>
+                
+                <div className="p-6 flex flex-col flex-1">
+                  <div className="flex gap-3 mb-3">
+                    <span className="text-xs font-bold text-sproutly-secondary uppercase tracking-wider flex items-center gap-1">
+                      <Lightbulb size={12} /> {article.readTime}
+                    </span>
+                    <span className={`text-xs font-bold uppercase tracking-wider ${
+                      article.difficulty === 'Beginner' ? 'text-sproutly-light' : 
+                      article.difficulty === 'Intermediate' ? 'text-sproutly-warning' : 'text-sproutly-urgent'
+                    }`}>
+                      • {article.difficulty}
+                    </span>
+                  </div>
+                  
+                  <h3 className="text-xl font-bold text-sproutly-primary mb-3 leading-tight group-hover:text-sproutly-light transition-colors">
+                    {article.title}
+                  </h3>
+                  <p className="text-sm text-sproutly-secondary leading-relaxed font-medium mb-6 flex-1">
+                    {article.content}
+                  </p>
 
                 {related.length > 0 && (
                   <div className="mt-auto pt-5 border-t border-sproutly-bg">
