@@ -10,13 +10,15 @@ import {
   ArrowRight,
   Bug,
   Droplets,
-  Loader2
+  Loader2,
+  Sparkles
 } from 'lucide-react';
 
 export default function KnowledgeHubPage() {
   const router = useRouter();
   const { plants, loading } = usePlants();
   const [activeCategory, setActiveCategory] = useState('All');
+  const [triviaIndex, setTriviaIndex] = useState(0);
   const categories = ['All', 'Pest Control', 'Watering', 'Propagation', 'Soil Health', 'Lighting'];
 
   const articles = [
@@ -80,6 +82,29 @@ export default function KnowledgeHubPage() {
       image: 'https://images.unsplash.com/photo-1603436326446-74e2d65f3168?auto=format&fit=crop&q=80&w=400'
     }
   ];
+
+  const triviaFacts = [
+    {
+      title: "Plants Can 'Hear' Water",
+      fact: "Roots can sense the vibrations of running water moving through pipes or underground springs and will actively grow towards the sound!"
+    },
+    {
+      title: "The Smell of Fresh Cut Grass",
+      fact: "That distinctive smell of freshly cut grass is actually a chemical distress signal called 'green leaf volatiles' alerting nearby plants of danger."
+    },
+    {
+      title: "Caffeine is a Defense Mechanism",
+      fact: "Plants evolved caffeine to paralyze and kill insects that try to eat them. Humans just happen to like the buzz!"
+    },
+    {
+      title: "Trees Have Their Own Internet",
+      fact: "Forests are connected by underground fungal networks called mycorrhizae, which trees use to share nutrients and warn each other about droughts or disease."
+    }
+  ];
+
+  const generateTrivia = () => {
+    setTriviaIndex((prev) => (prev + 1) % triviaFacts.length);
+  };
 
   const getRelatedPlants = (categories: string[]) => {
     return plants.filter((p) => categories.includes(p.category)).slice(0, 3);
@@ -294,6 +319,32 @@ export default function KnowledgeHubPage() {
         </div>
       </section>
       
+      {/* Sproutly Trivia */}
+      <section className="bg-sproutly-light/10 border border-sproutly-light/20 rounded-[32px] p-8 lg:p-12 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8">
+        <div className="absolute -top-12 -right-12 text-sproutly-light/10 pointer-events-none">
+          <Sparkles size={200} />
+        </div>
+        
+        <div className="max-w-2xl relative z-10">
+          <div className="flex items-center gap-2 text-sproutly-light font-bold uppercase tracking-wider text-xs mb-4">
+            <Sparkles size={16} /> Sproutly Trivia
+          </div>
+          <h3 className="text-2xl font-bold text-sproutly-primary mb-3">
+            {triviaFacts[triviaIndex].title}
+          </h3>
+          <p className="text-sproutly-secondary font-medium leading-relaxed">
+            {triviaFacts[triviaIndex].fact}
+          </p>
+        </div>
+        
+        <button
+          onClick={generateTrivia}
+          className="bg-sproutly-primary text-white font-bold px-6 py-3.5 rounded-2xl w-full md:w-auto shrink-0 hover:bg-sproutly-primary/90 transition-colors shadow-lg shadow-sproutly-primary/20 active:scale-95 transition-transform"
+        >
+          Generate New Fact
+        </button>
+      </section>
+
       {/* Optimization Note */}
       <footer className="pt-2 border-t border-sproutly-secondary/10 text-[11px] font-bold text-sproutly-secondary">
         Optimization Note: Propagation guides are rendered as static, optimized HTML components avoiding redundant hydration work.
