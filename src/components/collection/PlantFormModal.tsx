@@ -8,6 +8,7 @@ import { z } from 'zod';
 import {
   Search,
   MoreVertical,
+  X,
   Database,
   PenSquare,
   Loader2,
@@ -155,8 +156,12 @@ export function PlantFormModal({ plant, onClose, onSave }: PlantFormModalProps) 
   };
 
   return (
-    <div className="fixed inset-0 bg-sproutly-primary/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4">
+    <div 
+      className="fixed inset-0 bg-sproutly-primary/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4"
+      onClick={onClose}
+    >
       <motion.div
+        onClick={(e) => e.stopPropagation()}
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -184,7 +189,7 @@ export function PlantFormModal({ plant, onClose, onSave }: PlantFormModalProps) 
             onClick={onClose}
             className="p-2 text-sproutly-secondary hover:bg-black/5 rounded-full transition-colors"
           >
-            <MoreVertical size={24} className="rotate-90" />
+            <X size={24} />
           </button>
         </div>
 
