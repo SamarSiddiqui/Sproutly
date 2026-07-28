@@ -64,9 +64,9 @@ export default function CareCyclePage() {
       const lastW = new Date(plant.lastWatered).getTime();
       const nextW = new Date(plant.nextWatering).getTime();
       const intervalMs = nextW - lastW || (7 * 24 * 60 * 60 * 1000); // Fallback 7 days
-      
+
       const newNextW = new Date(now.getTime() + intervalMs);
-      
+
       await updatePlant(plant.id, {
         lastWatered: now.toISOString(),
         nextWatering: newNextW.toISOString()
@@ -88,7 +88,7 @@ export default function CareCyclePage() {
     const lastW = new Date(plant.lastWatered).getTime();
     const nextW = new Date(plant.nextWatering).getTime();
     const now = Date.now();
-    
+
     const aiAdjustedDays = aiSchedule?.adjusted ? aiSchedule.daysOff : 0;
     const adjustedNextW = nextW + (aiAdjustedDays * 24 * 60 * 60 * 1000);
 
@@ -96,7 +96,7 @@ export default function CareCyclePage() {
     const elapsed = now - lastW;
     const progress = Math.max(0, Math.min(100, (elapsed / (totalDuration || 1)) * 100));
     const daysLeft = Math.ceil((adjustedNextW - now) / (1000 * 60 * 60 * 24));
-    
+
     return { progress, daysLeft, aiAdjustedDays };
   }, [plant, aiSchedule]);
 
@@ -118,10 +118,10 @@ export default function CareCyclePage() {
   }
 
   return (
-    <div className="pt-20 pb-24 lg:pt-8 lg:pb-8 px-4 lg:px-8 max-w-7xl mx-auto h-full flex flex-col lg:flex-row gap-8">
+    <div className="pt-20 pb-24 lg:pt-10 lg:pb-12 px-4 lg:px-8 max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 lg:items-start">
       {/* Left Panel: Plant Selector */}
-      <div className="lg:w-80 shrink-0 flex flex-col">
-        <header className="mb-4 lg:mb-6">
+      <div className="lg:w-[340px] shrink-0 flex flex-col lg:sticky lg:top-10 lg:h-[calc(100vh-40px)]">
+        <header className="mb-4 lg:mb-8 shrink-0">
           <h1 className="text-3xl font-bold text-sproutly-primary">
             Care Cycle
           </h1>
@@ -133,11 +133,10 @@ export default function CareCyclePage() {
             <button
               key={p.id}
               onClick={() => selectPlant(p.id)}
-              className={`snap-start shrink-0 flex items-center gap-3 p-2 pr-4 rounded-full transition-all ${
-                plant.id === p.id 
-                  ? 'bg-sproutly-primary text-white shadow-md' 
-                  : 'bg-white text-sproutly-primary border border-sproutly-secondary/20'
-              }`}
+              className={`snap-start shrink-0 flex items-center gap-3 p-2 pr-4 rounded-full transition-all ${plant.id === p.id
+                ? 'bg-sproutly-primary text-white shadow-md'
+                : 'bg-white text-sproutly-primary border border-sproutly-secondary/20'
+                }`}
             >
               <img
                 src={p.image}
@@ -155,16 +154,15 @@ export default function CareCyclePage() {
         </div>
 
         {/* Desktop Vertical Selector */}
-        <div className="hidden lg:flex flex-col gap-3 overflow-y-auto pr-2 pb-4 max-h-[calc(100vh-200px)]">
+        <div className="hidden lg:flex flex-col gap-3 overflow-y-auto pr-4 pb-8 flex-1 scrollbar-hide">
           {plants.map((p) => (
             <button
               key={p.id}
               onClick={() => selectPlant(p.id)}
-              className={`flex items-center gap-4 p-3 rounded-2xl transition-all text-left ${
-                plant.id === p.id 
-                  ? 'bg-sproutly-primary text-white shadow-md' 
-                  : 'bg-white text-sproutly-primary hover:bg-sproutly-light/10'
-              }`}
+              className={`flex items-center gap-4 p-3 rounded-2xl transition-all text-left ${plant.id === p.id
+                ? 'bg-sproutly-primary text-white shadow-md'
+                : 'bg-white text-sproutly-primary hover:bg-sproutly-light/10'
+                }`}
             >
               <img
                 src={p.image}
@@ -179,13 +177,12 @@ export default function CareCyclePage() {
               </div>
               {p.healthStatus !== 'healthy' && (
                 <div
-                  className={`w-2.5 h-2.5 rounded-full shrink-0 ${
-                    p.healthStatus === 'needs-water' 
-                      ? 'bg-blue-400' 
-                      : p.healthStatus === 'needs-pruning' 
-                      ? 'bg-sproutly-warning' 
+                  className={`w-2.5 h-2.5 rounded-full shrink-0 ${p.healthStatus === 'needs-water'
+                    ? 'bg-blue-400'
+                    : p.healthStatus === 'needs-pruning'
+                      ? 'bg-sproutly-warning'
                       : 'bg-sproutly-urgent'
-                  }`}
+                    }`}
                 />
               )}
             </button>
@@ -194,7 +191,7 @@ export default function CareCyclePage() {
       </div>
 
       {/* Right Panel: Care Details */}
-      <div className="flex-1 flex flex-col gap-6 lg:overflow-y-auto lg:pr-2 lg:pb-8">
+      <div className="flex-1 flex flex-col gap-8 min-w-0 pb-12">
         {/* AI Daily Vibe Banner */}
         {aiInsightsLoading ? (
           <div className="hidden lg:flex bg-sproutly-light/10 border-l-4 border-sproutly-light/20 p-4 rounded-r-2xl items-center gap-3 animate-pulse h-[68px]">
@@ -204,7 +201,7 @@ export default function CareCyclePage() {
         ) : (
           <AnimatePresence>
             {aiInsights?.dailyVibe && (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="hidden lg:flex bg-gradient-to-r from-sproutly-primary/10 to-transparent border-l-4 border-sproutly-primary p-4 rounded-r-2xl items-center gap-3"
@@ -261,11 +258,11 @@ export default function CareCyclePage() {
                       Watering
                     </h2>
                     <p className="text-sm font-medium text-sproutly-secondary font-semibold">
-                      {wateringMetrics.daysLeft > 0 
-                        ? `In ${wateringMetrics.daysLeft} days` 
-                        : wateringMetrics.daysLeft === 0 
-                        ? 'Today' 
-                        : 'Overdue'}
+                      {wateringMetrics.daysLeft > 0
+                        ? `In ${wateringMetrics.daysLeft} days`
+                        : wateringMetrics.daysLeft === 0
+                          ? 'Today'
+                          : 'Overdue'}
                     </p>
                   </div>
                 </div>
@@ -348,8 +345,8 @@ export default function CareCyclePage() {
               <div className="bg-sproutly-bg p-5 rounded-2xl flex gap-3 items-start mt-auto">
                 <Info size={20} className="text-sproutly-secondary shrink-0 mt-0.5" />
                 <p className="text-sm text-sproutly-primary font-medium leading-relaxed">
-                  {plant.category === 'Indoor' 
-                    ? 'Check top 2 inches of soil before watering.' 
+                  {plant.category === 'Indoor'
+                    ? 'Check top 2 inches of soil before watering.'
                     : 'Water deeply until it drains from the bottom.'}
                 </p>
               </div>
@@ -401,19 +398,18 @@ export default function CareCyclePage() {
                   const dateStr = d.toISOString().split('T')[0];
                   const hasLog = logs.some(l => l.log_date === dateStr);
                   const isToday = dateStr === new Date().toISOString().split('T')[0];
-                  
+
                   return (
                     <button
                       key={i}
                       type="button"
                       onClick={() => setSelectedDate(dateStr)}
-                      className={`aspect-square rounded-full flex flex-col items-center justify-center text-[10px] sm:text-xs font-bold transition-transform hover:scale-110 ${
-                        hasLog 
-                          ? 'bg-sproutly-warning text-white shadow-md' 
-                          : isToday 
-                          ? 'border-2 border-sproutly-primary text-sproutly-primary' 
+                      className={`aspect-square rounded-full flex flex-col items-center justify-center text-[10px] sm:text-xs font-bold transition-transform hover:scale-110 ${hasLog
+                        ? 'bg-sproutly-warning text-white shadow-md'
+                        : isToday
+                          ? 'border-2 border-sproutly-primary text-sproutly-primary'
                           : 'text-sproutly-primary hover:bg-sproutly-bg'
-                      }`}
+                        }`}
                     >
                       {d.getDate()}
                       {hasLog && <span className="w-1 h-1 bg-white rounded-full mt-0.5" />}
@@ -463,14 +459,14 @@ export default function CareCyclePage() {
             ]).map((insight, idx) => (
               <div key={idx} className="flex flex-col gap-3 items-start bg-sproutly-bg p-5 rounded-2xl relative overflow-hidden group">
                 {aiInsights?.coreCareTips && (
-                   <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-100 transition-opacity">
-                     <Sparkles size={16} className="text-sproutly-primary" />
-                   </div>
+                  <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-100 transition-opacity">
+                    <Sparkles size={16} className="text-sproutly-primary" />
+                  </div>
                 )}
                 <div className="w-10 h-10 rounded-xl bg-white text-sproutly-primary flex items-center justify-center shadow-sm">
-                  {insight.title.toLowerCase().includes('prun') ? <Scissors size={18} /> : 
-                   insight.title.toLowerCase().includes('env') || insight.title.toLowerCase().includes('sun') ? <Sun size={18} /> : 
-                   <Leaf size={18} />}
+                  {insight.title.toLowerCase().includes('prun') ? <Scissors size={18} /> :
+                    insight.title.toLowerCase().includes('env') || insight.title.toLowerCase().includes('sun') ? <Sun size={18} /> :
+                      <Leaf size={18} />}
                 </div>
                 <div>
                   <h3 className="font-bold text-sproutly-primary text-sm mb-1">{insight.title}</h3>
@@ -482,7 +478,7 @@ export default function CareCyclePage() {
             ))}
           </div>
         </section>
-        
+
         <AnimatePresence>
           {selectedDate && (
             <FertilizerModal
@@ -494,7 +490,7 @@ export default function CareCyclePage() {
             />
           )}
         </AnimatePresence>
-        
+
         {/* Optimization Note */}
         <footer className="pt-2 border-t border-sproutly-secondary/10 text-[11px] font-bold text-sproutly-secondary">
           Optimization Note: Watering metrics use useMemo and query param selectors to prevent excessive React re-renders when switching selected plants.

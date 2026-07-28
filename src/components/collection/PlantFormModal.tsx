@@ -8,6 +8,7 @@ import { z } from 'zod';
 import {
   Search,
   MoreVertical,
+  X,
   Database,
   PenSquare,
   Loader2,
@@ -137,6 +138,11 @@ export function PlantFormModal({ plant, onClose, onSave }: PlantFormModalProps) 
   };
 
   const handleSave = (data: PlantFormInputs) => {
+    let finalPotSize = data.potSize?.trim();
+    if (finalPotSize && !finalPotSize.endsWith('"') && !isNaN(Number(finalPotSize))) {
+      finalPotSize += '"';
+    }
+
     const finalImage = data.image || 'https://images.unsplash.com/photo-1463936575829-25148e1db1b8?auto=format&fit=crop&q=80&w=800';
     
     // Compute last/next watering dates based on interval
@@ -145,6 +151,7 @@ export function PlantFormModal({ plant, onClose, onSave }: PlantFormModalProps) 
     
     onSave({
       ...data,
+      potSize: finalPotSize,
       image: finalImage,
       lastWatered,
       nextWatering,
@@ -155,8 +162,12 @@ export function PlantFormModal({ plant, onClose, onSave }: PlantFormModalProps) 
   };
 
   return (
-    <div className="fixed inset-0 bg-sproutly-primary/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4">
+    <div 
+      className="fixed inset-0 bg-sproutly-primary/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4"
+      onClick={onClose}
+    >
       <motion.div
+        onClick={(e) => e.stopPropagation()}
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -184,7 +195,7 @@ export function PlantFormModal({ plant, onClose, onSave }: PlantFormModalProps) 
             onClick={onClose}
             className="p-2 text-sproutly-secondary hover:bg-black/5 rounded-full transition-colors"
           >
-            <MoreVertical size={24} className="rotate-90" />
+            <X size={24} />
           </button>
         </div>
 
@@ -485,7 +496,14 @@ export function PlantFormModal({ plant, onClose, onSave }: PlantFormModalProps) 
                       type="text"
                       id="form-pot-size"
                       {...register('potSize')}
-                      placeholder='e.g. 14", 16"'
+                      onBlur={(e) => {
+                        register('potSize').onBlur(e);
+                        const val = e.target.value.trim();
+                        if (val && !val.endsWith('"') && !isNaN(Number(val))) {
+                          setValue('potSize', val + '"', { shouldValidate: true });
+                        }
+                      }}
+                      placeholder="e.g. 14, 16"
                       className={`w-full p-3.5 rounded-xl border ${
                         errors.potSize ? 'border-red-500 focus:ring-red-500' : 'border-sproutly-secondary/20 focus:ring-sproutly-light'
                       } focus:outline-none focus:ring-1 bg-white text-sproutly-primary font-semibold`}
