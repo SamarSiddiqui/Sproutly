@@ -479,21 +479,24 @@ export default function CollectionPage() {
                       >
                         <MoreVertical size={18} />
                       </button>
-                      <div className="absolute right-0 top-8 bg-white shadow-lg rounded-xl py-1 hidden group-hover/actions:block z-10 w-28 border border-sproutly-bg">
-                        <button
-                          type="button"
-                          onClick={(e) => handleEdit(e, plant)}
-                          className="w-full text-left px-4 py-2 text-sm hover:bg-sproutly-bg flex items-center gap-2 text-sproutly-primary font-semibold"
-                        >
-                          <Edit2 size={14} /> Edit
-                        </button>
-                        <button
-                          type="button"
-                          onClick={(e) => handleDelete(e, plant.id)}
-                          className="w-full text-left px-4 py-2 text-sm hover:bg-sproutly-bg flex items-center gap-2 text-sproutly-urgent font-semibold"
-                        >
-                          <Trash2 size={14} /> Delete
-                        </button>
+                      {/* Invisible bridge for hover using pt-1 */}
+                      <div className="absolute right-0 top-full pt-1 hidden group-hover/actions:block z-10 w-28">
+                        <div className="bg-white shadow-lg rounded-xl py-1 border border-sproutly-bg">
+                          <button
+                            type="button"
+                            onClick={(e) => handleEdit(e, plant)}
+                            className="w-full text-left px-4 py-2 text-sm hover:bg-sproutly-bg flex items-center gap-2 text-sproutly-primary font-semibold"
+                          >
+                            <Edit2 size={14} /> Edit
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => handleDelete(e, plant.id)}
+                            className="w-full text-left px-4 py-2 text-sm hover:bg-sproutly-bg flex items-center gap-2 text-sproutly-urgent font-semibold"
+                          >
+                            <Trash2 size={14} /> Delete
+                          </button>
+                        </div>
                       </div>
                     </div>
                   )}
