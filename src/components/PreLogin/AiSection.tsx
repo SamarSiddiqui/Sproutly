@@ -88,7 +88,7 @@ export function AiSection() {
       if (res.status === 429) {
         setChatCount(3);
         localStorage.setItem('sproutly_demo_chats', '3');
-        setMessages(prev => [...prev, { role: 'ai', text: "You've reached the free demo limit for this IP address! Sign up for a free account to continue." }]);
+        setMessages(prev => [...prev, { role: 'ai', text: "You've reached the free demo limit! 🌿 Sign up for a free account to continue chatting with Sproutly AI." }]);
         return;
       }
 
