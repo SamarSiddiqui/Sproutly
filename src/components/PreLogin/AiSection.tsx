@@ -62,7 +62,7 @@ export function AiSection() {
     setChatCount(count);
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputValue.trim() || isTyping || chatCount >= 5) return;
 
@@ -79,47 +79,25 @@ export function AiSection() {
     setChatCount(newCount);
     localStorage.setItem('sproutly_demo_chats', newCount.toString());
 
-    setTimeout(() => {
-      let aiResponse = "";
+    try {
+      const res = await fetch('/api/ai-chat-preview', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userText }),
+      });
       
-      const lower = userText.toLowerCase();
+      const data = await res.json();
+      const aiResponse = data.reply || "I encountered a botanical error. Please try again later!";
       
-      // Guardrails
-      const badWords = ['fuck', 'shit', 'bitch', 'ass', 'idiot', 'stupid', 'dumb', 'kill', 'hate', 'damn'];
-      const hasBadWord = badWords.some(word => lower.includes(word));
-      
-      // Dynamic Plant Detection
-      const plantTypes = ['rose', 'fern', 'cactus', 'ficus', 'orchid', 'succulent', 'pothos', 'snake plant', 'lily', 'monstera', 'aloe', 'bonsai'];
-      const detectedPlant = plantTypes.find(p => lower.includes(p)) || 'plant';
-      
-      const plantKeywords = ['plant', 'leaf', 'leaves', 'soil', 'water', 'sun', 'light', 'bug', 'pest', 'root', 'pot', 'grow', 'yellow', 'brown', 'crispy', 'dry', 'wet', 'dirt', 'fertilizer', 'prune', 'cut', ...plantTypes];
-      const isPlantRelated = plantKeywords.some(keyword => lower.includes(keyword));
-
-      if (hasBadWord) {
-        aiResponse = "Let's keep things friendly and focus on our plants! 🌱 If you have any gardening questions, I'm here to help.";
-      } else if (!isPlantRelated) {
-        aiResponse = "I'm a specialized AI Botanist! 🌿 I only know about plants. Try asking me a question about your garden, like how often to water it!";
-      } else if (lower.includes('rose')) {
-        aiResponse = "Roses love full sun and well-draining soil! They need regular pruning to thrive. For a detailed seasonal care plan for your roses, please create a free account! 🌹";
-      } else if (lower.includes('brown')) {
-        aiResponse = `Brown, crispy edges usually mean the air is too dry or it's underwatered. Try misting your ${detectedPlant} or moving it away from AC vents!`;
-      } else if (lower.includes('bug') || lower.includes('pest') || lower.includes('gnat')) {
-        aiResponse = `Oh no, pests! Try wiping the ${detectedPlant}'s leaves with a gentle neem oil solution. Sign up and I can guide you through a 14-day treatment plan!`;
-      } else if (lower.includes('water') || lower.includes('dry') || lower.includes('wet')) {
-        aiResponse = `Most plants like your ${detectedPlant} prefer to dry out slightly between waterings. Always check the top 2 inches of soil first. I can build a custom schedule for you if you log in!`;
-      } else if (lower.includes('light') || lower.includes('sun')) {
-        aiResponse = `Lighting is critical for a ${detectedPlant}! I can analyze your room's exact lighting and build a care plan if you download the app!`;
-      } else {
-        aiResponse = `That's a great question about your ${detectedPlant}! It usually indicates a need to adjust watering or lighting. I'd love to help you track this closely if you create a free account!`;
-      }
-
       setMessages(prev => [...prev, { role: 'ai', text: aiResponse }]);
+    } catch (err) {
+      setMessages(prev => [...prev, { role: 'ai', text: "Hmm, my connection dropped. Try again later!" }]);
+    } finally {
       setIsTyping(false);
-      
       setTimeout(() => {
         if (messagesRef.current) messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
       }, 50);
-    }, 1500);
+    }
   };
 
   useEffect(() => {
