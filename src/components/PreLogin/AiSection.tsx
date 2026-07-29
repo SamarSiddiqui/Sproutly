@@ -1,10 +1,11 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Sparkles,
   ScanLine,
   CalendarClock,
   MessageSquare,
   Stethoscope,
+  Send,
 } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -39,6 +40,70 @@ export function AiSection() {
   const textRef = useRef<HTMLDivElement>(null);
   const mockupRef = useRef<HTMLDivElement>(null);
   const messagesRef = useRef<HTMLDivElement>(null);
+
+  const [messages, setMessages] = useState<{role: 'user' | 'ai', text: string, image?: string}[]>([
+    {
+      role: 'user',
+      text: 'Why are the bottom leaves on my Monstera turning yellow?',
+      image: 'https://bloomscape.com/wp-content/uploads/2023/03/ccee577b-c338-46ad-ad6f-59366199a65b-hs_file_upload-image-scaled-e1677783036739.jpg?ver=1013903'
+    },
+    {
+      role: 'ai',
+      text: "I can see the yellowing! Since it's only the older, bottom leaves and the soil looks quite dry in the background, this is likely just natural aging or slight underwatering.\n\nLet's check the soil moisture. If the top 2 inches are dry, give it a thorough watering today."
+    }
+  ]);
+  const [inputValue, setInputValue] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inputValue.trim() || isTyping) return;
+
+    const userText = inputValue.trim();
+    setInputValue('');
+    setMessages(prev => [...prev, { role: 'user', text: userText }]);
+    setIsTyping(true);
+
+    setTimeout(() => {
+      if (messagesRef.current) messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
+    }, 50);
+
+    setTimeout(() => {
+      let aiResponse = "";
+      
+      const lower = userText.toLowerCase();
+      
+      // Guardrails
+      const badWords = ['fuck', 'shit', 'bitch', 'ass', 'idiot', 'stupid', 'dumb', 'kill', 'hate', 'damn'];
+      const hasBadWord = badWords.some(word => lower.includes(word));
+      
+      const plantKeywords = ['plant', 'leaf', 'leaves', 'soil', 'water', 'sun', 'light', 'bug', 'pest', 'monstera', 'root', 'pot', 'grow', 'yellow', 'brown', 'crispy', 'dry', 'wet', 'dirt', 'fertilizer', 'prune', 'cut'];
+      const isPlantRelated = plantKeywords.some(keyword => lower.includes(keyword));
+
+      if (hasBadWord) {
+        aiResponse = "Let's keep things friendly and focus on our plants! 🌱 If you have any gardening questions, I'm here to help.";
+      } else if (!isPlantRelated) {
+        aiResponse = "I'm a specialized AI Botanist! 🌿 I only know about plants. Try asking me a question about the Monstera above, like how often to water it!";
+      } else if (lower.includes('brown')) {
+        aiResponse = "Brown, crispy edges usually mean the air is too dry or it's underwatered. Try misting your Monstera or moving it away from AC vents!";
+      } else if (lower.includes('bug') || lower.includes('pest') || lower.includes('gnat')) {
+        aiResponse = "Oh no, pests! Try wiping the leaves with a gentle neem oil solution. Sign up and I can guide you through a 14-day treatment plan!";
+      } else if (lower.includes('water') || lower.includes('dry') || lower.includes('wet')) {
+        aiResponse = "Monstera plants like to dry out slightly between waterings. Always check the top 2 inches of soil before watering. I can build a custom schedule for you if you log in!";
+      } else if (lower.includes('light') || lower.includes('sun')) {
+        aiResponse = "Monstera plants thrive in bright, indirect light! Too much direct sun can scorch those beautiful leaves. I can analyze your room's exact lighting if you download the app!";
+      } else {
+        aiResponse = "That's a great question about your Monstera! It usually indicates a need to adjust watering or lighting. I'd love to help you track this closely if you create a free account!";
+      }
+
+      setMessages(prev => [...prev, { role: 'ai', text: aiResponse }]);
+      setIsTyping(false);
+      
+      setTimeout(() => {
+        if (messagesRef.current) messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
+      }, 50);
+    }, 1500);
+  };
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -165,36 +230,51 @@ export function AiSection() {
                 </div>
               </div>
 
-              <div ref={messagesRef} className="space-y-4">
-                <div className="flex justify-end">
-                  <div className="bg-sproutly-cream rounded-2xl rounded-tr-sm p-4 max-w-[85%] text-sm text-sproutly-forest">
-                    <img
-                      src="https://bloomscape.com/wp-content/uploads/2023/03/ccee577b-c338-46ad-ad6f-59366199a65b-hs_file_upload-image-scaled-e1677783036739.jpg?ver=1013903"
-                      alt="Yellowing monstera leaf"
-                      className="w-full h-32 object-cover rounded-lg mb-2"
-                    />
-                    Why are the bottom leaves on my Monstera turning yellow?
+              <div ref={messagesRef} className="space-y-4 h-[320px] overflow-y-auto pr-2 scrollbar-hide pb-4 transition-all scroll-smooth">
+                {messages.map((msg, i) => (
+                  <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`${
+                      msg.role === 'user' 
+                        ? 'bg-sproutly-cream rounded-tr-sm' 
+                        : 'bg-sproutly-sage/10 rounded-tl-sm'
+                      } rounded-2xl p-4 max-w-[85%] text-sm text-sproutly-forest whitespace-pre-wrap leading-relaxed`}
+                    >
+                      {msg.image && (
+                        <img src={msg.image} alt="Upload" className="w-full h-32 object-cover rounded-lg mb-3" />
+                      )}
+                      {msg.text}
+                    </div>
                   </div>
-                </div>
-
-                <div className="flex justify-start">
-                  <div className="bg-sproutly-sage/10 rounded-2xl rounded-tl-sm p-4 max-w-[85%] text-sm text-sproutly-forest">
-                    I can see the yellowing! Since it's only the older, bottom
-                    leaves and the soil looks quite dry in the background, this
-                    is likely just natural aging or slight underwatering.
-                    <br />
-                    <br />
-                    Let's check the soil moisture. If the top 2 inches are dry,
-                    give it a thorough watering today.
+                ))}
+                
+                {isTyping && (
+                  <div className="flex justify-start">
+                    <div className="bg-sproutly-sage/10 rounded-2xl rounded-tl-sm p-4 text-sm text-sproutly-forest flex gap-1.5 items-center h-12">
+                      <span className="w-1.5 h-1.5 bg-sproutly-sage/60 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <span className="w-1.5 h-1.5 bg-sproutly-sage/60 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <span className="w-1.5 h-1.5 bg-sproutly-sage/60 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                    </div>
                   </div>
-                </div>
-
-                <div className="flex justify-end">
-                  <div className="bg-sproutly-cream rounded-2xl rounded-tr-sm p-4 max-w-[85%] text-sm text-sproutly-forest">
-                    Phew, thanks! I'll water it now.
-                  </div>
-                </div>
+                )}
               </div>
+
+              {/* Input Area */}
+              <form onSubmit={handleSubmit} className="mt-2 flex items-center gap-2 border-t border-gray-100 pt-4 relative z-10 bg-white">
+                <input
+                  type="text"
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  placeholder="Ask Sproutly AI..."
+                  className="flex-1 bg-gray-50 border border-gray-100 rounded-full px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-sproutly-sage text-sproutly-forest font-medium placeholder:text-gray-400"
+                />
+                <button
+                  type="submit"
+                  disabled={isTyping || !inputValue.trim()}
+                  className="w-11 h-11 rounded-full bg-sproutly-sage flex items-center justify-center text-white shrink-0 disabled:opacity-50 hover:bg-sproutly-forest transition-colors shadow-sm"
+                >
+                  <Send className="w-4 h-4 -ml-0.5" />
+                </button>
+              </form>
             </div>
           </div>
         </div>
