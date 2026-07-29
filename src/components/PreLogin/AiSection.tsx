@@ -54,10 +54,17 @@ export function AiSection() {
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [chatCount, setChatCount] = useState(0);
+
+  useEffect(() => {
+    // Load chat limit count from local storage on mount
+    const count = parseInt(localStorage.getItem('sproutly_demo_chats') || '0', 10);
+    setChatCount(count);
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputValue.trim() || isTyping) return;
+    if (!inputValue.trim() || isTyping || chatCount >= 5) return;
 
     const userText = inputValue.trim();
     setInputValue('');
@@ -68,6 +75,10 @@ export function AiSection() {
       if (messagesRef.current) messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
     }, 50);
 
+    const newCount = chatCount + 1;
+    setChatCount(newCount);
+    localStorage.setItem('sproutly_demo_chats', newCount.toString());
+
     setTimeout(() => {
       let aiResponse = "";
       
@@ -77,23 +88,29 @@ export function AiSection() {
       const badWords = ['fuck', 'shit', 'bitch', 'ass', 'idiot', 'stupid', 'dumb', 'kill', 'hate', 'damn'];
       const hasBadWord = badWords.some(word => lower.includes(word));
       
-      const plantKeywords = ['plant', 'leaf', 'leaves', 'soil', 'water', 'sun', 'light', 'bug', 'pest', 'monstera', 'root', 'pot', 'grow', 'yellow', 'brown', 'crispy', 'dry', 'wet', 'dirt', 'fertilizer', 'prune', 'cut'];
+      // Dynamic Plant Detection
+      const plantTypes = ['rose', 'fern', 'cactus', 'ficus', 'orchid', 'succulent', 'pothos', 'snake plant', 'lily', 'monstera', 'aloe', 'bonsai'];
+      const detectedPlant = plantTypes.find(p => lower.includes(p)) || 'plant';
+      
+      const plantKeywords = ['plant', 'leaf', 'leaves', 'soil', 'water', 'sun', 'light', 'bug', 'pest', 'root', 'pot', 'grow', 'yellow', 'brown', 'crispy', 'dry', 'wet', 'dirt', 'fertilizer', 'prune', 'cut', ...plantTypes];
       const isPlantRelated = plantKeywords.some(keyword => lower.includes(keyword));
 
       if (hasBadWord) {
         aiResponse = "Let's keep things friendly and focus on our plants! 🌱 If you have any gardening questions, I'm here to help.";
       } else if (!isPlantRelated) {
-        aiResponse = "I'm a specialized AI Botanist! 🌿 I only know about plants. Try asking me a question about the Monstera above, like how often to water it!";
+        aiResponse = "I'm a specialized AI Botanist! 🌿 I only know about plants. Try asking me a question about your garden, like how often to water it!";
+      } else if (lower.includes('rose')) {
+        aiResponse = "Roses love full sun and well-draining soil! They need regular pruning to thrive. For a detailed seasonal care plan for your roses, please create a free account! 🌹";
       } else if (lower.includes('brown')) {
-        aiResponse = "Brown, crispy edges usually mean the air is too dry or it's underwatered. Try misting your Monstera or moving it away from AC vents!";
+        aiResponse = `Brown, crispy edges usually mean the air is too dry or it's underwatered. Try misting your ${detectedPlant} or moving it away from AC vents!`;
       } else if (lower.includes('bug') || lower.includes('pest') || lower.includes('gnat')) {
-        aiResponse = "Oh no, pests! Try wiping the leaves with a gentle neem oil solution. Sign up and I can guide you through a 14-day treatment plan!";
+        aiResponse = `Oh no, pests! Try wiping the ${detectedPlant}'s leaves with a gentle neem oil solution. Sign up and I can guide you through a 14-day treatment plan!`;
       } else if (lower.includes('water') || lower.includes('dry') || lower.includes('wet')) {
-        aiResponse = "Monstera plants like to dry out slightly between waterings. Always check the top 2 inches of soil before watering. I can build a custom schedule for you if you log in!";
+        aiResponse = `Most plants like your ${detectedPlant} prefer to dry out slightly between waterings. Always check the top 2 inches of soil first. I can build a custom schedule for you if you log in!`;
       } else if (lower.includes('light') || lower.includes('sun')) {
-        aiResponse = "Monstera plants thrive in bright, indirect light! Too much direct sun can scorch those beautiful leaves. I can analyze your room's exact lighting if you download the app!";
+        aiResponse = `Lighting is critical for a ${detectedPlant}! I can analyze your room's exact lighting and build a care plan if you download the app!`;
       } else {
-        aiResponse = "That's a great question about your Monstera! It usually indicates a need to adjust watering or lighting. I'd love to help you track this closely if you create a free account!";
+        aiResponse = `That's a great question about your ${detectedPlant}! It usually indicates a need to adjust watering or lighting. I'd love to help you track this closely if you create a free account!`;
       }
 
       setMessages(prev => [...prev, { role: 'ai', text: aiResponse }]);
@@ -264,12 +281,13 @@ export function AiSection() {
                   type="text"
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
-                  placeholder="Ask Sproutly AI..."
-                  className="flex-1 bg-gray-50 border border-gray-100 rounded-full px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-sproutly-sage text-sproutly-forest font-medium placeholder:text-gray-400"
+                  placeholder={chatCount >= 5 ? "Free demo limit reached. Sign up to continue!" : "Ask Sproutly AI..."}
+                  disabled={chatCount >= 5 || isTyping}
+                  className="flex-1 bg-gray-50 border border-gray-100 rounded-full px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-sproutly-sage text-sproutly-forest font-medium placeholder:text-gray-400 disabled:opacity-70 disabled:cursor-not-allowed"
                 />
                 <button
                   type="submit"
-                  disabled={isTyping || !inputValue.trim()}
+                  disabled={isTyping || !inputValue.trim() || chatCount >= 5}
                   className="w-11 h-11 rounded-full bg-sproutly-sage flex items-center justify-center text-white shrink-0 disabled:opacity-50 hover:bg-sproutly-forest transition-colors shadow-sm"
                 >
                   <Send className="w-4 h-4 -ml-0.5" />
