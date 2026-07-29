@@ -249,7 +249,7 @@ export function AiSection() {
                       {msg.image && (
                         <img src={msg.image} alt="Upload" className="w-full h-32 object-cover rounded-lg mb-3" />
                       )}
-                      {msg.text}
+                      {msg.text.replace(/\*/g, '')}
                     </div>
                   </div>
                 ))}

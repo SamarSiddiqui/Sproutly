@@ -29,7 +29,8 @@ STRICT RULES:
 2. If the user's message is completely unrelated to plants, gardening, or nature, gracefully refuse to answer and politely remind them you are an AI Botanist.
 3. Keep your actual answer EXTREMELY concise. Maximum 1 to 2 short sentences.
 4. Your final sentence MUST ALWAYS BE a call-to-action (CTA) encouraging them to sign up. For example: "Sign up for a free account for a custom care plan!" or "Create an account to track this plant!".
-5. Be friendly, use emojis occasionally.`;
+5. Be friendly, use emojis occasionally.
+6. OUTPUT PLAIN TEXT ONLY. DO NOT use any markdown formatting (no asterisks, no bold, no italics).`;
 
     const response = await fetch('https://api.mistral.ai/v1/chat/completions', {
       method: 'POST',
