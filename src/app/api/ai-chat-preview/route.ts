@@ -1,7 +1,18 @@
 import { NextResponse } from 'next/server';
 
+// In-memory store for IP rate limiting. 
+// Note: In a true multi-region serverless deployment, you'd use Redis (Upstash) here.
+const ipRateLimit = new Map<string, number>();
+
 export async function POST(request: Request) {
   try {
+    const ip = request.headers.get('x-forwarded-for') || 'unknown-ip';
+    const currentCount = ipRateLimit.get(ip) || 0;
+
+    if (currentCount >= 5) {
+      return NextResponse.json({ error: 'Rate limit reached' }, { status: 429 });
+    }
+
     const { message } = await request.json();
 
     const apiKey = process.env.MISTRAL_API_KEY;
@@ -44,7 +55,10 @@ STRICT RULES:
     const data = await response.json();
     let reply = data.choices?.[0]?.message?.content || 'I encountered an error. Please try again later.';
     
-    return NextResponse.json({ reply });
+    // Increment the rate limit count
+    ipRateLimit.set(ip, currentCount + 1);
+
+    return NextResponse.json({ reply, remaining: 4 - currentCount });
   } catch (error) {
     console.error('AI Preview Error:', error);
     return NextResponse.json({ error: 'Failed to generate response' }, { status: 500 });

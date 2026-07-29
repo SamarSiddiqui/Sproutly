@@ -75,9 +75,8 @@ export function AiSection() {
       if (messagesRef.current) messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
     }, 50);
 
-    const newCount = chatCount + 1;
-    setChatCount(newCount);
-    localStorage.setItem('sproutly_demo_chats', newCount.toString());
+    // Optimistically update, but backend dictates reality
+    setChatCount(chatCount + 1);
 
     try {
       const res = await fetch('/api/ai-chat-preview', {
@@ -86,8 +85,21 @@ export function AiSection() {
         body: JSON.stringify({ message: userText }),
       });
       
+      if (res.status === 429) {
+        setChatCount(5);
+        localStorage.setItem('sproutly_demo_chats', '5');
+        setMessages(prev => [...prev, { role: 'ai', text: "You've reached the free demo limit for this IP address! Sign up for a free account to continue." }]);
+        return;
+      }
+
       const data = await res.json();
       const aiResponse = data.reply || "I encountered a botanical error. Please try again later!";
+      
+      if (data.remaining !== undefined) {
+        const newCount = 5 - data.remaining;
+        setChatCount(newCount);
+        localStorage.setItem('sproutly_demo_chats', newCount.toString());
+      }
       
       setMessages(prev => [...prev, { role: 'ai', text: aiResponse }]);
     } catch (err) {
