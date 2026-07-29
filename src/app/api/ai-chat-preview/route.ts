@@ -1,15 +1,33 @@
 import { NextResponse } from 'next/server';
-
-// In-memory store for IP rate limiting. 
-// Note: In a true multi-region serverless deployment, you'd use Redis (Upstash) here.
-const ipRateLimit = new Map<string, number>();
+import { supabase } from '../../../utils/supabaseClient';
 
 export async function POST(request: Request) {
   try {
     const ip = request.headers.get('x-forwarded-for') || 'unknown-ip';
-    const currentCount = ipRateLimit.get(ip) || 0;
+    
+    // 1. Fetch current limit from Supabase
+    const { data: limitData } = await supabase
+      .from('demo_rate_limits')
+      .select('*')
+      .eq('ip_address', ip)
+      .single();
 
-    if (currentCount >= 5) {
+    let currentCount = 0;
+    
+    if (limitData) {
+      // TTL Check: Reset count if the last request was more than 15 days ago
+      const lastRequestDate = new Date(limitData.last_request_at);
+      const fifteenDaysAgo = new Date();
+      fifteenDaysAgo.setDate(fifteenDaysAgo.getDate() - 15);
+      
+      if (lastRequestDate < fifteenDaysAgo) {
+        currentCount = 0;
+      } else {
+        currentCount = limitData.request_count;
+      }
+    }
+
+    if (currentCount >= 3) {
       return NextResponse.json({ error: 'Rate limit reached' }, { status: 429 });
     }
 
@@ -56,10 +74,14 @@ STRICT RULES:
     const data = await response.json();
     let reply = data.choices?.[0]?.message?.content || 'I encountered an error. Please try again later.';
     
-    // Increment the rate limit count
-    ipRateLimit.set(ip, currentCount + 1);
+    // 2. Upsert the new count to Supabase
+    await supabase.from('demo_rate_limits').upsert({
+      ip_address: ip,
+      request_count: currentCount + 1,
+      last_request_at: new Date().toISOString()
+    });
 
-    return NextResponse.json({ reply, remaining: 4 - currentCount });
+    return NextResponse.json({ reply, remaining: 2 - currentCount });
   } catch (error) {
     console.error('AI Preview Error:', error);
     return NextResponse.json({ error: 'Failed to generate response' }, { status: 500 });

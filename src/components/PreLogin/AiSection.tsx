@@ -64,7 +64,7 @@ export function AiSection() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputValue.trim() || isTyping || chatCount >= 5) return;
+    if (!inputValue.trim() || isTyping || chatCount >= 3) return;
 
     const userText = inputValue.trim();
     setInputValue('');
@@ -86,8 +86,8 @@ export function AiSection() {
       });
       
       if (res.status === 429) {
-        setChatCount(5);
-        localStorage.setItem('sproutly_demo_chats', '5');
+        setChatCount(3);
+        localStorage.setItem('sproutly_demo_chats', '3');
         setMessages(prev => [...prev, { role: 'ai', text: "You've reached the free demo limit for this IP address! Sign up for a free account to continue." }]);
         return;
       }
@@ -96,7 +96,7 @@ export function AiSection() {
       const aiResponse = data.reply || "I encountered a botanical error. Please try again later!";
       
       if (data.remaining !== undefined) {
-        const newCount = 5 - data.remaining;
+        const newCount = 3 - data.remaining;
         setChatCount(newCount);
         localStorage.setItem('sproutly_demo_chats', newCount.toString());
       }
@@ -271,13 +271,13 @@ export function AiSection() {
                   type="text"
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
-                  placeholder={chatCount >= 5 ? "Free demo limit reached. Sign up to continue!" : "Ask Sproutly AI..."}
-                  disabled={chatCount >= 5 || isTyping}
+                  placeholder={chatCount >= 3 ? "Free demo limit reached. Sign up to continue!" : "Ask Sproutly AI..."}
+                  disabled={chatCount >= 3 || isTyping}
                   className="flex-1 bg-gray-50 border border-gray-100 rounded-full px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-sproutly-sage text-sproutly-forest font-medium placeholder:text-gray-400 disabled:opacity-70 disabled:cursor-not-allowed"
                 />
                 <button
                   type="submit"
-                  disabled={isTyping || !inputValue.trim() || chatCount >= 5}
+                  disabled={isTyping || !inputValue.trim() || chatCount >= 3}
                   className="w-11 h-11 rounded-full bg-sproutly-sage flex items-center justify-center text-white shrink-0 disabled:opacity-50 hover:bg-sproutly-forest transition-colors shadow-sm"
                 >
                   <Send className="w-4 h-4 -ml-0.5" />
