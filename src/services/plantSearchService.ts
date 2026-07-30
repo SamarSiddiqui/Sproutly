@@ -18,7 +18,7 @@ export const plantSearchService = {
    * @param query Search query keyword
    * @param page Page number to fetch (default: 1, mocked for AI)
    */
-  searchSpecies: async (query: string, page = 1): Promise<PaginatedSpeciesResponse> => {
+  searchSpecies: async (query: string, _page = 1): Promise<PaginatedSpeciesResponse> => {
     if (!query || query.trim() === '') {
       return { data: [], currentPage: 1, lastPage: 1, total: 0 };
     }
@@ -43,7 +43,7 @@ export const plantSearchService = {
    * Get default/featured species listings
    * @param page Page number to fetch
    */
-  getFeaturedSpecies: async (page = 1): Promise<PaginatedSpeciesResponse> => {
+  getFeaturedSpecies: async (_page = 1): Promise<PaginatedSpeciesResponse> => {
     try {
       const response = await fetch('/api/plant-search', {
         method: 'POST',
