@@ -1,5 +1,8 @@
-import React, { useEffect, useRef } from 'react';
-import { Droplets, Sprout, Scissors, BookOpen } from 'lucide-react';
+'use client';
+
+import React, { useEffect, useRef, useState } from 'react';
+import { Droplets, Sprout, Scissors, BookOpen, ScanFocus, AlertTriangle } from 'lucide-react';
+import { motion, useMotionValue, useSpring } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -35,6 +38,116 @@ const benefits = [
     color: 'bg-orange-50 text-orange-600',
   },
 ];
+
+function ScannerDemoWidget() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isHovering, setIsHovering] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
+
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  const springX = useSpring(mouseX, { stiffness: 400, damping: 30 });
+  const springY = useSpring(mouseY, { stiffness: 400, damping: 30 });
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    mouseX.set(x);
+    mouseY.set(y);
+
+    // Hotspot on the right side of the image
+    const isNearHotspot = x > rect.width * 0.5 && x < rect.width * 0.9 && y > rect.height * 0.2 && y < rect.height * 0.8;
+    setIsScanning(isNearHotspot);
+  };
+
+  return (
+    <div className="mt-32 max-w-5xl mx-auto">
+      <div className="text-center mb-10">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 text-sm font-semibold mb-4 border border-blue-100">
+          <ScanFocus className="w-4 h-4" />
+          AI Diagnosis Engine
+        </div>
+        <h3 className="text-3xl md:text-4xl font-serif text-sproutly-forest mb-4">Hover to diagnose.</h3>
+        <p className="text-lg text-sproutly-forest/70 max-w-xl mx-auto">Move your mouse over the plant to instantly detect issues. No more guessing what those yellow spots mean.</p>
+      </div>
+
+      <div 
+        ref={containerRef}
+        className="relative w-full h-[300px] md:h-[450px] rounded-[2rem] overflow-hidden cursor-none shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15)] border-4 border-white"
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => { setIsHovering(false); setIsScanning(false); }}
+        onMouseMove={handleMouseMove}
+      >
+        <div className="absolute inset-0 bg-black/10 z-10 pointer-events-none" />
+        
+        {/* Plant Image - A nice Monstera */}
+        <img 
+          src="https://images.unsplash.com/photo-1597055181308-f463372c3d52?q=80&w=1200&auto=format&fit=crop" 
+          alt="Plant"
+          className="w-full h-full object-cover transition-transform duration-[10s] ease-out hover:scale-110"
+        />
+
+        {/* Viewfinder */}
+        {isHovering && (
+          <motion.div
+            className="absolute pointer-events-none z-20 flex items-center justify-center"
+            style={{
+              x: springX,
+              y: springY,
+              translateX: '-50%',
+              translateY: '-50%',
+            }}
+          >
+            {/* Box */}
+            <motion.div 
+              animate={{ 
+                width: isScanning ? 160 : 100, 
+                height: isScanning ? 160 : 100,
+                borderColor: isScanning ? '#eab308' : '#ffffff',
+                backgroundColor: isScanning ? 'rgba(234, 179, 8, 0.1)' : 'rgba(255, 255, 255, 0.1)'
+              }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+              className="relative border-[3px] rounded-2xl flex items-center justify-center backdrop-blur-[2px] shadow-2xl"
+            >
+              {/* Corner brackets */}
+              <div className="absolute -top-1.5 -left-1.5 w-6 h-6 border-t-[3px] border-l-[3px] border-current rounded-tl-lg" />
+              <div className="absolute -top-1.5 -right-1.5 w-6 h-6 border-t-[3px] border-r-[3px] border-current rounded-tr-lg" />
+              <div className="absolute -bottom-1.5 -left-1.5 w-6 h-6 border-b-[3px] border-l-[3px] border-current rounded-bl-lg" />
+              <div className="absolute -bottom-1.5 -right-1.5 w-6 h-6 border-b-[3px] border-r-[3px] border-current rounded-br-lg" />
+              
+              <ScanFocus className={`w-8 h-8 transition-colors ${isScanning ? 'text-yellow-400' : 'text-white'}`} />
+            </motion.div>
+
+            {/* Tooltip */}
+            <motion.div
+              initial={{ opacity: 0, y: 15, scale: 0.9 }}
+              animate={{ 
+                opacity: isScanning ? 1 : 0, 
+                y: isScanning ? 0 : 15,
+                scale: isScanning ? 1 : 0.9
+              }}
+              className="absolute top-full mt-6 w-72 bg-white/95 backdrop-blur-md p-5 rounded-2xl shadow-2xl border border-white/50 origin-top"
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center shrink-0 border border-yellow-200">
+                  <AlertTriangle className="w-5 h-5 text-yellow-600" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-gray-900 mb-1">Nitrogen Deficiency</h4>
+                  <p className="text-xs text-gray-600 leading-relaxed font-medium">98% Match. Apply a balanced liquid fertilizer during your next watering cycle.</p>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export function Benefits() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -120,6 +233,8 @@ export function Benefits() {
             </div>
           ))}
         </div>
+        
+        <ScannerDemoWidget />
       </div>
     </section>
   );
