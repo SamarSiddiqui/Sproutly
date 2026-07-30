@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Droplets, Sprout, Scissors, BookOpen, ScanFocus, AlertTriangle } from 'lucide-react';
+import { Droplets, Sprout, Scissors, BookOpen, Scan, AlertCircle } from 'lucide-react';
 import { motion, useMotionValue, useSpring } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -68,7 +68,7 @@ function ScannerDemoWidget() {
     <div className="mt-32 max-w-5xl mx-auto">
       <div className="text-center mb-10">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 text-sm font-semibold mb-4 border border-blue-100">
-          <ScanFocus className="w-4 h-4" />
+          <Scan className="w-4 h-4" />
           AI Diagnosis Engine
         </div>
         <h3 className="text-3xl md:text-4xl font-serif text-sproutly-forest mb-4">Hover to diagnose.</h3>
@@ -119,7 +119,7 @@ function ScannerDemoWidget() {
               <div className="absolute -bottom-1.5 -left-1.5 w-6 h-6 border-b-[3px] border-l-[3px] border-current rounded-bl-lg" />
               <div className="absolute -bottom-1.5 -right-1.5 w-6 h-6 border-b-[3px] border-r-[3px] border-current rounded-br-lg" />
               
-              <ScanFocus className={`w-8 h-8 transition-colors ${isScanning ? 'text-yellow-400' : 'text-white'}`} />
+              <Scan className={`w-8 h-8 transition-colors ${isScanning ? 'text-yellow-400' : 'text-white'}`} />
             </motion.div>
 
             {/* Tooltip */}
@@ -134,7 +134,7 @@ function ScannerDemoWidget() {
             >
               <div className="flex items-start gap-4">
                 <div className="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center shrink-0 border border-yellow-200">
-                  <AlertTriangle className="w-5 h-5 text-yellow-600" />
+                  <AlertCircle className="w-5 h-5 text-yellow-600" />
                 </div>
                 <div>
                   <h4 className="text-sm font-bold text-gray-900 mb-1">Nitrogen Deficiency</h4>
