@@ -6,7 +6,6 @@ import { usePlants } from '../../../hooks/usePlants';
 import { Plant } from '../../../data/plants';
 import {
   Plus,
-  Search,
   LayoutGrid,
   List,
   MoreVertical,
@@ -92,6 +91,7 @@ export default function CollectionPage() {
       }, 800);
       return () => clearTimeout(handler);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery, filterMode]);
 
   // Clear selection when switching to Grid view

@@ -72,7 +72,7 @@ STRICT RULES:
     }
 
     const data = await response.json();
-    let reply = data.choices?.[0]?.message?.content || 'I encountered an error. Please try again later.';
+    const reply = data.choices?.[0]?.message?.content || 'I encountered an error. Please try again later.';
     
     // 2. Upsert the new count to Supabase
     await supabase.from('demo_rate_limits').upsert({

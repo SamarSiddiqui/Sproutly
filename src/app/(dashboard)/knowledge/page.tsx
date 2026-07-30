@@ -6,10 +6,7 @@ import { usePlants } from '../../../hooks/usePlants';
 import {
   BookOpen,
   Lightbulb,
-  Sprout,
   ArrowRight,
-  Bug,
-  Droplets,
   Loader2,
   Sparkles
 } from 'lucide-react';

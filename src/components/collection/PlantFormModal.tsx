@@ -7,7 +7,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
   Search,
-  MoreVertical,
   X,
   Database,
   PenSquare,

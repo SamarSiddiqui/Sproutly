@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { X, Sparkles, Plus, FlaskConical } from 'lucide-react';
 import { useFertilizerLogs } from '../../hooks/useFertilizerLogs';
 
