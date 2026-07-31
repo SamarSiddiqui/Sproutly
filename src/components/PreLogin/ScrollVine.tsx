@@ -41,14 +41,15 @@ export function ScrollVine() {
 
       // 2. Pop the leaves at specific scroll depths
       const leaves = gsap.utils.toArray('.leaf-sprout') as SVGElement[];
+      
+      // Immediately hide all leaves on load
+      gsap.set(leaves, { scale: 0, opacity: 0 });
+
       leaves.forEach((leaf) => {
         const yPos = parseFloat(leaf.getAttribute('data-y') || '0');
         const triggerPoint = yPos / 1000; // Convert Y to a 0-1 timeline progress
 
-        tl.fromTo(leaf, {
-          scale: 0,
-          opacity: 0,
-        }, {
+        tl.to(leaf, {
           scale: 1,
           opacity: 1,
           duration: 0.05,
