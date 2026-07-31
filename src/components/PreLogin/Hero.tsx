@@ -59,6 +59,9 @@ export function Hero({ onNavigate }: HeroProps) {
       ref={containerRef}
       className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden"
     >
+      {/* Background Glow Orbs */}
+      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-sproutly-sage/20 blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[60%] rounded-full bg-emerald-600/10 blur-[120px] pointer-events-none" />
       {/* Floating Leaves Background */}
       <div
         ref={leavesRef}
@@ -80,7 +83,7 @@ export function Hero({ onNavigate }: HeroProps) {
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif leading-[1.1] mb-6 text-sproutly-forest">
               Plant care,
               <br />
-              <span className="italic text-sproutly-sage">gently guided.</span>
+              <span className="italic text-transparent bg-clip-text bg-gradient-to-br from-sproutly-sage to-emerald-700">gently guided.</span>
             </h1>
             <p className="text-lg md:text-xl text-sproutly-forest/80 mb-10 leading-relaxed">
               Whether your plants live on a sunny windowsill, a busy balcony, a
@@ -91,13 +94,14 @@ export function Hero({ onNavigate }: HeroProps) {
             <div className="flex flex-col sm:flex-row gap-4">
               <button
                 onClick={() => onNavigate('signup')}
-                className="bg-sproutly-forest text-sproutly-cream px-8 py-4 rounded-full text-base font-medium hover:bg-sproutly-forest/90 transition-colors shadow-lg shadow-sproutly-forest/20"
+                className="group flex items-center justify-center gap-2 bg-gradient-to-r from-sproutly-forest to-emerald-800 text-sproutly-cream px-8 py-4 rounded-full text-base font-medium hover:shadow-xl hover:shadow-emerald-900/20 transition-all duration-300 hover:-translate-y-0.5"
               >
                 Start growing — it's free
+                <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
               </button>
               <a
                 href="#features"
-                className="inline-block text-center bg-white/50 backdrop-blur-sm border border-sproutly-forest/10 text-sproutly-forest px-8 py-4 rounded-full text-base font-medium hover:bg-white/80 transition-colors"
+                className="inline-flex items-center justify-center bg-white/50 backdrop-blur-md border border-sproutly-forest/10 text-sproutly-forest px-8 py-4 rounded-full text-base font-medium hover:bg-white/90 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5"
               >
                 See how it works
               </a>
