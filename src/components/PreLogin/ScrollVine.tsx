@@ -26,10 +26,10 @@ export function ScrollVine() {
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({
         scrollTrigger: {
-          trigger: document.documentElement,
+          trigger: document.body,
           start: 'top top',
-          end: 'max',
-          scrub: 1.5, // 1.5 second smoothing
+          end: 'bottom bottom',
+          scrub: 0.5, // Tighter tracking to move exactly with the user
         }
       });
 
@@ -79,22 +79,23 @@ export function ScrollVine() {
         />
 
         {/* Sprouting Leaves */}
-        {/* Leaf 1 - Left */}
+        
+        {/* Checkpoint 1 - Left */}
         <g className="leaf-sprout" data-y="200" style={{ transformOrigin: '35px 200px' }}>
           <path d="M 35 200 Q 15 180 5 200 Q 15 220 35 200" fill="#669c35" />
         </g>
         
-        {/* Leaf 2 - Right */}
+        {/* Checkpoint 2 - Right */}
         <g className="leaf-sprout" data-y="450" style={{ transformOrigin: '65px 450px' }}>
           <path d="M 65 450 Q 85 430 95 450 Q 85 470 65 450" fill="#669c35" />
         </g>
 
-        {/* Leaf 3 - Left */}
+        {/* Checkpoint 3 - Left */}
         <g className="leaf-sprout" data-y="650" style={{ transformOrigin: '35px 650px' }}>
           <path d="M 35 650 Q 15 630 5 650 Q 15 670 35 650" fill="#669c35" />
         </g>
 
-        {/* Leaf 4 - Right */}
+        {/* Checkpoint 4 - Right */}
         <g className="leaf-sprout" data-y="850" style={{ transformOrigin: '65px 850px' }}>
           <path d="M 65 850 Q 85 830 95 850 Q 85 870 65 850" fill="#669c35" />
         </g>
