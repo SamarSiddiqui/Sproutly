@@ -86,7 +86,7 @@ function ScannerDemoWidget() {
 
         {/* Plant Image - A nice Monstera */}
         <img
-          src="https://images.unsplash.com/photo-1614594975525-e45190c55d40?auto=format&fit=crop&q=80&w=1200"
+          src="https://www.realsimple.com/thmb/kONnhRNgq8r_OnWfKXjGigjnRbs=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/GettyImages-2049299849-904f8bac012d4e4685faa3a634be690c.jpeg"
           alt="Plant"
           className="w-full h-full object-cover transition-transform duration-[10s] ease-out hover:scale-110"
         />

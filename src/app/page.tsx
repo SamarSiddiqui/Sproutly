@@ -12,6 +12,7 @@ import { GuidesPreview } from '../components/PreLogin/GuidesPreview';
 import { Testimonial } from '../components/PreLogin/Testimonial';
 import { FinalCta } from '../components/PreLogin/FinalCta';
 import { Footer } from '../components/PreLogin/Footer';
+import { ScrollVine } from '../components/PreLogin/ScrollVine';
 import { useAuth } from '../hooks/useAuth';
 import { Leaf } from 'lucide-react';
 
@@ -46,7 +47,8 @@ export default function LandingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-sproutly-cream font-inter selection:bg-sproutly-sage selection:text-white">
+    <div className="min-h-screen bg-sproutly-cream font-inter selection:bg-sproutly-sage selection:text-white relative">
+      <ScrollVine />
       <Navbar onNavigate={handleNavigate} />
       <main>
         <Hero onNavigate={handleNavigate} />
