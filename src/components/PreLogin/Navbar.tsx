@@ -18,10 +18,10 @@ export function Navbar({ onNavigate }: NavbarProps) {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         scrolled
-          ? 'bg-sproutly-cream/90 backdrop-blur-md shadow-sm py-3'
-          : 'bg-transparent py-5'
+          ? 'bg-white/70 backdrop-blur-xl border-b border-white/30 shadow-[0_4px_30px_rgba(0,0,0,0.03)] py-3'
+          : 'bg-transparent py-6'
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between">
@@ -32,28 +32,28 @@ export function Navbar({ onNavigate }: NavbarProps) {
           </span>
         </div>
 
-        <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-sproutly-forest/80">
+        <nav className="hidden md:flex items-center gap-2 text-sm font-medium text-sproutly-forest/70">
           <a
             href="#features"
-            className="hover:text-sproutly-forest transition-colors"
+            className="px-4 py-2 rounded-full hover:bg-sproutly-sage/10 hover:text-sproutly-forest transition-all duration-300"
           >
             Features
           </a>
           <a
             href="#ai"
-            className="hover:text-sproutly-forest transition-colors"
+            className="px-4 py-2 rounded-full hover:bg-sproutly-sage/10 hover:text-sproutly-forest transition-all duration-300"
           >
             AI
           </a>
           <a
             href="#guides"
-            className="hover:text-sproutly-forest transition-colors"
+            className="px-4 py-2 rounded-full hover:bg-sproutly-sage/10 hover:text-sproutly-forest transition-all duration-300"
           >
             Guides
           </a>
           <a
             href="#pricing"
-            className="hover:text-sproutly-forest transition-colors"
+            className="px-4 py-2 rounded-full hover:bg-sproutly-sage/10 hover:text-sproutly-forest transition-all duration-300"
           >
             Pricing
           </a>
@@ -62,13 +62,13 @@ export function Navbar({ onNavigate }: NavbarProps) {
         <div className="flex items-center gap-4">
           <button
             onClick={() => onNavigate('login')}
-            className="hidden md:block text-sm font-medium text-sproutly-forest hover:text-sproutly-forest/70 transition-colors"
+            className="hidden md:block text-sm font-medium text-sproutly-forest/80 hover:text-sproutly-forest transition-colors"
           >
             Sign in
           </button>
           <button
             onClick={() => onNavigate('signup')}
-            className="bg-sproutly-forest text-sproutly-cream px-5 py-2.5 rounded-full text-sm font-medium hover:bg-sproutly-forest/90 transition-colors shadow-sm"
+            className="bg-gradient-to-r from-sproutly-forest to-emerald-700 text-sproutly-cream px-6 py-2.5 rounded-full text-sm font-medium hover:shadow-lg hover:shadow-emerald-900/20 transition-all duration-300 hover:-translate-y-0.5"
           >
             Get started
           </button>
