@@ -57,7 +57,7 @@ export function Hero({ onNavigate }: HeroProps) {
   return (
     <section
       ref={containerRef}
-      className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden"
+      className="relative pt-24 pb-28 md:pt-32 md:pb-40 overflow-hidden"
     >
       {/* Background Glow Orbs */}
       <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-sproutly-sage/20 blur-[120px] pointer-events-none" />
