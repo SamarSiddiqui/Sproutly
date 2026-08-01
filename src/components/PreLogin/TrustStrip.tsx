@@ -41,27 +41,27 @@ export function TrustStrip() {
           ref={stripRef}
           className="flex flex-wrap justify-center gap-12 md:gap-24 text-center"
         >
-          <div className="flex flex-col items-center">
-            <span className="text-3xl font-serif text-sproutly-forest mb-1">
+          <div className="group flex flex-col items-center cursor-default transition-transform duration-500 hover:-translate-y-1">
+            <span className="text-4xl md:text-5xl font-serif text-sproutly-forest/40 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-sproutly-sage group-hover:to-emerald-600 transition-all duration-500 mb-2">
               12,000+
             </span>
-            <span className="text-sm font-medium text-sproutly-forest/60 uppercase tracking-wider">
+            <span className="text-sm font-medium text-sproutly-forest/40 group-hover:text-sproutly-forest/80 transition-colors duration-500 uppercase tracking-widest">
               Plants Tracked
             </span>
           </div>
-          <div className="flex flex-col items-center">
-            <span className="text-3xl font-serif text-sproutly-forest mb-1">
+          <div className="group flex flex-col items-center cursor-default transition-transform duration-500 hover:-translate-y-1">
+            <span className="text-4xl md:text-5xl font-serif text-sproutly-forest/40 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-sproutly-sage group-hover:to-emerald-600 transition-all duration-500 mb-2">
               94%
             </span>
-            <span className="text-sm font-medium text-sproutly-forest/60 uppercase tracking-wider">
+            <span className="text-sm font-medium text-sproutly-forest/40 group-hover:text-sproutly-forest/80 transition-colors duration-500 uppercase tracking-widest">
               Survival Rate
             </span>
           </div>
-          <div className="flex flex-col items-center">
-            <span className="text-3xl font-serif text-sproutly-forest mb-1">
+          <div className="group flex flex-col items-center cursor-default transition-transform duration-500 hover:-translate-y-1">
+            <span className="text-4xl md:text-5xl font-serif text-sproutly-forest/40 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-sproutly-sage group-hover:to-emerald-600 transition-all duration-500 mb-2">
               4.9/5
             </span>
-            <span className="text-sm font-medium text-sproutly-forest/60 uppercase tracking-wider">
+            <span className="text-sm font-medium text-sproutly-forest/40 group-hover:text-sproutly-forest/80 transition-colors duration-500 uppercase tracking-widest">
               Loved by Plant Parents
             </span>
           </div>
