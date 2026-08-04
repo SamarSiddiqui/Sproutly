@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { ArrowRight } from 'lucide-react';
+import Link from 'next/link';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -76,10 +77,13 @@ export function GuidesPreview() {
               written by real botanists.
             </p>
           </div>
-          <button className="inline-flex items-center gap-2 text-sproutly-terracotta font-medium hover:text-sproutly-terracotta/80 transition-colors group">
+          <Link
+            href="/guides"
+            className="inline-flex items-center gap-2 text-sproutly-forest font-semibold hover:text-emerald-800 transition-colors group"
+          >
             View all guides
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </button>
+          </Link>
         </div>
 
         <div
@@ -91,9 +95,10 @@ export function GuidesPreview() {
           }}
         >
           {guides.map((guide, idx) => (
-            <div
+            <Link
               key={idx}
-              className="min-w-[280px] md:min-w-[320px] flex-shrink-0 snap-start group cursor-pointer"
+              href="/guides/monstera-deliciosa-ultimate-care-guide"
+              className="min-w-[280px] md:min-w-[320px] flex-shrink-0 snap-start group cursor-pointer block"
             >
               <div className="relative h-64 rounded-2xl overflow-hidden mb-4">
                 <img
@@ -108,7 +113,7 @@ export function GuidesPreview() {
               <h3 className="text-xl font-serif text-sproutly-forest group-hover:text-sproutly-terracotta transition-colors line-clamp-2">
                 {guide.title}
               </h3>
-            </div>
+            </Link>
           ))}
         </div>
       </div>

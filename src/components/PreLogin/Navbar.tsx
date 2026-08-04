@@ -46,12 +46,12 @@ export function Navbar({ onNavigate }: NavbarProps) {
           >
             AI
           </a>
-          <a
-            href="#guides"
+          <Link
+            href="/guides"
             className="px-4 py-2 rounded-full hover:bg-sproutly-sage/10 hover:text-sproutly-forest transition-all duration-300"
           >
             Guides
-          </a>
+          </Link>
           <Link
             href="/pricing"
             className="px-4 py-2 rounded-full hover:bg-sproutly-sage/10 hover:text-sproutly-forest transition-all duration-300"
