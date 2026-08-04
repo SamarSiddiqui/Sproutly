@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Leaf } from 'lucide-react';
+import Link from 'next/link';
 
 interface NavbarProps {
   onNavigate: (state: 'landing' | 'login' | 'signup') => void;
@@ -51,12 +52,12 @@ export function Navbar({ onNavigate }: NavbarProps) {
           >
             Guides
           </a>
-          {/* <a
-            href="#pricing"
+          <Link
+            href="/pricing"
             className="px-4 py-2 rounded-full hover:bg-sproutly-sage/10 hover:text-sproutly-forest transition-all duration-300"
           >
             Pricing
-          </a> */}
+          </Link>
         </nav>
 
         <div className="flex items-center gap-4">

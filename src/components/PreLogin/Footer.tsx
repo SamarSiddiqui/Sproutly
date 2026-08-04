@@ -1,5 +1,6 @@
 import React from 'react';
 import { Leaf, Instagram, Twitter, Facebook } from 'lucide-react';
+import Link from 'next/link';
 
 export function Footer() {
   return (
@@ -58,14 +59,14 @@ export function Footer() {
                   AI Botanist
                 </a>
               </li>
-              {/* <li>
-                <a
-                  href="#pricing"
+              <li>
+                <Link
+                  href="/pricing"
                   className="hover:text-sproutly-cream transition-colors"
                 >
                   Pricing
-                </a>
-              </li> */}
+                </Link>
+              </li>
             </ul>
           </div>
 
