@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Leaf } from 'lucide-react';
 import Link from 'next/link';
+import { useLenis } from '@studio-freight/react-lenis';
 
 interface NavbarProps {
   onNavigate: (state: 'landing' | 'login' | 'signup') => void;
@@ -8,6 +9,7 @@ interface NavbarProps {
 
 export function Navbar({ onNavigate }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
+  const lenis = useLenis();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -16,6 +18,18 @@ export function Navbar({ onNavigate }: NavbarProps) {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const handleHashClick = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+    if (typeof window !== 'undefined' && (window.location.pathname === '/' || window.location.pathname === '')) {
+      e.preventDefault();
+      if (lenis) {
+        lenis.scrollTo(`#${targetId}`, { duration: 1.2 });
+      } else {
+        const el = document.getElementById(targetId);
+        el?.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
 
   return (
     <header
@@ -36,18 +50,21 @@ export function Navbar({ onNavigate }: NavbarProps) {
         <nav className="hidden md:flex items-center gap-2 text-sm font-medium text-sproutly-forest/70">
           <Link
             href="/#features"
+            onClick={(e) => handleHashClick(e, 'features')}
             className="px-4 py-2 rounded-full hover:bg-sproutly-sage/10 hover:text-sproutly-forest transition-all duration-300"
           >
             Features
           </Link>
           <Link
             href="/#ai"
+            onClick={(e) => handleHashClick(e, 'ai')}
             className="px-4 py-2 rounded-full hover:bg-sproutly-sage/10 hover:text-sproutly-forest transition-all duration-300"
           >
             AI
           </Link>
           <Link
             href="/#guides"
+            onClick={(e) => handleHashClick(e, 'guides')}
             className="px-4 py-2 rounded-full hover:bg-sproutly-sage/10 hover:text-sproutly-forest transition-all duration-300"
           >
             Guides
