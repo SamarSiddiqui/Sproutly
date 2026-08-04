@@ -112,12 +112,12 @@ export function Footer() {
                 </a>
               </li> */}
               <li>
-                <a
-                  href="#"
+                <Link
+                  href="/privacy"
                   className="hover:text-sproutly-cream transition-colors"
                 >
                   Privacy Policy
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
