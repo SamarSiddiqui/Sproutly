@@ -1,5 +1,6 @@
 import React from 'react';
 import Providers from './providers';
+import { LenisProvider } from '../components/LenisProvider';
 import '../index.css';
 
 export const metadata = {
@@ -19,7 +20,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased min-h-screen bg-sproutly-bg text-sproutly-primary">
-        <Providers>{children}</Providers>
+        <LenisProvider>
+          <Providers>{children}</Providers>
+        </LenisProvider>
       </body>
     </html>
   );
