@@ -96,12 +96,12 @@ export function Footer() {
             <h4 className="font-serif text-lg mb-4">Company</h4>
             <ul className="space-y-3 text-sm text-sproutly-cream/70">
               <li>
-                <a
-                  href="#"
+                <Link
+                  href="/about"
                   className="hover:text-sproutly-cream transition-colors"
                 >
                   About Us
-                </a>
+                </Link>
               </li>
               {/* <li>
                 <a
