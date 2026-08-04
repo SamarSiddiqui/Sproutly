@@ -1,7 +1,40 @@
 import { NextResponse } from 'next/server';
+import { supabase } from '../../../utils/supabaseClient';
 
 export async function POST(request: Request) {
   try {
+    const ip = request.headers.get('x-forwarded-for') || 'unknown-ip';
+
+    // 1. Enforce 10 messages / 24h limit for Free accounts
+    const { data: limitData } = await supabase
+      .from('demo_rate_limits')
+      .select('*')
+      .eq('ip_address', ip)
+      .single();
+
+    let currentCount = 0;
+    if (limitData) {
+      const lastRequestDate = new Date(limitData.last_request_at);
+      const oneDayAgo = new Date();
+      oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+
+      if (lastRequestDate < oneDayAgo) {
+        currentCount = 0;
+      } else {
+        currentCount = limitData.request_count;
+      }
+    }
+
+    if (currentCount >= 10) {
+      return NextResponse.json(
+        {
+          error: 'DAILY_CHAT_LIMIT_REACHED',
+          message: 'You have reached your free AI messages for today. Upgrade to Sproutly Pro for unlimited AI consultations!',
+        },
+        { status: 429 }
+      );
+    }
+
     const { messages, plants } = await request.json();
 
     const apiKey = process.env.MISTRAL_API_KEY;
@@ -15,9 +48,9 @@ export async function POST(request: Request) {
     // Build standard system prompt incorporating user's actual plant collection context
     const plantsContext = plants && plants.length > 0
       ? `The user has the following plants in their garden collection:\n` +
-        plants.map((p: any) => 
-          `- **${p.name}** (${p.species}): Category: ${p.category}, Growth Stage: ${p.growthStage}, Health: ${p.healthStatus}, Last watered: ${p.lastWatered ? new Date(p.lastWatered).toLocaleDateString() : 'N/A'}, Next watering: ${p.nextWatering ? new Date(p.nextWatering).toLocaleDateString() : 'N/A'}, Notes: "${p.notes || ''}"`
-        ).join('\n')
+      plants.map((p: any) =>
+        `- **${p.name}** (${p.species}): Category: ${p.category}, Growth Stage: ${p.growthStage}, Health: ${p.healthStatus}, Last watered: ${p.lastWatered ? new Date(p.lastWatered).toLocaleDateString() : 'N/A'}, Next watering: ${p.nextWatering ? new Date(p.nextWatering).toLocaleDateString() : 'N/A'}, Notes: "${p.notes || ''}"`
+      ).join('\n')
       : 'The user has no plants in their collection yet. Encourage them to add some plants to start.';
 
     const systemPrompt = `You are Sproutly AI, a warm, encouraging, and highly knowledgeable plant-care assistant.
@@ -69,7 +102,14 @@ CRITICAL GUARDRAILS:
     const data = await response.json();
     const reply = data.choices?.[0]?.message?.content || "I'm sorry, I couldn't process that response.";
 
-    return NextResponse.json({ text: reply });
+    // 2. Increment request count on success
+    await supabase.from('demo_rate_limits').upsert({
+      ip_address: ip,
+      request_count: currentCount + 1,
+      last_request_at: new Date().toISOString(),
+    });
+
+    return NextResponse.json({ text: reply, remaining: 9 - currentCount });
   } catch (error: any) {
     console.error('Error in chat API route:', error);
     return NextResponse.json(

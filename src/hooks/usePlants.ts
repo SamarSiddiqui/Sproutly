@@ -38,6 +38,16 @@ export function usePlants() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not logged in');
 
+      // Enforce 10-plant limit for Free Tier
+      const { count, error: countError } = await supabase
+        .from('plants')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id);
+
+      if (!countError && count !== null && count >= 10) {
+        throw new Error('MAX_PLANTS_REACHED');
+      }
+
       const dbRow = mapPlantToDbRow(newPlantData, user.id);
       const { data, error } = await supabase
         .from('plants')
