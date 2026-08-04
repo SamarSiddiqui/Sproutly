@@ -26,37 +26,31 @@ export function Navbar({ onNavigate }: NavbarProps) {
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sproutly-forest">
+        <Link href="/" className="flex items-center gap-2 text-sproutly-forest hover:opacity-90 transition-opacity">
           <Leaf className="w-6 h-6 text-sproutly-sage" />
           <span className="font-serif text-2xl font-semibold tracking-tight">
             Sproutly
           </span>
-        </div>
+        </Link>
 
         <nav className="hidden md:flex items-center gap-2 text-sm font-medium text-sproutly-forest/70">
-          <a
-            href="#features"
+          <Link
+            href="/#features"
             className="px-4 py-2 rounded-full hover:bg-sproutly-sage/10 hover:text-sproutly-forest transition-all duration-300"
           >
             Features
-          </a>
-          <a
-            href="#ai"
+          </Link>
+          <Link
+            href="/#ai"
             className="px-4 py-2 rounded-full hover:bg-sproutly-sage/10 hover:text-sproutly-forest transition-all duration-300"
           >
             AI
-          </a>
+          </Link>
           <Link
-            href="/guides"
+            href="/#guides"
             className="px-4 py-2 rounded-full hover:bg-sproutly-sage/10 hover:text-sproutly-forest transition-all duration-300"
           >
             Guides
-          </Link>
-          <Link
-            href="/pricing"
-            className="px-4 py-2 rounded-full hover:bg-sproutly-sage/10 hover:text-sproutly-forest transition-all duration-300"
-          >
-            Pricing
           </Link>
         </nav>
 

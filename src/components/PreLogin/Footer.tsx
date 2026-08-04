@@ -8,12 +8,12 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12 mb-16">
           <div className="col-span-2 lg:col-span-2">
-            <div className="flex items-center gap-2 mb-6">
+            <Link href="/" className="flex items-center gap-2 mb-6 hover:opacity-90 transition-opacity">
               <Leaf className="w-6 h-6 text-sproutly-sage" />
               <span className="font-serif text-2xl font-semibold tracking-tight">
                 Sproutly
               </span>
-            </div>
+            </Link>
             <p className="text-sproutly-cream/70 max-w-sm mb-8">
               Helping every plant — indoor, balcony, terrace, or garden —
               thrive, without the stress or the spreadsheets.
@@ -44,20 +44,20 @@ export function Footer() {
             <h4 className="font-serif text-lg mb-4">Product</h4>
             <ul className="space-y-3 text-sm text-sproutly-cream/70">
               <li>
-                <a
-                  href="#features"
+                <Link
+                  href="/#features"
                   className="hover:text-sproutly-cream transition-colors"
                 >
                   Features
-                </a>
+                </Link>
               </li>
               <li>
-                <a
-                  href="#ai"
+                <Link
+                  href="/#ai"
                   className="hover:text-sproutly-cream transition-colors"
                 >
                   AI Botanist
-                </a>
+                </Link>
               </li>
               <li>
                 <Link
