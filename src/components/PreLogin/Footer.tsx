@@ -74,12 +74,12 @@ export function Footer() {
             <h4 className="font-serif text-lg mb-4">Resources</h4>
             <ul className="space-y-3 text-sm text-sproutly-cream/70">
               <li>
-                <a
-                  href="#guides"
+                <Link
+                  href="/guides"
                   className="hover:text-sproutly-cream transition-colors"
                 >
                   Plant Guides
-                </a>
+                </Link>
               </li>
               {/* <li>
                 <a
