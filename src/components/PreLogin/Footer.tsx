@@ -58,14 +58,14 @@ export function Footer() {
                   AI Botanist
                 </a>
               </li>
-              <li>
+              {/* <li>
                 <a
                   href="#pricing"
                   className="hover:text-sproutly-cream transition-colors"
                 >
                   Pricing
                 </a>
-              </li>
+              </li> */}
             </ul>
           </div>
 
@@ -80,14 +80,14 @@ export function Footer() {
                   Plant Guides
                 </a>
               </li>
-              <li>
+              {/* <li>
                 <a
                   href="#"
                   className="hover:text-sproutly-cream transition-colors"
                 >
                   Help Center
                 </a>
-              </li>
+              </li> */}
             </ul>
           </div>
 
@@ -102,14 +102,14 @@ export function Footer() {
                   About Us
                 </a>
               </li>
-              <li>
+              {/* <li>
                 <a
                   href="#"
                   className="hover:text-sproutly-cream transition-colors"
                 >
                   Careers
                 </a>
-              </li>
+              </li> */}
               <li>
                 <a
                   href="#"

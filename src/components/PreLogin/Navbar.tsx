@@ -51,12 +51,12 @@ export function Navbar({ onNavigate }: NavbarProps) {
           >
             Guides
           </a>
-          <a
+          {/* <a
             href="#pricing"
             className="px-4 py-2 rounded-full hover:bg-sproutly-sage/10 hover:text-sproutly-forest transition-all duration-300"
           >
             Pricing
-          </a>
+          </a> */}
         </nav>
 
         <div className="flex items-center gap-4">

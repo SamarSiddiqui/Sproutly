@@ -52,12 +52,12 @@ export default function LandingPage() {
       <Navbar onNavigate={handleNavigate} />
       <main>
         <Hero onNavigate={handleNavigate} />
-        <TrustStrip />
+        {/* <TrustStrip /> */}
         <Benefits />
         <AiSection />
         <HowItWorks />
         <GuidesPreview />
-        <Testimonial />
+        {/* <Testimonial /> */}
         <FinalCta onNavigate={handleNavigate} />
       </main>
       <Footer />
