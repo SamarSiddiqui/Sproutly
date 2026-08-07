@@ -19,8 +19,8 @@ export function AuthLayout({ children, type, quote, onNavigate }: AuthLayoutProp
   const isLogin = type === 'login';
   const bgColor = isLogin ? 'bg-sproutly-forest' : 'bg-sproutly-sage';
   const imageUrl = isLogin
-    ? 'https://images.unsplash.com/photo-1463320726281-696a485928c7?auto=format&fit=crop&w=1000&q=80'
-    : 'https://images.unsplash.com/photo-1545241047-6083a3684587?auto=format&fit=crop&w=1000&q=80';
+    ? '/login_page.png'
+    : '/sign-Up_page.png';
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -93,10 +93,10 @@ export function AuthLayout({ children, type, quote, onNavigate }: AuthLayoutProp
   }, [type]);
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-sproutly-cream font-sans selection:bg-sproutly-sage selection:text-white">
+    <div className="min-h-screen lg:h-screen w-full flex flex-col lg:flex-row bg-sproutly-cream font-sans selection:bg-sproutly-sage selection:text-white overflow-x-hidden lg:overflow-hidden">
       {/* Left Panel - Brand/Visual */}
       <div
-        className={`lg:w-[45%] ${bgColor} relative overflow-hidden flex flex-col justify-between p-6 md:p-12 lg:p-16 min-h-[30vh] lg:min-h-screen`}
+        className={`lg:w-[45%] ${bgColor} relative overflow-hidden flex flex-col justify-between p-6 md:p-8 lg:p-10 min-h-[30vh] lg:h-full`}
       >
         {/* Floating Leaves */}
         <div
@@ -142,7 +142,7 @@ export function AuthLayout({ children, type, quote, onNavigate }: AuthLayoutProp
       </div>
 
       {/* Right Panel - Form */}
-      <div className="lg:w-[55%] flex flex-col p-6 md:p-12 lg:p-16 relative">
+      <div className="lg:w-[55%] flex flex-col p-6 md:p-8 lg:p-10 relative lg:h-full justify-between overflow-y-auto lg:overflow-hidden">
         <button
           onClick={() => onNavigate('landing')}
           className="absolute top-6 left-6 md:top-12 md:left-12 inline-flex items-center gap-2 text-sm font-medium text-sproutly-forest/60 hover:text-sproutly-forest transition-colors"

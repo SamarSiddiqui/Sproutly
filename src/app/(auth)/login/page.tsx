@@ -79,11 +79,11 @@ export default function LoginPage() {
       quote="Welcome back to your quiet little corner of the garden."
       onNavigate={handleNavigate}
     >
-      <div className="mb-10 text-left">
-        <h1 className="text-4xl font-serif text-sproutly-forest mb-3">
+      <div className="mb-6 text-left">
+        <h1 className="text-3xl md:text-4xl font-serif text-sproutly-forest mb-2">
           Welcome back.
         </h1>
-        <p className="text-sproutly-forest/70">
+        <p className="text-sm md:text-base text-sproutly-forest/70">
           Your plants missed you. Sign in to keep them thriving.
         </p>
       </div>
@@ -175,7 +175,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full bg-sproutly-forest text-sproutly-cream py-4 rounded-full text-base font-medium hover:bg-sproutly-forest/90 transition-colors shadow-lg shadow-sproutly-forest/20 mt-4 flex items-center justify-center gap-2 disabled:opacity-75 disabled:cursor-not-allowed"
+          className="w-full bg-sproutly-forest text-sproutly-cream py-3.5 rounded-full text-base font-medium hover:bg-sproutly-forest/90 transition-colors shadow-lg shadow-sproutly-forest/20 mt-3 flex items-center justify-center gap-2 disabled:opacity-75 disabled:cursor-not-allowed"
         >
           {isLoading ? (
             <>
@@ -188,38 +188,41 @@ export default function LoginPage() {
         </button>
       </form>
 
-      <div className="my-8 flex items-center gap-4">
+      <div className="my-5 flex items-center gap-4">
         <div className="h-px bg-sproutly-forest/10 flex-grow"></div>
-        <span className="text-sm text-sproutly-forest/50">
+        <span className="text-xs text-sproutly-forest/50">
           or continue with
         </span>
         <div className="h-px bg-sproutly-forest/10 flex-grow"></div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <button
-          type="button"
-          onClick={() => router.push('/dashboard')}
-          className="flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl border border-sproutly-forest/10 bg-white text-sproutly-forest font-medium hover:bg-sproutly-cream transition-colors"
-        >
-          <div className="w-5 h-5 rounded-full border-2 border-current flex items-center justify-center text-[10px] font-bold">
-            G
-          </div>
-          Google
-        </button>
-        <button
-          type="button"
-          onClick={() => router.push('/dashboard')}
-          className="flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl border border-sproutly-forest/10 bg-white text-sproutly-forest font-medium hover:bg-sproutly-cream transition-colors"
-        >
-          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.19 2.31-.88 3.5-.8 1.56.12 2.89.69 3.9 1.62-3.41 2.05-2.83 6.64.55 7.97-1.03 1.54-2.05 2.43-3.03 3.38zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
-          </svg>
-          Apple
-        </button>
-      </div>
+      <button
+        type="button"
+        onClick={() => router.push('/dashboard')}
+        className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl border border-sproutly-forest/15 bg-white text-sproutly-forest font-medium hover:bg-sproutly-cream/80 hover:border-sproutly-forest/30 transition-all shadow-sm"
+      >
+        <svg className="w-5 h-5" viewBox="0 0 24 24">
+          <path
+            fill="#4285F4"
+            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+          />
+          <path
+            fill="#34A853"
+            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+          />
+          <path
+            fill="#FBBC05"
+            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+          />
+          <path
+            fill="#EA4335"
+            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+          />
+        </svg>
+        Sign in with Google
+      </button>
 
-      <p className="text-center mt-8 text-sm text-sproutly-forest/70">
+      <p className="text-center mt-6 text-sm text-sproutly-forest/70">
         New to Sproutly?{' '}
         <button
           onClick={() => handleNavigate('signup')}
