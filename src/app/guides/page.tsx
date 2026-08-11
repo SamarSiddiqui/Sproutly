@@ -5,13 +5,15 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Navbar } from '../../components/PreLogin/Navbar';
 import { Footer } from '../../components/PreLogin/Footer';
-import { ARTICLES, Article } from '../../data/articles';
-import { Search, BookOpen, Clock, ArrowRight, Sparkles } from 'lucide-react';
+import { Article } from '../../data/articles';
+import { useArticles } from '../../hooks/useArticles';
+import { Search, BookOpen, Clock, ArrowRight, Sparkles, Loader2 } from 'lucide-react';
 
 const CATEGORIES = ['All', 'Indoor Plants', 'Watering & Soil', 'Troubleshooting', 'Propagation', 'Balcony & Outdoor'] as const;
 
 export default function GuidesListingPage() {
   const router = useRouter();
+  const { data: articles = [], isLoading } = useArticles();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
@@ -26,7 +28,7 @@ export default function GuidesListingPage() {
   };
 
   const filteredArticles = useMemo(() => {
-    return ARTICLES.filter((article) => {
+    return articles.filter((article) => {
       const matchesCategory = selectedCategory === 'All' || article.category === selectedCategory;
       const matchesSearch =
         article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -34,7 +36,7 @@ export default function GuidesListingPage() {
         article.category.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesCategory && matchesSearch;
     });
-  }, [searchQuery, selectedCategory]);
+  }, [articles, searchQuery, selectedCategory]);
 
   return (
     <div className="min-h-screen bg-sproutly-cream font-inter selection:bg-sproutly-sage selection:text-white flex flex-col justify-between">
