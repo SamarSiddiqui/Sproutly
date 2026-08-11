@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { Navbar } from '../../../components/PreLogin/Navbar';
 import { Footer } from '../../../components/PreLogin/Footer';
-import { getArticleBySlug, ARTICLES } from '../../../data/articles';
+import { useArticle, useArticles } from '../../../hooks/useArticles';
 import {
   ArrowLeft,
   Clock,
@@ -17,6 +17,7 @@ import {
   BookOpen,
   CheckCircle2,
   Share2,
+  Loader2,
 } from 'lucide-react';
 
 export default function ArticleDetailPage() {
@@ -24,7 +25,8 @@ export default function ArticleDetailPage() {
   const router = useRouter();
   const slug = params?.slug as string;
 
-  const article = getArticleBySlug(slug);
+  const { data: article, isLoading } = useArticle(slug);
+  const { data: allArticles = [] } = useArticles();
 
   const handleNavigate = (state: 'landing' | 'login' | 'signup') => {
     if (state === 'login') {
@@ -35,6 +37,19 @@ export default function ArticleDetailPage() {
       router.push('/');
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-sproutly-cream flex flex-col justify-between">
+        <Navbar onNavigate={handleNavigate} />
+        <main className="pt-36 pb-24 text-center px-6 max-w-lg mx-auto">
+          <Loader2 size={36} className="mx-auto text-emerald-600 animate-spin mb-4" />
+          <p className="text-sm font-semibold text-sproutly-forest/70">Loading botanical guide...</p>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   if (!article) {
     return (
@@ -59,7 +74,7 @@ export default function ArticleDetailPage() {
   }
 
   // Related articles (excluding current one)
-  const relatedArticles = ARTICLES.filter((a) => a.slug !== article.slug).slice(0, 2);
+  const relatedArticles = allArticles.filter((a) => a.slug !== article.slug).slice(0, 2);
 
   return (
     <div className="min-h-screen bg-sproutly-cream font-inter selection:bg-sproutly-sage selection:text-white flex flex-col justify-between">
