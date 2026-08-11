@@ -38,9 +38,9 @@ export const ARTICLES: Article[] = [
     readTime: '6 min read',
     publishedAt: 'March 15, 2026',
     author: {
-      name: 'Elena Rostova',
-      role: 'Master Botanist & Sproutly Advisor',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+      name: 'Sproutly Team',
+      role: 'Botanical Editorial',
+      avatar: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🌱</text></svg>',
     },
     image: 'https://images.unsplash.com/photo-1614594975525-e45190c55d40?auto=format&fit=crop&w=1200&q=80',
     takeaways: {
@@ -82,9 +82,9 @@ export const ARTICLES: Article[] = [
     readTime: '5 min read',
     publishedAt: 'March 28, 2026',
     author: {
-      name: 'Marcus Vance',
-      role: 'Horticulturalist',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
+      name: 'Sproutly Team',
+      role: 'Botanical Editorial',
+      avatar: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🌱</text></svg>',
     },
     image: 'https://images.unsplash.com/photo-1512428559087-560fa5ceab42?auto=format&fit=crop&w=1200&q=80',
     takeaways: {
@@ -125,9 +125,9 @@ export const ARTICLES: Article[] = [
     readTime: '4 min read',
     publishedAt: 'April 02, 2026',
     author: {
-      name: 'Sofia Chen',
-      role: 'Urban Botanist',
-      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80',
+      name: 'Sproutly Team',
+      role: 'Botanical Editorial',
+      avatar: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🌱</text></svg>',
     },
     image: 'https://images.unsplash.com/photo-1545241047-6083a3684587?auto=format&fit=crop&w=1200&q=80',
     takeaways: {
@@ -163,9 +163,9 @@ export const ARTICLES: Article[] = [
     readTime: '7 min read',
     publishedAt: 'April 10, 2026',
     author: {
-      name: 'Elena Rostova',
-      role: 'Master Botanist & Sproutly Advisor',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+      name: 'Sproutly Team',
+      role: 'Botanical Editorial',
+      avatar: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🌱</text></svg>',
     },
     image: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&w=1200&q=80',
     takeaways: {
