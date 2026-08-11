@@ -3,39 +3,16 @@ import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useArticles } from '../../hooks/useArticles';
 
 gsap.registerPlugin(ScrollTrigger);
-
-const guides = [
-  {
-    title: "Why are my Monstera's leaves yellow?",
-    category: 'Troubleshooting',
-    image:
-      'https://images.unsplash.com/photo-1614594975525-e45190c55d0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-  },
-  {
-    title: 'Watering 101: The Soak and Dry Method',
-    category: 'Basics',
-    image:
-      'https://images.unsplash.com/photo-1463320726281-696a485928c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-  },
-  {
-    title: 'Light levels by room: A practical guide',
-    category: 'Environment',
-    image:
-      'https://images.unsplash.com/photo-1485955900006-10f4d324d411?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-  },
-  {
-    title: 'Repotting like a pro without the mess',
-    category: 'Care',
-    image:
-      'https://images.unsplash.com/photo-1592150621744-aca64f48394a?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-  },
-];
 
 export function GuidesPreview() {
   const sectionRef = useRef<HTMLElement>(null);
   const cardsRef = useRef<HTMLDivElement>(null);
+  const { data: articles = [] } = useArticles();
+
+  const topArticles = articles.slice(0, 3);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -94,23 +71,26 @@ export function GuidesPreview() {
             msOverflowStyle: 'none',
           }}
         >
-          {guides.map((guide, idx) => (
+          {topArticles.map((guide) => (
             <Link
-              key={idx}
-              href="/guides/monstera-deliciosa-ultimate-care-guide"
-              className="min-w-[280px] md:min-w-[320px] flex-shrink-0 snap-start group cursor-pointer block"
+              key={guide.slug}
+              href={`/guides/${guide.slug}`}
+              className="flex-1 min-w-[280px] md:min-w-[320px] snap-start group cursor-pointer block"
             >
-              <div className="relative h-64 rounded-2xl overflow-hidden mb-4">
+              <div className="relative h-64 rounded-2xl overflow-hidden mb-4 shadow-sm border border-sproutly-forest/10">
                 <img
                   src={guide.image}
                   alt={guide.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                 />
-                <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium text-sproutly-forest">
+                <div className="absolute top-4 left-4 bg-sproutly-forest/80 backdrop-blur-md text-sproutly-cream text-xs font-semibold px-3 py-1 rounded-full">
                   {guide.category}
                 </div>
               </div>
-              <h3 className="text-xl font-serif text-sproutly-forest group-hover:text-sproutly-terracotta transition-colors line-clamp-2">
+              <div className="text-xs text-sproutly-forest/60 mb-2 font-medium">
+                {guide.readTime} • {guide.publishedAt}
+              </div>
+              <h3 className="text-xl font-serif font-bold text-sproutly-forest group-hover:text-emerald-800 transition-colors line-clamp-2 leading-snug">
                 {guide.title}
               </h3>
             </Link>
