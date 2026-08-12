@@ -46,6 +46,7 @@ export function FertilizerModal({ isOpen, onClose, plantId, selectedDate, aiReco
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-sproutly-primary/20 backdrop-blur-sm" onClick={onClose} />
       <motion.div 
+        data-lenis-prevent
         initial={{ opacity: 0, scale: 0.95, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 10 }}

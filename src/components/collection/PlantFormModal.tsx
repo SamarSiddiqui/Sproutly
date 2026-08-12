@@ -167,6 +167,7 @@ export function PlantFormModal({ plant, onClose, onSave }: PlantFormModalProps) 
     >
       <motion.div
         onClick={(e) => e.stopPropagation()}
+        data-lenis-prevent
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -232,7 +233,7 @@ export function PlantFormModal({ plant, onClose, onSave }: PlantFormModalProps) 
         )}
 
         {/* Scrollable Content Area */}
-        <div className="flex-1 overflow-y-auto p-6 lg:p-8 space-y-6">
+        <div data-lenis-prevent className="flex-1 overflow-y-auto p-6 lg:p-8 space-y-6">
           {/* STEP 1: SELECT PLANT FROM DATABASE */}
           {step === 'select' && searchMode === 'search' && (
             <div className="space-y-5">
