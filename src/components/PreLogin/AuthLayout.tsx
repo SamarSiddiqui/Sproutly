@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { Leaf as LeafIcon, ArrowLeft } from 'lucide-react';
 import gsap from 'gsap';
 import { Leaf } from './decor/Leaf';
+import { Login_Image, SignUp_Image } from '../../utils/common';
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -19,8 +20,8 @@ export function AuthLayout({ children, type, quote, onNavigate }: AuthLayoutProp
   const isLogin = type === 'login';
   const bgColor = isLogin ? 'bg-sproutly-forest' : 'bg-sproutly-sage';
   const imageUrl = isLogin
-    ? '/login_page.png'
-    : '/sign-Up_page.png';
+    ? Login_Image
+    : SignUp_Image;
 
   useEffect(() => {
     const ctx = gsap.context(() => {
