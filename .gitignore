@@ -30,7 +30,8 @@ docs/
 .env
 .env.*
 
-# Next.js build output
+# Next.js build output & cache
+.next
 .next/
+.next/*
 out/
-
