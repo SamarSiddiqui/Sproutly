@@ -84,6 +84,7 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
             className="fixed inset-0 bg-sproutly-primary/40 backdrop-blur-sm z-50"
           />
           <motion.div
+            data-lenis-prevent
             initial={{ x: '-100%' }}
             animate={{ x: 0 }}
             exit={{ x: '-100%' }}
@@ -107,7 +108,7 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto py-6 px-4 space-y-2">
+            <div data-lenis-prevent className="flex-1 overflow-y-auto py-6 px-4 space-y-2">
               {menuItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = pathname === item.href;

@@ -23,7 +23,7 @@ export function UpgradeModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
-      <div className="relative w-full max-w-lg bg-gradient-to-b from-sproutly-forest to-emerald-950 text-sproutly-cream rounded-3xl p-8 shadow-2xl border border-emerald-500/30 overflow-hidden">
+      <div data-lenis-prevent className="relative w-full max-w-lg bg-gradient-to-b from-sproutly-forest to-emerald-950 text-sproutly-cream rounded-3xl p-8 shadow-2xl border border-emerald-500/30 overflow-hidden max-h-[90vh] overflow-y-auto">
         {/* Glowing Orbs */}
         <div className="absolute -top-12 -right-12 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-12 -left-12 w-48 h-48 bg-sproutly-sage/20 rounded-full blur-3xl pointer-events-none" />
