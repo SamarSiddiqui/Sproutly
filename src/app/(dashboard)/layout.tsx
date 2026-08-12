@@ -8,6 +8,7 @@ import { useWeather } from '../../hooks/useWeather';
 import { Sidebar } from '../../components/Navigation/Sidebar';
 import { BottomNav } from '../../components/Navigation/BottomNav';
 import { HamburgerMenu } from '../../components/Navigation/HamburgerMenu';
+import { LogoutModal } from '../../components/LogoutModal';
 import { Leaf, Menu } from 'lucide-react';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -22,6 +23,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   );
   
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   useEffect(() => {
     if (!loading && !session) {
@@ -44,7 +46,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className="min-h-screen bg-sproutly-bg font-sans selection:bg-sproutly-light/30 flex animate-fadeIn">
       {/* Desktop Sidebar */}
-      <Sidebar onLogout={logout} />
+      <Sidebar onLogout={() => setShowLogoutModal(true)} />
 
       {/* Mobile Top Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-sproutly-bg/80 backdrop-blur-md z-30 border-b border-sproutly-secondary/10">
@@ -86,10 +88,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <HamburgerMenu
           isOpen={isMenuOpen}
           onClose={() => setIsMenuOpen(false)}
-          onLogout={logout}
+          onLogout={() => {
+            setIsMenuOpen(false);
+            setShowLogoutModal(true);
+          }}
         />
         <BottomNav />
       </div>
+
+      {/* Logout Confirmation Modal */}
+      <LogoutModal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={logout}
+      />
     </div>
   );
 }
