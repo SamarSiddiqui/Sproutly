@@ -26,7 +26,11 @@ export function Navbar({ onNavigate }: NavbarProps) {
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 text-sproutly-forest hover:opacity-90 transition-opacity">
+        <Link
+          href="/"
+          onClick={() => onNavigate('landing')}
+          className="flex items-center gap-2 text-sproutly-forest hover:opacity-90 transition-opacity cursor-pointer"
+        >
           <Leaf className="w-6 h-6 text-sproutly-sage" />
           <span className="font-serif text-2xl font-semibold tracking-tight">
             Sproutly
