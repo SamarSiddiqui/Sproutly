@@ -141,8 +141,8 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
                 <span className="font-medium">Settings</span>
               </button>
               <button
-                onClick={() => handleNav('/settings')}
-                className="flex items-center gap-3 text-sproutly-secondary hover:text-sproutly-primary transition-colors"
+                onClick={() => handleNav('/profile')}
+                className={`flex items-center gap-3 transition-colors ${pathname === '/profile' ? 'text-sproutly-primary' : 'text-sproutly-secondary hover:text-sproutly-primary'}`}
               >
                 <User size={20} />
                 <span className="font-medium">Profile</span>

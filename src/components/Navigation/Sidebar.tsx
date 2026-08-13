@@ -130,8 +130,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
           <span className="font-semibold text-sm">Settings</span>
         </Link>
         <Link
-          href="/settings"
-          className="w-full flex items-center gap-3 p-3 rounded-xl text-sproutly-secondary hover:text-sproutly-primary hover:bg-sproutly-light/10 transition-all"
+          href="/profile"
+          className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${pathname === '/profile' ? 'bg-sproutly-primary text-white shadow-md' : 'text-sproutly-secondary hover:text-sproutly-primary hover:bg-sproutly-light/10'}`}
         >
           <User size={20} />
           <span className="font-semibold text-sm">Profile</span>
