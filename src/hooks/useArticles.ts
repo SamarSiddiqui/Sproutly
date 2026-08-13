@@ -13,9 +13,9 @@ export function mapDbRowToArticle(row: any): Article {
     readTime: row.read_time,
     publishedAt: row.published_at ? new Date(row.published_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'Recently',
     author: {
-      name: row.author_name,
-      role: row.author_role,
-      avatar: row.author_avatar,
+      name: row.author_name || 'Sproutly Team',
+      role: row.author_role || 'Botanical Editorial',
+      avatar: (!row.author_avatar || row.author_avatar.startsWith('data:image/svg')) ? '/favicon.svg' : row.author_avatar,
     },
     image: row.image_url,
     takeaways: typeof row.takeaways === 'string' ? JSON.parse(row.takeaways) : row.takeaways || undefined,

@@ -40,7 +40,7 @@ export const ARTICLES: Article[] = [
     author: {
       name: 'Sproutly Team',
       role: 'Botanical Editorial',
-      avatar: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🌱</text></svg>',
+      avatar: '/favicon.svg',
     },
     image: 'https://images.unsplash.com/photo-1614594975525-e45190c55d40?auto=format&fit=crop&w=1200&q=80',
     takeaways: {
@@ -84,7 +84,7 @@ export const ARTICLES: Article[] = [
     author: {
       name: 'Sproutly Team',
       role: 'Botanical Editorial',
-      avatar: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🌱</text></svg>',
+      avatar: '/favicon.svg',
     },
     image: 'https://images.unsplash.com/photo-1512428559087-560fa5ceab42?auto=format&fit=crop&w=1200&q=80',
     takeaways: {
@@ -127,7 +127,7 @@ export const ARTICLES: Article[] = [
     author: {
       name: 'Sproutly Team',
       role: 'Botanical Editorial',
-      avatar: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🌱</text></svg>',
+      avatar: '/favicon.svg',
     },
     image: 'https://images.unsplash.com/photo-1545241047-6083a3684587?auto=format&fit=crop&w=1200&q=80',
     takeaways: {
@@ -165,7 +165,7 @@ export const ARTICLES: Article[] = [
     author: {
       name: 'Sproutly Team',
       role: 'Botanical Editorial',
-      avatar: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🌱</text></svg>',
+      avatar: '/favicon.svg',
     },
     image: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&w=1200&q=80',
     takeaways: {
@@ -199,7 +199,7 @@ export const ARTICLES: Article[] = [
     author: {
       name: 'Sproutly Team',
       role: 'Botanical Editorial',
-      avatar: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🌱</text></svg>',
+      avatar: '/favicon.svg',
     },
     image: 'https://images.unsplash.com/photo-1463320726281-696a485928c7?auto=format&fit=crop&w=1200&q=80',
     takeaways: {
@@ -243,7 +243,7 @@ export const ARTICLES: Article[] = [
     author: {
       name: 'Sproutly Team',
       role: 'Botanical Editorial',
-      avatar: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🌱</text></svg>',
+      avatar: '/favicon.svg',
     },
     image: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&w=1200&q=80',
     takeaways: {
@@ -288,7 +288,7 @@ export const ARTICLES: Article[] = [
     author: {
       name: 'Sproutly Team',
       role: 'Botanical Editorial',
-      avatar: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🌱</text></svg>',
+      avatar: '/favicon.svg',
     },
     image: 'https://images.unsplash.com/photo-1592150621744-aca64f48394a?auto=format&fit=crop&w=1200&q=80',
     takeaways: {

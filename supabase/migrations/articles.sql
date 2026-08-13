@@ -49,7 +49,7 @@ VALUES
   NOW() - INTERVAL '15 days',
   'Sproutly Team',
   'Botanical Editorial',
-  'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🌱</text></svg>',
+  '/favicon.svg',
   'https://images.unsplash.com/photo-1614594975525-e45190c55d40?auto=format&fit=crop&w=1200&q=80',
   '{"light": "Bright, indirect light (avoid harsh midday rays)", "water": "Allow top 2-3 inches of soil to dry completely", "humidity": "50% - 70% ideal (tolerates average household level)", "difficulty": "Beginner to Intermediate"}'::jsonb,
   '{
@@ -124,7 +124,7 @@ VALUES
   NOW() - INTERVAL '7 days',
   'Sproutly Team',
   'Botanical Editorial',
-  'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🌱</text></svg>',
+  '/favicon.svg',
   'https://images.unsplash.com/photo-1545241047-6083a3684587?auto=format&fit=crop&w=1200&q=80',
   '{"light": "Bright, indirect light for fast root growth", "water": "Clean tap or filtered water changed weekly", "humidity": "High ambient humidity accelerates roots", "difficulty": "Easy (Great for beginners)"}'::jsonb,
   '{
@@ -156,7 +156,7 @@ VALUES
   NOW() - INTERVAL '4 days',
   'Sproutly Team',
   'Botanical Editorial',
-  'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🌱</text></svg>',
+  '/favicon.svg',
   'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&w=1200&q=80',
   '{"light": "Direct Full Sun (6+ hours per day)", "water": "Daily deep watering in peak summer", "humidity": "Low to Moderate", "difficulty": "Intermediate"}'::jsonb,
   '{
@@ -184,7 +184,7 @@ VALUES
   NOW() - INTERVAL '1 day',
   'Sproutly Team',
   'Botanical Editorial',
-  'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🌱</text></svg>',
+  '/favicon.svg',
   'https://images.unsplash.com/photo-1593482892290-f54927ae1bf6?auto=format&fit=crop&w=1200&q=80',
   '{"light": "Tolerates low light to bright indirect sun", "water": "Water every 2-4 weeks (allow soil to dry 100%)", "humidity": "Low / Average household humidity", "difficulty": "Super Easy (Beginner Friendly)"}'::jsonb,
   '{
