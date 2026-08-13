@@ -9,11 +9,18 @@ import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { AuthLayout } from '../../../components/PreLogin/AuthLayout';
 import { supabase } from '../../../utils/supabaseClient';
 import { useAuth } from '../../../hooks/useAuth';
+import { PasswordStrengthMeter } from '../../../components/PasswordStrengthMeter';
 
 const signupSchema = z.object({
   fullName: z.string().min(2, 'Full name must be at least 2 characters'),
   email: z.string().min(1, 'Email is required').email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/[A-Z]/, 'Must include at least 1 capital letter (A-Z)')
+    .regex(/[a-z]/, 'Must include at least 1 lowercase letter (a-z)')
+    .regex(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/, 'Must include at least 1 special character (!@#$)')
+    .regex(/[0-9]/, 'Must include at least 1 number (0-9)'),
 });
 
 type SignupInputs = z.infer<typeof signupSchema>;
@@ -199,34 +206,9 @@ export default function SignupPage() {
               )}
             </button>
           </div>
+          <PasswordStrengthMeter password={password} />
           {errors.password && (
-            <p className="text-red-500 text-xs font-semibold mt-1">{errors.password.message}</p>
-          )}
-
-          {password && password.length > 0 && (
-            <div className="mt-2.5">
-              <div className="flex gap-1.5 h-1">
-                {[...Array(3)].map((_, i) => (
-                  <div
-                    key={i}
-                    className={`flex-grow rounded-full transition-colors ${
-                      i < strength
-                        ? strength === 1
-                          ? 'bg-red-500'
-                          : strength === 2
-                          ? 'bg-yellow-500'
-                          : 'bg-green-600'
-                        : 'bg-sproutly-forest/10'
-                    }`}
-                  />
-                ))}
-              </div>
-              <span className="text-[11px] text-sproutly-forest/50 mt-1.5 block">
-                {strength === 1 && 'Weak password'}
-                {strength === 2 && 'Good password'}
-                {strength === 3 && 'Strong green-thumb password!'}
-              </span>
-            </div>
+            <p className="text-red-500 text-xs font-semibold mt-1.5">{errors.password.message}</p>
           )}
         </div>
 
