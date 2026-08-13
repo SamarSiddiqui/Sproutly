@@ -104,9 +104,9 @@ export default function ArticleDetailPage() {
             {/* Author info */}
             <div className="flex items-center gap-3">
               <img
-                src={article.author.avatar}
+                src={article.author.avatar || '/favicon.svg'}
                 alt={article.author.name}
-                className="w-10 h-10 rounded-full object-cover border border-sproutly-forest/20 shadow-sm"
+                className="w-10 h-10 rounded-full object-cover border border-sproutly-forest/20 shadow-sm shrink-0"
               />
               <div>
                 <p className="text-sm font-bold text-sproutly-forest">{article.author.name}</p>
