@@ -314,53 +314,46 @@ export default function SettingsPage() {
         </div>
       </header>
 
-      {/* Profile */}
+      {/* Location & Microclimate */}
       <section className="bg-white p-6 rounded-2xl shadow-sm">
         <div className="flex items-center gap-3 mb-5">
           <div className="p-2 rounded-xl bg-sproutly-bg text-sproutly-primary">
-            <User size={20} />
+            <span>📍</span>
           </div>
-          <h2 className="text-xl font-bold text-sproutly-primary">Profile</h2>
+          <h2 className="text-xl font-bold text-sproutly-primary">Location & Weather Sync</h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label htmlFor="display-name" className="block text-sm font-bold text-sproutly-primary mb-2">
-              Display name
-            </label>
-            <input
-              id="display-name"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              placeholder="e.g., Sam"
-              className="w-full bg-sproutly-bg rounded-xl py-3 px-4 font-semibold text-sproutly-primary focus:outline-none focus:ring-2 focus:ring-sproutly-light"
-            />
-          </div>
-          <div>
-            <label htmlFor="location" className="block text-sm font-bold text-sproutly-primary mb-2">
-              Location
-            </label>
-            <div className="flex gap-2">
-              <input
-                id="location"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                placeholder="e.g., Mumbai"
-                className="flex-1 bg-sproutly-bg rounded-xl py-3 px-4 font-semibold text-sproutly-primary focus:outline-none focus:ring-2 focus:ring-sproutly-light"
-              />
-              <button
-                type="button"
-                onClick={handleGetGPS}
-                disabled={gpsLoading}
-                className="bg-sproutly-primary hover:bg-sproutly-secondary disabled:opacity-50 text-white px-4 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 shrink-0 font-semibold"
-              >
-                <span>📍</span>
-                <span>{gpsLoading ? 'Locating...' : 'Use GPS'}</span>
-              </button>
+        <div className="space-y-4">
+          <p className="text-sm font-medium text-sproutly-secondary leading-relaxed">
+            Configure your location to fetch real-time local forecasts and enable weather-adaptive alerts.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="location" className="block text-sm font-bold text-sproutly-primary mb-2">
+                Home City / Region
+              </label>
+              <div className="flex gap-2">
+                <input
+                  id="location"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  placeholder="e.g., Mumbai"
+                  className="flex-1 bg-sproutly-bg rounded-xl py-3 px-4 font-semibold text-sproutly-primary focus:outline-none focus:ring-2 focus:ring-sproutly-light"
+                />
+                <button
+                  type="button"
+                  onClick={handleGetGPS}
+                  disabled={gpsLoading}
+                  className="bg-sproutly-primary hover:bg-sproutly-secondary disabled:opacity-50 text-white px-4 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 shrink-0 font-semibold"
+                >
+                  <span>📍</span>
+                  <span>{gpsLoading ? 'Locating...' : 'Use GPS'}</span>
+                </button>
+              </div>
+              {gpsError && (
+                <p className="text-xs text-red-500 font-bold mt-1">{gpsError}</p>
+              )}
             </div>
-            {gpsError && (
-              <p className="text-xs text-red-500 font-bold mt-1">{gpsError}</p>
-            )}
           </div>
         </div>
       </section>
