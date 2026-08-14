@@ -27,6 +27,7 @@ export interface Article {
     }[];
     conclusion: string;
   };
+  isFeatured?: boolean;
 }
 
 export const ARTICLES: Article[] = [
@@ -93,6 +94,7 @@ export const ARTICLES: Article[] = [
       humidity: 'Prevents crispy brown edges',
       difficulty: 'Essential for all plant owners',
     },
+    isFeatured: true,
     content: {
       intro: 'Watering seems simple: plant looks thirsty, give it water. Yet improper watering accounts for over 80% of houseplant deaths! Here are the 5 classic mistakes and how to avoid them.',
       sections: [
