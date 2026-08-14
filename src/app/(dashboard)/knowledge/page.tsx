@@ -167,7 +167,7 @@ export default function KnowledgeHubPage() {
       {/* Featured Hero Banner */}
       {featuredArticle && (
         <section
-          onClick={() => router.push(`/guides/${featuredArticle.slug}`)}
+          onClick={() => router.push(`/knowledge/${featuredArticle.slug}`)}
           className="relative w-full h-[350px] lg:h-[400px] rounded-[32px] overflow-hidden shadow-sm group cursor-pointer"
         >
           <img
@@ -256,7 +256,7 @@ export default function KnowledgeHubPage() {
               return (
                 <div
                   key={article.slug}
-                  onClick={() => router.push(`/guides/${article.slug}`)}
+                  onClick={() => router.push(`/knowledge/${article.slug}`)}
                   className="bg-white rounded-[32px] overflow-hidden shadow-sm border border-sproutly-bg flex flex-col h-full group cursor-pointer hover:shadow-md transition-all duration-300"
                 >
                   <div className="h-48 relative overflow-hidden">
