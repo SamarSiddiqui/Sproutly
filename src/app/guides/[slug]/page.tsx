@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { Navbar } from '../../../components/PreLogin/Navbar';
+import { Navbar } from '../../../components/PreLogin/Navbar'
 import { Footer } from '../../../components/PreLogin/Footer';
 import { useArticle, useArticles } from '../../../hooks/useArticles';
 import { useAuth } from '../../../hooks/useAuth';
