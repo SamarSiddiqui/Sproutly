@@ -26,7 +26,8 @@ export default function ArticleDetailPage() {
   const slug = params?.slug as string;
 
   const { data: article, isLoading } = useArticle(slug);
-  const { data: allArticles = [] } = useArticles();
+  const { data } = useArticles();
+  const articles = data?.articles || [];
 
   const handleNavigate = (state: 'landing' | 'login' | 'signup') => {
     if (state === 'login') {
@@ -74,7 +75,7 @@ export default function ArticleDetailPage() {
   }
 
   // Related articles (excluding current one)
-  const relatedArticles = allArticles.filter((a) => a.slug !== article.slug).slice(0, 2);
+  const relatedArticles = articles.filter((a) => a.slug !== article.slug).slice(0, 2);
 
   return (
     <div className="min-h-screen bg-sproutly-cream font-inter selection:bg-sproutly-sage selection:text-white flex flex-col justify-between">

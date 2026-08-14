@@ -1,59 +1,59 @@
-'use client';
-
-import React, { useState } from 'react';
+'use client'
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { usePlants } from '../../../hooks/usePlants';
+import { useArticles } from '../../../hooks/useArticles';
 import {
   BookOpen,
   Lightbulb,
   ArrowRight,
   Loader2,
-  Sparkles
+  Sparkles,
+  Search,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 
 export default function KnowledgeHubPage() {
   const router = useRouter();
   const { plants, loading } = usePlants();
   const [activeCategory, setActiveCategory] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [page, setPage] = useState(1);
   const [triviaIndex, setTriviaIndex] = useState(0);
-  const categories = ['All', 'Pest Control', 'Watering', 'Propagation', 'Soil Health', 'Lighting'];
 
-  const articles = [
-    {
-      id: 'soil-health',
-      category: 'Soil Health',
-      title: 'The Secret to Perfect Aeration',
-      content: 'Gently poke holes in the topsoil with a chopstick before watering to improve oxygen flow to roots and prevent compaction.',
-      readTime: '3 min read',
-      difficulty: 'Beginner',
-      image: 'https://images.unsplash.com/photo-1416879598555-220013f707f1?auto=format&fit=crop&q=80&w=600',
-      relatedCategories: ['Indoor', 'Semi-Shade']
-    },
-    {
-      id: 'pest-control',
-      category: 'Pest Control',
-      title: 'Organic Neem Oil Spray Guide',
-      content: 'Mix 1tsp neem oil with 1L water and a drop of dish soap. Spray every 14 days to prevent mealybugs and spider mites.',
-      readTime: '5 min read',
-      difficulty: 'Intermediate',
-      image: 'https://images.unsplash.com/photo-1595856950275-3453b3d4f195?auto=format&fit=crop&q=80&w=600',
-      relatedCategories: ['Direct Sun']
-    },
-    {
-      id: 'watering',
-      category: 'Watering',
-      title: 'Busting the Pebble Drainage Myth',
-      content: 'Adding pebbles to the bottom of a pot actually raises the water table and causes root rot. Use a well-draining soil mix instead.',
-      readTime: '4 min read',
-      difficulty: 'Advanced',
-      image: 'https://images.unsplash.com/photo-1598282305597-4b71ffebbcbe?auto=format&fit=crop&q=80&w=600',
-      relatedCategories: ['Indoor', 'Direct Sun', 'Semi-Shade']
-    }
-  ];
+  const categories = ['All', 'Indoor Plants', 'Watering & Soil', 'Troubleshooting', 'Propagation', 'Balcony & Outdoor'];
 
-  const filteredArticles = activeCategory === 'All' 
-    ? articles 
-    : articles.filter(a => a.category === activeCategory);
+  // Debounce search query to prevent constant API refetching
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+      setPage(1); // Reset page to 1 when search term changes
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Query single featured article from Supabase
+  const { data: featuredData } = useArticles({ featuredOnly: true });
+  const featuredArticle = featuredData?.articles?.[0] || null;
+
+  // Query paginated list of articles from Supabase
+  const { data: listData, isLoading: articlesLoading } = useArticles({
+    category: activeCategory,
+    search: debouncedSearch,
+    page,
+    limit: 6,
+  });
+
+  const articles = listData?.articles || [];
+  const totalArticles = listData?.totalCount || 0;
+
+  // Filter category change resets page to 1
+  const handleCategoryChange = (cat: string) => {
+    setActiveCategory(cat);
+    setPage(1);
+  };
 
   const propagationGuides = [
     {
@@ -103,8 +103,14 @@ export default function KnowledgeHubPage() {
     setTriviaIndex((prev) => (prev + 1) % triviaFacts.length);
   };
 
-  const getRelatedPlants = (categories: string[]) => {
-    return plants.filter((p) => categories.includes(p.category)).slice(0, 3);
+  const getRelatedPlants = (category: string) => {
+    if (category === 'Indoor Plants') {
+      return plants.filter((p) => p.category === 'Indoor').slice(0, 3);
+    }
+    if (category === 'Balcony & Outdoor') {
+      return plants.filter((p) => p.category === 'Direct Sun' || p.category === 'Semi-Shade').slice(0, 3);
+    }
+    return plants.slice(0, 3);
   };
 
   const goToPlant = (id: string) => {
@@ -159,54 +165,71 @@ export default function KnowledgeHubPage() {
       </div>
 
       {/* Featured Hero Banner */}
-      <section className="relative w-full h-[350px] lg:h-[400px] rounded-[32px] overflow-hidden shadow-sm group cursor-pointer">
-        <img
-          src="https://images.unsplash.com/photo-1585320806297-9794b3e4ce88?auto=format&fit=crop&q=80&w=1200"
-          alt="Featured Article"
-          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-sproutly-primary/90 via-sproutly-primary/40 to-transparent" />
-        
-        <div className="absolute inset-0 p-6 lg:p-12 flex flex-col justify-end">
-          <div className="flex gap-3 mb-4">
-            <span className="bg-sproutly-light text-sproutly-primary text-[10px] sm:text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">
-              Featured
-            </span>
-            <span className="bg-white/20 backdrop-blur-md text-white text-[10px] sm:text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5">
-              <BookOpen size={14} /> 5 min read
-            </span>
-          </div>
-          
-          <h2 className="text-2xl sm:text-3xl lg:text-5xl font-bold text-white mb-3 lg:mb-4 leading-tight max-w-2xl">
-            The Ultimate Guide to Overwintering Terrace Plants
-          </h2>
-          
-          <p className="text-white/80 text-sm lg:text-base font-medium max-w-xl mb-6 line-clamp-2">
-            Winter is coming, but your plants don't have to suffer. Learn how to protect your tropicals, manage watering cycles, and keep your terrace thriving during the cold months.
-          </p>
-          
-          <button className="bg-white text-sproutly-primary font-bold px-5 py-2.5 lg:px-6 lg:py-3 rounded-xl w-fit flex items-center gap-2 hover:bg-sproutly-bg transition-colors text-sm lg:text-base">
-            Read Article <ArrowRight size={18} />
-          </button>
-        </div>
-      </section>
+      {featuredArticle && (
+        <section
+          onClick={() => router.push(`/guides/${featuredArticle.slug}`)}
+          className="relative w-full h-[350px] lg:h-[400px] rounded-[32px] overflow-hidden shadow-sm group cursor-pointer"
+        >
+          <img
+            src={featuredArticle.image}
+            alt={featuredArticle.title}
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-sproutly-primary/95 via-sproutly-primary/45 to-transparent" />
 
-      {/* Category Filter Chips */}
-      <section className="flex gap-3 overflow-x-auto hide-scrollbar pb-2 snap-x">
-        {categories.map((cat) => (
-          <button
-            key={cat}
-            onClick={() => setActiveCategory(cat)}
-            className={`snap-start shrink-0 px-5 py-2.5 rounded-full text-sm font-bold transition-all ${
-              activeCategory === cat
-                ? 'bg-sproutly-primary text-white shadow-md'
-                : 'bg-white text-sproutly-secondary hover:bg-sproutly-bg border border-sproutly-secondary/10'
-            }`}
-          >
-            {cat}
-          </button>
-        ))}
-      </section>
+          <div className="absolute inset-0 p-6 lg:p-12 flex flex-col justify-end">
+            <div className="flex gap-3 mb-4">
+              <span className="bg-sproutly-light text-sproutly-primary text-[10px] sm:text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">
+                Featured
+              </span>
+              <span className="bg-white/20 backdrop-blur-md text-white text-[10px] sm:text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 font-semibold">
+                <BookOpen size={14} /> {featuredArticle.readTime}
+              </span>
+            </div>
+
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-3 lg:mb-4 leading-tight max-w-2xl font-serif">
+              {featuredArticle.title}
+            </h2>
+
+            <p className="text-white/80 text-sm lg:text-base font-medium max-w-xl mb-6 line-clamp-2">
+              {featuredArticle.excerpt}
+            </p>
+
+            <button className="bg-white text-sproutly-primary font-bold px-5 py-2.5 lg:px-6 lg:py-3 rounded-xl w-fit flex items-center gap-2 hover:bg-sproutly-bg transition-colors text-sm lg:text-base shadow-md">
+              Read Featured Guide <ArrowRight size={18} />
+            </button>
+          </div>
+        </section>
+      )}
+
+      {/* Search & Category Filter Section */}
+      <div className="space-y-4">
+        <div className="relative max-w-md">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-sproutly-secondary/50" size={18} />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search guides (e.g., compaction, neem)..."
+            className="w-full bg-white rounded-2xl py-3.5 pl-12 pr-4 shadow-sm border border-sproutly-secondary/15 focus:outline-none focus:ring-2 focus:ring-sproutly-primary font-semibold text-sproutly-primary text-sm"
+          />
+        </div>
+
+        <section className="flex gap-3 overflow-x-auto hide-scrollbar pb-2 snap-x">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => handleCategoryChange(cat)}
+              className={`snap-start shrink-0 px-5 py-2.5 rounded-full text-sm font-bold transition-all ${activeCategory === cat
+                  ? 'bg-sproutly-primary text-white shadow-md'
+                  : 'bg-white text-sproutly-secondary hover:bg-sproutly-bg border border-sproutly-secondary/10'
+                }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </section>
+      </div>
 
       {/* Latest Articles */}
       <section>
@@ -214,80 +237,85 @@ export default function KnowledgeHubPage() {
           <BookOpen size={24} className="text-sproutly-light" />
           Latest Articles
         </h2>
-        
-        {filteredArticles.length === 0 && (
+
+        {articles.length === 0 && !articlesLoading && (
           <div className="text-center py-12 text-sproutly-secondary font-medium">
             No articles found for this category yet.
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredArticles.map((article) => {
-            const related = getRelatedPlants(article.relatedCategories);
-            return (
-              <div
-                key={article.id}
-                className="bg-white rounded-[32px] overflow-hidden shadow-sm border border-sproutly-bg flex flex-col h-full group cursor-pointer hover:shadow-md transition-all duration-300"
-              >
-                <div className="h-48 relative overflow-hidden">
-                  <img 
-                    src={article.image} 
-                    alt={article.title} 
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
-                  <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs font-bold text-sproutly-primary">
-                    {article.category}
-                  </div>
-                </div>
-                
-                <div className="p-6 flex flex-col flex-1">
-                  <div className="flex gap-3 mb-3">
-                    <span className="text-xs font-bold text-sproutly-secondary uppercase tracking-wider flex items-center gap-1">
-                      <Lightbulb size={12} /> {article.readTime}
-                    </span>
-                    <span className={`text-xs font-bold uppercase tracking-wider ${
-                      article.difficulty === 'Beginner' ? 'text-sproutly-light' : 
-                      article.difficulty === 'Intermediate' ? 'text-sproutly-warning' : 'text-sproutly-urgent'
-                    }`}>
-                      • {article.difficulty}
-                    </span>
-                  </div>
-                  
-                  <h3 className="text-xl font-bold text-sproutly-primary mb-3 leading-tight group-hover:text-sproutly-light transition-colors">
-                    {article.title}
-                  </h3>
-                  <p className="text-sm text-sproutly-secondary leading-relaxed font-medium mb-6 flex-1">
-                    {article.content}
-                  </p>
-
-                {related.length > 0 && (
-                  <div className="mt-auto pt-5 border-t border-sproutly-bg">
-                    <span className="text-xs font-bold text-sproutly-secondary uppercase tracking-wider mb-3 block">
-                      Applies to your plants:
-                    </span>
-                    <div className="flex flex-wrap gap-2">
-                      {related.map((p) => (
-                        <button
-                          key={p.id}
-                          onClick={() => goToPlant(p.id)}
-                          className="flex items-center gap-2 bg-sproutly-bg px-3 py-1.5 rounded-xl text-xs font-bold text-sproutly-primary hover:bg-sproutly-light/20 transition-colors"
-                        >
-                          <img
-                            src={p.image}
-                            alt=""
-                            className="w-5 h-5 rounded-full object-cover"
-                          />
-                          {p.name}
-                        </button>
-                      ))}
+        {articlesLoading ? (
+          <div className="flex flex-col items-center justify-center py-20 gap-3">
+            <Loader2 className="animate-spin text-sproutly-primary" size={28} />
+            <p className="text-sm font-semibold text-sproutly-secondary">Loading articles...</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {articles.map((article) => {
+              const related = getRelatedPlants(article.category);
+              return (
+                <div
+                  key={article.slug}
+                  onClick={() => router.push(`/guides/${article.slug}`)}
+                  className="bg-white rounded-[32px] overflow-hidden shadow-sm border border-sproutly-bg flex flex-col h-full group cursor-pointer hover:shadow-md transition-all duration-300"
+                >
+                  <div className="h-48 relative overflow-hidden">
+                    <img
+                      src={article.image}
+                      alt={article.title}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs font-bold text-sproutly-primary">
+                      {article.category}
                     </div>
                   </div>
-                )}
+
+                  <div className="p-6 flex flex-col flex-1">
+                    <div className="flex gap-3 mb-3">
+                      <span className="text-xs font-bold text-sproutly-secondary uppercase tracking-wider flex items-center gap-1">
+                        <Lightbulb size={12} /> {article.readTime}
+                      </span>
+                    </div>
+
+                    <h3 className="text-xl font-bold text-sproutly-primary mb-3 leading-tight group-hover:text-sproutly-light transition-colors line-clamp-2">
+                      {article.title}
+                    </h3>
+                    <p className="text-sm text-sproutly-secondary leading-relaxed font-medium mb-6 flex-1 line-clamp-3">
+                      {article.excerpt}
+                    </p>
+
+                    {related.length > 0 && (
+                      <div
+                        className="mt-auto pt-5 border-t border-sproutly-bg"
+                        onClick={(e) => e.stopPropagation()} // Prevent card navigation when clicking individual plants
+                      >
+                        <span className="text-xs font-bold text-sproutly-secondary uppercase tracking-wider mb-3 block">
+                          Applies to your plants:
+                        </span>
+                        <div className="flex flex-wrap gap-2">
+                          {related.map((p) => (
+                            <button
+                              key={p.id}
+                              onClick={() => goToPlant(p.id)}
+                              className="flex items-center gap-2 bg-sproutly-bg px-3 py-1.5 rounded-xl text-xs font-bold text-sproutly-primary hover:bg-sproutly-light/20 transition-colors"
+                            >
+                              <img
+                                src={p.image}
+                                alt=""
+                                className="w-5 h-5 rounded-full object-cover"
+                              />
+                              {p.name}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </section>
 
       {/* Cutting & Growth Lab */}
@@ -331,7 +359,7 @@ export default function KnowledgeHubPage() {
                     </li>
                   ))}
                 </ul>
-                <button 
+                <button
                   type="button"
                   className="w-full mt-auto py-3.5 bg-sproutly-bg text-sproutly-primary font-bold rounded-xl text-sm flex items-center justify-center gap-2 hover:bg-sproutly-light/20 transition-colors"
                 >
@@ -342,7 +370,7 @@ export default function KnowledgeHubPage() {
           ))}
         </div>
       </section>
-      
+
       {/* Optimization Note */}
       <footer className="pt-2 border-t border-sproutly-secondary/10 text-[11px] font-bold text-sproutly-secondary">
         Optimization Note: Propagation guides are rendered as static, optimized HTML components avoiding redundant hydration work.
