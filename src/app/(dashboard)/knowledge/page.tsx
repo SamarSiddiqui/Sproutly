@@ -122,14 +122,41 @@ export default function KnowledgeHubPage() {
 
   return (
     <div className="pt-20 pb-24 lg:pt-8 lg:pb-8 px-4 lg:px-8 max-w-7xl mx-auto space-y-10">
-      <header>
-        <h1 className="text-3xl font-bold text-sproutly-primary mb-2">
-          Knowledge Hub
-        </h1>
-        <p className="text-lg text-sproutly-secondary font-medium">
-          Master the art of terrace gardening
-        </p>
-      </header>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
+        {/* Header Left */}
+        <div className="lg:col-span-2 space-y-2">
+          <h1 className="text-3xl lg:text-4xl font-bold text-sproutly-primary">
+            Knowledge Hub
+          </h1>
+          <p className="text-lg text-sproutly-secondary font-semibold">
+            Master the art of terrace gardening & indoor plant care.
+          </p>
+        </div>
+
+        {/* Relocated Trivia widget (compact version) */}
+        <div className="bg-sproutly-light/10 border border-sproutly-light/20 rounded-3xl p-5 relative overflow-hidden flex flex-col justify-between min-h-[140px] shadow-sm">
+          <div className="absolute -top-6 -right-6 text-sproutly-light/10 pointer-events-none">
+            <Sparkles size={100} />
+          </div>
+          <div className="relative z-10 space-y-1.5">
+            <div className="flex items-center gap-1.5 text-sproutly-primary font-bold uppercase tracking-wider text-[10px]">
+              <Sparkles size={12} className="text-sproutly-primary/80" /> Sproutly Trivia
+            </div>
+            <h4 className="text-sm font-extrabold text-sproutly-primary leading-tight">
+              {triviaFacts[triviaIndex].title}
+            </h4>
+            <p className="text-xs text-sproutly-secondary font-semibold leading-relaxed line-clamp-3">
+              {triviaFacts[triviaIndex].fact}
+            </p>
+          </div>
+          <button
+            onClick={generateTrivia}
+            className="mt-3 bg-sproutly-primary text-white text-xs font-bold py-2 px-4 rounded-xl w-fit hover:bg-sproutly-primary/95 transition-all active:scale-95 shadow-sm"
+          >
+            New Fact
+          </button>
+        </div>
+      </div>
 
       {/* Featured Hero Banner */}
       <section className="relative w-full h-[350px] lg:h-[400px] rounded-[32px] overflow-hidden shadow-sm group cursor-pointer">
@@ -316,32 +343,6 @@ export default function KnowledgeHubPage() {
         </div>
       </section>
       
-      {/* Sproutly Trivia */}
-      <section className="bg-sproutly-light/10 border border-sproutly-light/20 rounded-[32px] p-8 lg:p-12 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8">
-        <div className="absolute -top-12 -right-12 text-sproutly-light/10 pointer-events-none">
-          <Sparkles size={200} />
-        </div>
-        
-        <div className="max-w-2xl relative z-10">
-          <div className="flex items-center gap-2 text-sproutly-light font-bold uppercase tracking-wider text-xs mb-4">
-            <Sparkles size={16} /> Sproutly Trivia
-          </div>
-          <h3 className="text-2xl font-bold text-sproutly-primary mb-3">
-            {triviaFacts[triviaIndex].title}
-          </h3>
-          <p className="text-sproutly-secondary font-medium leading-relaxed">
-            {triviaFacts[triviaIndex].fact}
-          </p>
-        </div>
-        
-        <button
-          onClick={generateTrivia}
-          className="bg-sproutly-primary text-white font-bold px-6 py-3.5 rounded-2xl w-full md:w-auto shrink-0 hover:bg-sproutly-primary/90 transition-colors shadow-lg shadow-sproutly-primary/20 active:scale-95 transition-transform"
-        >
-          Generate New Fact
-        </button>
-      </section>
-
       {/* Optimization Note */}
       <footer className="pt-2 border-t border-sproutly-secondary/10 text-[11px] font-bold text-sproutly-secondary">
         Optimization Note: Propagation guides are rendered as static, optimized HTML components avoiding redundant hydration work.
