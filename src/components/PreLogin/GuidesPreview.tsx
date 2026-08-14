@@ -10,7 +10,8 @@ gsap.registerPlugin(ScrollTrigger);
 export function GuidesPreview() {
   const sectionRef = useRef<HTMLElement>(null);
   const cardsRef = useRef<HTMLDivElement>(null);
-  const { data: articles = [] } = useArticles();
+  const { data } = useArticles();
+  const articles = data?.articles || [];
 
   const topArticles = articles.slice(0, 3);
 

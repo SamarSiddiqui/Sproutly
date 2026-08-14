@@ -20,29 +20,95 @@ export function mapDbRowToArticle(row: any): Article {
     image: row.image_url,
     takeaways: typeof row.takeaways === 'string' ? JSON.parse(row.takeaways) : row.takeaways || undefined,
     content: typeof row.content === 'string' ? JSON.parse(row.content) : row.content || { intro: '', sections: [], conclusion: '' },
+    isFeatured: row.is_featured,
   };
 }
 
-export function useArticles() {
-  return useQuery<Article[]>({
-    queryKey: articlesQueryKey,
+export interface UseArticlesOptions {
+  category?: string;
+  search?: string;
+  page?: number;
+  limit?: number;
+  featuredOnly?: boolean;
+}
+
+export interface UseArticlesResult {
+  articles: Article[];
+  totalCount: number;
+}
+
+export function useArticles(options: UseArticlesOptions = {}) {
+  const { category, search, page = 1, limit = 6, featuredOnly } = options;
+
+  return useQuery<UseArticlesResult>({
+    queryKey: ['articles', { category, search, page, limit, featuredOnly }],
     queryFn: async () => {
       try {
-        const { data, error } = await supabase
+        let query = supabase
           .from('articles')
-          .select('*')
-          .eq('is_published', true)
-          .order('published_at', { ascending: false });
+          .select('*', { count: 'exact' })
+          .eq('is_published', true);
 
-        if (error || !data || data.length === 0) {
-          console.warn('Supabase articles fetch fallback to local data:', error?.message);
-          return fallbackArticles;
+        if (featuredOnly !== undefined) {
+          query = query.eq('is_featured', featuredOnly);
         }
 
-        return data.map(mapDbRowToArticle);
+        if (category && category !== 'All') {
+          query = query.eq('category', category);
+        }
+
+        if (search) {
+          query = query.or(`title.ilike.%${search}%,excerpt.ilike.%${search}%`);
+        }
+
+        // Apply pagination
+        if (!featuredOnly) {
+          const from = (page - 1) * limit;
+          const to = from + limit - 1;
+          query = query.range(from, to);
+        }
+
+        // Sort by publication date
+        query = query.order('published_at', { ascending: false });
+
+        const { data, error, count } = await query;
+
+        if (error || !data || data.length === 0) {
+          // Filter local backup list if Supabase fails
+          let fallback = fallbackArticles;
+          if (featuredOnly) {
+            fallback = fallback.filter(a => a.isFeatured);
+          } else {
+            if (category && category !== 'All') {
+              fallback = fallback.filter(a => a.category === category);
+            }
+            if (search) {
+              const term = search.toLowerCase();
+              fallback = fallback.filter(a => 
+                a.title.toLowerCase().includes(term) || a.excerpt.toLowerCase().includes(term)
+              );
+            }
+            // Paginate fallback
+            const from = (page - 1) * limit;
+            fallback = fallback.slice(from, from + limit);
+          }
+
+          return {
+            articles: fallback,
+            totalCount: featuredOnly ? fallback.length : fallbackArticles.length,
+          };
+        }
+
+        return {
+          articles: data.map(mapDbRowToArticle),
+          totalCount: count || data.length,
+        };
       } catch (err) {
-        console.warn('Supabase articles query error fallback to local data:', err);
-        return fallbackArticles;
+        console.warn('Fallback to local array due to query failure:', err);
+        return {
+          articles: fallbackArticles.slice(0, limit),
+          totalCount: fallbackArticles.length,
+        };
       }
     },
     staleTime: 1000 * 60 * 5, // Cache for 5 minutes

@@ -13,7 +13,8 @@ const CATEGORIES = ['All', 'Indoor Plants', 'Watering & Soil', 'Troubleshooting'
 
 export default function GuidesListingPage() {
   const router = useRouter();
-  const { data: articles = [], isLoading } = useArticles();
+  const { data, isLoading } = useArticles();
+  const articles = data?.articles || [];
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
