@@ -7,16 +7,25 @@ import { Navbar } from '../../components/PreLogin/Navbar';
 import { Footer } from '../../components/PreLogin/Footer';
 import { Article } from '../../data/articles';
 import { useArticles } from '../../hooks/useArticles';
+import { useAuth } from '../../hooks/useAuth';
 import { Search, BookOpen, Clock, ArrowRight, Sparkles, Loader2 } from 'lucide-react';
 
 const CATEGORIES = ['All', 'Indoor Plants', 'Watering & Soil', 'Troubleshooting', 'Propagation', 'Balcony & Outdoor'] as const;
 
 export default function GuidesListingPage() {
   const router = useRouter();
+  const { session } = useAuth();
   const { data, isLoading } = useArticles();
   const articles = data?.articles || [];
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
+
+  // Automatically redirect authenticated users to the dashboard Knowledge Hub
+  React.useEffect(() => {
+    if (session) {
+      router.replace('/knowledge');
+    }
+  }, [session, router]);
 
   const handleNavigate = (state: 'landing' | 'login' | 'signup') => {
     if (state === 'login') {

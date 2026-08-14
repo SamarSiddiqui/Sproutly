@@ -6,6 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { Navbar } from '../../../components/PreLogin/Navbar';
 import { Footer } from '../../../components/PreLogin/Footer';
 import { useArticle, useArticles } from '../../../hooks/useArticles';
+import { useAuth } from '../../../hooks/useAuth';
 import {
   ArrowLeft,
   Clock,
@@ -24,6 +25,14 @@ export default function ArticleDetailPage() {
   const params = useParams();
   const router = useRouter();
   const slug = params?.slug as string;
+  const { session } = useAuth();
+
+  // Redirect authenticated users to the corresponding dashboard guide route
+  React.useEffect(() => {
+    if (session && slug) {
+      router.replace(`/knowledge/${slug}`);
+    }
+  }, [session, slug, router]);
 
   const { data: article, isLoading } = useArticle(slug);
   const { data } = useArticles();
