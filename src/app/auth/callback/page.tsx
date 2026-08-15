@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { supabase } from '../../utils/supabaseClient';
+import { supabase } from '../../../utils/supabaseClient';
 import { Loader2 } from 'lucide-react';
 
 export default function AuthCallbackPage() {
