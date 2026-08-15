@@ -88,7 +88,27 @@ export default function SignupPage() {
         }
       }
     } catch (err: any) {
-      setError(err?.message || 'An unexpected error occurred during signup.');
+      setError(err?.message || 'An unexpected error occurred.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setError('');
+    setIsLoading(true);
+    try {
+      const { error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+      if (oauthError) {
+        setError(oauthError.message);
+      }
+    } catch (err: any) {
+      setError(err?.message || 'An unexpected error occurred during Google sign-in.');
     } finally {
       setIsLoading(false);
     }
@@ -238,8 +258,9 @@ export default function SignupPage() {
 
       <button
         type="button"
-        onClick={() => router.push('/dashboard')}
-        className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl border border-sproutly-forest/15 bg-white text-sproutly-forest font-medium hover:bg-sproutly-cream/80 hover:border-sproutly-forest/30 transition-all shadow-sm"
+        onClick={handleGoogleSignIn}
+        disabled={isLoading}
+        className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl border border-sproutly-forest/15 bg-white text-sproutly-forest font-medium hover:bg-sproutly-cream/80 hover:border-sproutly-forest/30 transition-all shadow-sm disabled:opacity-50"
       >
         <svg className="w-5 h-5" viewBox="0 0 24 24">
           <path
