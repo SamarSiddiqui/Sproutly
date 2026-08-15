@@ -250,70 +250,117 @@ export default function KnowledgeHubPage() {
             <p className="text-sm font-semibold text-sproutly-secondary">Loading articles...</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {articles.map((article) => {
-              const related = getRelatedPlants(article.category);
-              return (
-                <div
-                  key={article.slug}
-                  onClick={() => router.push(`/knowledge/${article.slug}`)}
-                  className="bg-white rounded-[32px] overflow-hidden shadow-sm border border-sproutly-bg flex flex-col h-full group cursor-pointer hover:shadow-md transition-all duration-300"
-                >
-                  <div className="h-48 relative overflow-hidden">
-                    <img
-                      src={article.image}
-                      alt={article.title}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs font-bold text-sproutly-primary">
-                      {article.category}
-                    </div>
-                  </div>
-
-                  <div className="p-6 flex flex-col flex-1">
-                    <div className="flex gap-3 mb-3">
-                      <span className="text-xs font-bold text-sproutly-secondary uppercase tracking-wider flex items-center gap-1">
-                        <Lightbulb size={12} /> {article.readTime}
-                      </span>
-                    </div>
-
-                    <h3 className="text-xl font-bold text-sproutly-primary mb-3 leading-tight group-hover:text-sproutly-light transition-colors line-clamp-2">
-                      {article.title}
-                    </h3>
-                    <p className="text-sm text-sproutly-secondary leading-relaxed font-medium mb-6 flex-1 line-clamp-3">
-                      {article.excerpt}
-                    </p>
-
-                    {related.length > 0 && (
-                      <div
-                        className="mt-auto pt-5 border-t border-sproutly-bg"
-                        onClick={(e) => e.stopPropagation()} // Prevent card navigation when clicking individual plants
-                      >
-                        <span className="text-xs font-bold text-sproutly-secondary uppercase tracking-wider mb-3 block">
-                          Applies to your plants:
-                        </span>
-                        <div className="flex flex-wrap gap-2">
-                          {related.map((p) => (
-                            <button
-                              key={p.id}
-                              onClick={() => goToPlant(p.id)}
-                              className="flex items-center gap-2 bg-sproutly-bg px-3 py-1.5 rounded-xl text-xs font-bold text-sproutly-primary hover:bg-sproutly-light/20 transition-colors"
-                            >
-                              <img
-                                src={p.image}
-                                alt=""
-                                className="w-5 h-5 rounded-full object-cover"
-                              />
-                              {p.name}
-                            </button>
-                          ))}
-                        </div>
+          <div className="space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {articles.map((article) => {
+                const related = getRelatedPlants(article.category);
+                return (
+                  <div
+                    key={article.slug}
+                    onClick={() => router.push(`/knowledge/${article.slug}`)}
+                    className="bg-white rounded-[32px] overflow-hidden shadow-sm border border-sproutly-bg flex flex-col h-full group cursor-pointer hover:shadow-md transition-all duration-300"
+                  >
+                    <div className="h-48 relative overflow-hidden">
+                      <img
+                        src={article.image}
+                        alt={article.title}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                      <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs font-bold text-sproutly-primary">
+                        {article.category}
                       </div>
-                    )}
+                    </div>
+
+                    <div className="p-6 flex flex-col flex-1">
+                      <div className="flex gap-3 mb-3">
+                        <span className="text-xs font-bold text-sproutly-secondary uppercase tracking-wider flex items-center gap-1">
+                          <Lightbulb size={12} /> {article.readTime}
+                        </span>
+                      </div>
+
+                      <h3 className="text-xl font-bold text-sproutly-primary mb-3 leading-tight group-hover:text-sproutly-light transition-colors line-clamp-2">
+                        {article.title}
+                      </h3>
+                      <p className="text-sm text-sproutly-secondary leading-relaxed font-medium mb-6 flex-1 line-clamp-3">
+                        {article.excerpt}
+                      </p>
+
+                      {related.length > 0 && (
+                        <div
+                          className="mt-auto pt-5 border-t border-sproutly-bg"
+                          onClick={(e) => e.stopPropagation()} // Prevent card navigation when clicking individual plants
+                        >
+                          <span className="text-xs font-bold text-sproutly-secondary uppercase tracking-wider mb-3 block">
+                            Applies to your plants:
+                          </span>
+                          <div className="flex flex-wrap gap-2">
+                            {related.map((p) => (
+                              <button
+                                key={p.id}
+                                onClick={() => goToPlant(p.id)}
+                                className="flex items-center gap-2 bg-sproutly-bg px-3 py-1.5 rounded-xl text-xs font-bold text-sproutly-primary hover:bg-sproutly-light/20 transition-colors"
+                              >
+                                <img
+                                  src={p.image}
+                                  alt=""
+                                  className="w-5 h-5 rounded-full object-cover"
+                                />
+                                {p.name}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
+                );
+              })}
+            </div>
+
+            {/* Custom Sproutly Pagination UI */}
+            {totalArticles > 6 && (
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-sproutly-secondary/10">
+                <span className="text-xs font-bold text-sproutly-secondary">
+                  Showing {Math.min((page - 1) * 6 + 1, totalArticles)} - {Math.min(page * 6, totalArticles)} of {totalArticles} guides
+                </span>
+                
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                    className="p-2.5 rounded-xl bg-white border border-sproutly-secondary/15 hover:bg-sproutly-bg disabled:opacity-40 text-sproutly-primary transition-all shadow-sm"
+                  >
+                    <ChevronLeft size={16} />
+                  </button>
+
+                  {Array.from({ length: Math.ceil(totalArticles / 6) }).map((_, idx) => {
+                    const pageNum = idx + 1;
+                    const isActive = page === pageNum;
+                    return (
+                      <button
+                        key={pageNum}
+                        onClick={() => setPage(pageNum)}
+                        className={`w-10 h-10 rounded-xl font-bold text-sm transition-all shadow-sm ${
+                          isActive
+                            ? 'bg-sproutly-primary text-white'
+                            : 'bg-white border border-sproutly-secondary/15 text-sproutly-secondary hover:bg-sproutly-bg'
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  })}
+
+                  <button
+                    onClick={() => setPage((p) => Math.min(Math.ceil(totalArticles / 6), p + 1))}
+                    disabled={page === Math.ceil(totalArticles / 6)}
+                    className="p-2.5 rounded-xl bg-white border border-sproutly-secondary/15 hover:bg-sproutly-bg disabled:opacity-40 text-sproutly-primary transition-all shadow-sm"
+                  >
+                    <ChevronRight size={16} />
+                  </button>
                 </div>
-              );
-            })}
+              </div>
+            )}
           </div>
         )}
       </section>
