@@ -26,6 +26,17 @@ export default function LandingPage() {
     }
   }, [session, loading, router]);
 
+  React.useEffect(() => {
+    // If OAuth redirects back to landing page with access token hash,
+    // allow client to process session and force clean redirect to dashboard.
+    if (typeof window !== 'undefined' && window.location.hash.includes('access_token')) {
+      const timer = setTimeout(() => {
+        window.location.href = '/dashboard';
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
   const handleNavigate = (state: 'landing' | 'login' | 'signup') => {
     if (state === 'login') {
       router.push('/login');
