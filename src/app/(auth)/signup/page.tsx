@@ -19,7 +19,7 @@ const signupSchema = z.object({
     .min(8, 'Password must be at least 8 characters')
     .regex(/[A-Z]/, 'Must include at least 1 capital letter (A-Z)')
     .regex(/[a-z]/, 'Must include at least 1 lowercase letter (a-z)')
-    .regex(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/, 'Must include at least 1 special character (!@#$)')
+    .regex(/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>?]/, 'Must include at least 1 special character (!@#$)')
     .regex(/[0-9]/, 'Must include at least 1 number (0-9)'),
 });
 
@@ -61,7 +61,7 @@ export default function SignupPage() {
     if (password.length < 10) return 2;
     return 3;
   };
-  const strength = getStrength();
+
 
   const onSubmit = async (data: SignupInputs) => {
     setError('');

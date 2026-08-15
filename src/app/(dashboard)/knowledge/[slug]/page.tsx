@@ -18,7 +18,6 @@ import {
 
 export default function DashboardArticleDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const slug = params?.slug as string;
 
   const { data: article, isLoading } = useArticle(slug);

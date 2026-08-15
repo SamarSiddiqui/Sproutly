@@ -3,7 +3,7 @@
 import React from 'react';
 import { useAuth } from '../../../hooks/useAuth';
 import { usePlants } from '../../../hooks/usePlants';
-import { calculateGardenerStats, AchievementBadge } from '../../../utils/achievements';
+import { calculateGardenerStats } from '../../../utils/achievements';
 import { 
   Droplets, 
   Leaf, 
@@ -14,7 +14,6 @@ import {
   Award, 
   ShieldCheck, 
   Calendar,
-  User,
   Heart,
   TrendingUp
 } from 'lucide-react';
