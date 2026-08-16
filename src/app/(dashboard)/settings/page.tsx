@@ -544,10 +544,10 @@ export default function SettingsPage() {
         <div className="mt-6">
           <button
             type="button"
-            onClick={() => router.push('/dashboard')}
+            onClick={() => router.push('/botanical-base')}
             className="text-sproutly-secondary hover:text-sproutly-primary font-bold transition-colors"
           >
-            Back to Command Center
+            Back to Botanical Base
           </button>
         </div>
       </section>

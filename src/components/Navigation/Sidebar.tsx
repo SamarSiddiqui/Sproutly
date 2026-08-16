@@ -37,9 +37,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
   const menuItems = [
     {
       id: 'dashboard',
-      href: '/dashboard',
+      href: '/botanical-base',
       icon: LayoutDashboard,
-      label: 'Command Center'
+      label: 'Botanical Base'
     },
     {
       id: 'collection',
@@ -71,7 +71,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
   return (
     <div className="hidden lg:flex flex-col w-64 fixed top-0 left-0 bottom-0 bg-white border-r border-sproutly-secondary/10 z-40">
       <div className="p-6 flex items-center justify-between text-sproutly-primary mb-6 border-b border-sproutly-secondary/5 pb-5">
-        <Link href="/dashboard" className="flex items-center gap-2">
+        <Link href="/botanical-base" className="flex items-center gap-2">
           <Leaf className="fill-sproutly-primary" size={28} />
           <span className="text-2xl font-bold tracking-tight">Sproutly</span>
         </Link>

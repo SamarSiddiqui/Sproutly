@@ -13,19 +13,19 @@ export default function AuthCallbackPage() {
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        router.replace('/dashboard');
+        router.replace('/botanical-base');
       } else {
         // Fallback listen to auth state changes
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
           if (session) {
-            router.replace('/dashboard');
+            router.replace('/botanical-base');
             subscription.unsubscribe();
           }
         });
 
         // Safe fallback timeout to redirect if auth session resolves but callback event isn't captured
         const timeout = setTimeout(() => {
-          router.replace('/dashboard');
+          router.replace('/botanical-base');
           subscription.unsubscribe();
         }, 2000);
 
