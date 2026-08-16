@@ -189,10 +189,10 @@ export default function DashboardPage() {
     <div className="pt-20 pb-24 lg:pt-8 lg:pb-8 px-4 lg:px-8 max-w-7xl mx-auto space-y-8">
       <header className="flex justify-between items-start gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-sproutly-primary mb-1">
-            Command Center
+          <h1 className="text-3xl font-serif font-bold text-sproutly-primary mb-1">
+            Gardener's Observatory
           </h1>
-          <p className="text-sproutly-secondary">{today}</p>
+          <p className="text-sproutly-secondary font-medium">{today}</p>
         </div>
         {weather && (
           <div className="flex items-center gap-2.5 bg-white px-4 py-2.5 rounded-2xl shadow-sm border border-sproutly-secondary/5 select-none shrink-0" title={`${weather.cityName}: ${weather.text}`}>
