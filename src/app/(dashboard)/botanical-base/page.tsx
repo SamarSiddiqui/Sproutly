@@ -214,15 +214,14 @@ export default function DashboardPage() {
           <p className="text-xs font-bold text-sproutly-secondary">{today}</p>
         </div>
 
-        {weather && (
-          <div className="flex items-center gap-2.5 bg-sproutly-bg px-4 py-2.5 rounded-2xl border border-sproutly-secondary/5 select-none shrink-0 shadow-sm" title={`${weather.cityName}: ${weather.text}`}>
-            <span className="text-2xl filter drop-shadow-sm select-none">{weather.icon}</span>
-            <div className="text-right">
-              <div className="text-sm font-extrabold text-sproutly-primary leading-tight font-semibold">{weather.temp}°C</div>
-              <div className="text-[10px] font-bold text-sproutly-secondary uppercase tracking-wider">{weather.text}</div>
-            </div>
-          </div>
-        )}
+        <div className="flex items-center gap-2.5 bg-sproutly-bg px-4 py-2.5 rounded-2xl border border-sproutly-secondary/10 select-none shrink-0 shadow-sm text-xs font-bold text-sproutly-primary">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span>{plants.length} {plants.length === 1 ? 'Plant' : 'Plants'}</span>
+          <span className="text-sproutly-secondary/25 select-none">•</span>
+          <span className={alerts.length > 0 ? 'text-sproutly-urgent' : 'text-sproutly-secondary'}>
+            {alerts.length} {alerts.length === 1 ? 'Alert' : 'Alerts'}
+          </span>
+        </div>
       </header>
 
       {/* Weather Widget Section */}
