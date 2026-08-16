@@ -18,9 +18,9 @@ export const BottomNav: React.FC = () => {
   const tabs = [
     {
       id: 'dashboard',
-      href: '/dashboard',
+      href: '/botanical-base',
       icon: LayoutDashboard,
-      label: 'Dashboard'
+      label: 'Base'
     },
     {
       id: 'collection',

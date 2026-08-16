@@ -35,7 +35,7 @@ export default function SignupPage() {
   // If already logged in, redirect to dashboard
   React.useEffect(() => {
     if (!loading && session) {
-      router.replace('/dashboard');
+      router.replace('/botanical-base');
     }
   }, [session, loading, router]);
 
@@ -84,7 +84,7 @@ export default function SignupPage() {
         if (signUpData.session === null && signUpData.user) {
           setError('Success! Please check your email inbox to confirm your registration.');
         } else {
-          router.push('/dashboard');
+          router.push('/botanical-base');
         }
       }
     } catch (err: any) {

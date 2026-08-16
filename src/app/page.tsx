@@ -22,7 +22,7 @@ export default function LandingPage() {
 
   React.useEffect(() => {
     if (!loading && session) {
-      router.replace('/dashboard');
+      router.replace('/botanical-base');
     }
   }, [session, loading, router]);
 
@@ -31,7 +31,7 @@ export default function LandingPage() {
     // allow client to process session and force clean redirect to dashboard.
     if (typeof window !== 'undefined' && window.location.hash.includes('access_token')) {
       const timer = setTimeout(() => {
-        window.location.href = '/dashboard';
+        window.location.href = '/botanical-base';
       }, 500);
       return () => clearTimeout(timer);
     }

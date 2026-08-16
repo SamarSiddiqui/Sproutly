@@ -32,9 +32,9 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
   const menuItems = [
     {
       id: 'dashboard',
-      href: '/dashboard',
+      href: '/botanical-base',
       icon: LayoutDashboard,
-      label: 'Command Center',
+      label: 'Botanical Base',
       desc: 'Overview & Alerts'
     },
     {

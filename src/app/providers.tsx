@@ -9,7 +9,7 @@ function PageTitleUpdater() {
   
   useEffect(() => {
     const titles: Record<string, string> = {
-      '/dashboard': 'Command Center | Sproutly',
+      '/botanical-base': 'Botanical Base | Sproutly',
       '/collection': 'My Collection | Sproutly',
       '/care': 'Care Cycle | Sproutly',
       '/knowledge': 'Knowledge Hub | Sproutly',
