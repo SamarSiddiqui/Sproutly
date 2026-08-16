@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { usePlants } from '../../../hooks/usePlants';
 import { useProfile } from '../../../hooks/useProfile';
 import { useWeather } from '../../../hooks/useWeather';
+import { calculateGardenerStats } from '../../../utils/achievements';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import {
   Droplets,
@@ -17,7 +18,9 @@ import {
   TreeDeciduous,
   Leaf,
   Wind,
-  RotateCw
+  RotateCw,
+  Info,
+  Sun
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { SeasonalAdvisorWidget } from '../../../components/dashboard/SeasonalAdvisorWidget';
@@ -26,7 +29,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const { plants } = usePlants();
   const { profile, updateProfile } = useProfile();
-  
+
   const [gpsLoading, setGpsLoading] = useState(false);
   const [gpsError, setGpsError] = useState('');
   const [refreshing, setRefreshing] = useState(false);
@@ -45,12 +48,12 @@ export default function DashboardPage() {
     }
     setGpsLoading(true);
     setGpsError('');
-    
+
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         try {
           const { latitude, longitude } = position.coords;
-          
+
           await updateProfile({
             location: 'GPS Location',
             preferences: {
@@ -61,7 +64,7 @@ export default function DashboardPage() {
               longitude
             }
           });
-          
+
           await refreshWeather();
         } catch (err) {
           console.error(err);
@@ -156,8 +159,8 @@ export default function DashboardPage() {
           return {
             id: p.id,
             type: 'water',
-            message: isRainDelay 
-              ? `${p.name} needs water (Skip: Rain Forecast)` 
+            message: isRainDelay
+              ? `${p.name} needs water (Skip: Rain Forecast)`
               : `${p.name} needs water`,
             urgency: isRainDelay ? 'low' : 'high',
             icon: Droplets,
@@ -200,17 +203,39 @@ export default function DashboardPage() {
     day: 'numeric'
   });
 
+  const stats = calculateGardenerStats(plants);
+
   return (
-    <div className="pt-20 pb-24 lg:pt-8 lg:pb-8 px-4 lg:px-8 max-w-7xl mx-auto space-y-8">
-      <header className="flex justify-between items-start gap-4">
-        <div>
-          <h1 className="text-3xl font-serif font-bold text-sproutly-primary mb-1">
+    <div className="pt-20 pb-24 lg:pt-8 lg:pb-8 px-4 lg:px-8 max-w-7xl mx-auto space-y-8 animate-fadeIn">
+      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-5 rounded-3xl border border-sproutly-secondary/5 shadow-sm">
+        <div className="space-y-1">
+          <h1 className="text-3xl font-serif font-bold text-sproutly-primary">
             Botanical Base
           </h1>
-          <p className="text-sproutly-secondary font-medium">{today}</p>
+          <p className="text-xs font-bold text-sproutly-secondary">{today}</p>
         </div>
+
+        {/* Dynamic Gardener Rank Badge */}
+        <div className="flex items-center gap-3 bg-sproutly-bg p-3 rounded-2xl border border-sproutly-secondary/10 min-w-[260px] shadow-sm max-w-full">
+          <div className="w-10 h-10 rounded-xl bg-sproutly-primary text-white flex items-center justify-center font-bold text-lg shrink-0 shadow-sm">
+            {stats.level}
+          </div>
+          <div className="flex-1 min-w-0 space-y-1">
+            <div className="flex justify-between text-[10px] font-extrabold text-sproutly-primary gap-2">
+              <span className="truncate">{stats.levelTitle}</span>
+              <span className="shrink-0">{stats.currentXp}/{stats.nextLevelXp} XP</span>
+            </div>
+            <div className="w-full h-1.5 bg-white rounded-full overflow-hidden border border-sproutly-secondary/5">
+              <div 
+                className="h-full bg-sproutly-primary rounded-full transition-all duration-1000 ease-out" 
+                style={{ width: `${(stats.currentXp / stats.nextLevelXp) * 100}%` }}
+              />
+            </div>
+          </div>
+        </div>
+
         {weather && (
-          <div className="flex items-center gap-2.5 bg-white px-4 py-2.5 rounded-2xl shadow-sm border border-sproutly-secondary/5 select-none shrink-0" title={`${weather.cityName}: ${weather.text}`}>
+          <div className="flex items-center gap-2.5 bg-sproutly-bg px-4 py-2.5 rounded-2xl border border-sproutly-secondary/5 select-none shrink-0 shadow-sm" title={`${weather.cityName}: ${weather.text}`}>
             <span className="text-2xl filter drop-shadow-sm select-none">{weather.icon}</span>
             <div className="text-right">
               <div className="text-sm font-extrabold text-sproutly-primary leading-tight font-semibold">{weather.temp}°C</div>
@@ -277,8 +302,8 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Animated Refresh Button */}
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   onClick={handleRefreshWeather}
                   className="text-xs font-bold text-sproutly-secondary hover:text-sproutly-primary bg-sproutly-bg p-3 rounded-2xl transition-all self-start md:self-center flex items-center gap-2 font-semibold shadow-sm"
                 >
@@ -324,8 +349,14 @@ export default function DashboardPage() {
                     <Leaf size={16} />
                   </div>
                   <div>
-                    <span className="block text-[10px] font-bold text-sproutly-secondary uppercase">Plant Comfort</span>
-                    <span className="text-sm font-extrabold text-sproutly-primary">{weather.temp > 35 ? 'Stressed 🥵' : 'Happy 😊'}</span>
+                    <div className="relative group flex items-center gap-1">
+                      <span className="block text-[10px] font-bold text-sproutly-secondary uppercase cursor-help">Plant Comfort</span>
+                      <Info size={10} className="text-sproutly-secondary/60 cursor-help shrink-0" />
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-52 p-3 bg-sproutly-primary text-white text-[10px] rounded-xl shadow-xl z-30 leading-normal pointer-events-none font-semibold border border-white/10">
+                        Indicates leaf transpiration stress. Heat above 35°C or high dry winds cause rapid moisture loss.
+                      </div>
+                    </div>
+                    <span className="text-sm font-extrabold text-sproutly-primary mt-0.5 block">{weather.temp > 35 ? 'Stressed 🥵' : 'Happy 😊'}</span>
                   </div>
                 </div>
               </div>
@@ -628,7 +659,7 @@ export default function DashboardPage() {
           </div>
         </section>
       </div>
-      
+
       {/* Optimization Note */}
       <footer className="mt-8 pt-4 border-t border-sproutly-secondary/10 text-[11px] font-bold text-sproutly-secondary flex items-center justify-between">
         <span>Optimization Note: Weather is query-cached for 15 minutes, preventing redundant weather API requests. Pie chart computation uses useMemo to avoid redundant re-renders on layout updates.</span>
