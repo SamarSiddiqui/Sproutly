@@ -203,7 +203,6 @@ export default function DashboardPage() {
     day: 'numeric'
   });
 
-  const stats = calculateGardenerStats(plants);
 
   return (
     <div className="pt-20 pb-24 lg:pt-8 lg:pb-8 px-4 lg:px-8 max-w-7xl mx-auto space-y-8 animate-fadeIn">
@@ -213,25 +212,6 @@ export default function DashboardPage() {
             Botanical Base
           </h1>
           <p className="text-xs font-bold text-sproutly-secondary">{today}</p>
-        </div>
-
-        {/* Dynamic Gardener Rank Badge */}
-        <div className="flex items-center gap-3 bg-sproutly-bg p-3 rounded-2xl border border-sproutly-secondary/10 min-w-[260px] shadow-sm max-w-full">
-          <div className="w-10 h-10 rounded-xl bg-sproutly-primary text-white flex items-center justify-center font-bold text-lg shrink-0 shadow-sm">
-            {stats.level}
-          </div>
-          <div className="flex-1 min-w-0 space-y-1">
-            <div className="flex justify-between text-[10px] font-extrabold text-sproutly-primary gap-2">
-              <span className="truncate">{stats.levelTitle}</span>
-              <span className="shrink-0">{stats.currentXp}/{stats.nextLevelXp} XP</span>
-            </div>
-            <div className="w-full h-1.5 bg-white rounded-full overflow-hidden border border-sproutly-secondary/5">
-              <div 
-                className="h-full bg-sproutly-primary rounded-full transition-all duration-1000 ease-out" 
-                style={{ width: `${(stats.currentXp / stats.nextLevelXp) * 100}%` }}
-              />
-            </div>
-          </div>
         </div>
 
         {weather && (
@@ -356,7 +336,7 @@ export default function DashboardPage() {
                         Indicates leaf transpiration stress. Heat above 35°C or high dry winds cause rapid moisture loss.
                       </div>
                     </div>
-                    <span className="text-sm font-extrabold text-sproutly-primary mt-0.5 block">{weather.temp > 35 ? 'Stressed 🥵' : 'Happy 😊'}</span>
+                    <span className="text-sm font-extrabold text-sproutly-primary mt-0.5 block">{weather.temp > 35 ? 'Stressed' : 'Optimal'}</span>
                   </div>
                 </div>
               </div>
