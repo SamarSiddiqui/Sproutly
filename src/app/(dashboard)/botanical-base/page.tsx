@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { usePlants } from '../../../hooks/usePlants';
 import { useProfile } from '../../../hooks/useProfile';
 import { useWeather } from '../../../hooks/useWeather';
-import { calculateGardenerStats } from '../../../utils/achievements';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import {
   Droplets,
@@ -27,12 +26,13 @@ import { SeasonalAdvisorWidget } from '../../../components/dashboard/SeasonalAdv
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { plants } = usePlants();
+  const { plants, updatePlant } = usePlants();
   const { profile, updateProfile } = useProfile();
 
   const [gpsLoading, setGpsLoading] = useState(false);
   const [gpsError, setGpsError] = useState('');
   const [refreshing, setRefreshing] = useState(false);
+  const [isWatering, setIsWatering] = useState(false);
 
   // Fetch weather dynamically using our cache hook
   const { data: weather, isLoading: weatherLoading, refetch: refreshWeather } = useWeather(
@@ -92,6 +92,26 @@ export default function DashboardPage() {
     setTimeout(() => {
       setRefreshing(false);
     }, 850);
+  };
+
+  const handleWaterAllDue = async () => {
+    const waterDue = plants.filter((p) => p.healthStatus === 'needs-water');
+    if (waterDue.length === 0) return;
+    setIsWatering(true);
+    try {
+      await Promise.all(
+        waterDue.map((p) =>
+          updatePlant(p.id, {
+            healthStatus: 'healthy',
+            lastWatered: new Date().toISOString()
+          })
+        )
+      );
+    } catch (e) {
+      console.error('Failed to water all:', e);
+    } finally {
+      setIsWatering(false);
+    }
   };
 
   const [environmentView, setEnvironmentView] = useState<'chart' | 'bars'>('chart');
@@ -375,6 +395,73 @@ export default function DashboardPage() {
           </div>
         </div>
       )}
+
+      <section className="bg-white p-6 rounded-[32px] border border-sproutly-secondary/5 shadow-sm space-y-4">
+        <h3 className="text-sm font-bold text-sproutly-secondary uppercase tracking-wider">Quick Actions</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {/* Water All Due Button */}
+          {(() => {
+            const waterDueCount = plants.filter((p) => p.healthStatus === 'needs-water').length;
+            return (
+              <button
+                type="button"
+                onClick={handleWaterAllDue}
+                disabled={isWatering || waterDueCount === 0}
+                className="flex items-center justify-between p-4 bg-sproutly-bg hover:bg-sproutly-light/10 disabled:opacity-60 rounded-2xl transition-all text-left border border-sproutly-secondary/5 group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`p-2.5 rounded-xl bg-white text-sproutly-primary shadow-sm ${isWatering ? 'animate-bounce' : ''}`}>
+                    <Droplets size={16} />
+                  </div>
+                  <div>
+                    <span className="block text-xs font-bold text-sproutly-primary">Water All Due</span>
+                    <span className="block text-[10px] font-bold text-sproutly-secondary">
+                      {waterDueCount === 0 ? 'All plants watered' : `${waterDueCount} due for water`}
+                    </span>
+                  </div>
+                </div>
+                <ChevronRight size={16} className="text-sproutly-secondary group-hover:translate-x-0.5 transition-transform" />
+              </button>
+            );
+          })()}
+
+          {/* Add Plant Button */}
+          <button
+            type="button"
+            onClick={() => router.push('/collection')}
+            className="flex items-center justify-between p-4 bg-sproutly-bg hover:bg-sproutly-light/10 rounded-2xl transition-all text-left border border-sproutly-secondary/5 group"
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-white text-sproutly-primary shadow-sm">
+                <Sprout size={16} />
+              </div>
+              <div>
+                <span className="block text-xs font-bold text-sproutly-primary">Add Plant Specimen</span>
+                <span className="block text-[10px] font-bold text-sproutly-secondary">Register new greenery</span>
+              </div>
+            </div>
+            <ChevronRight size={16} className="text-sproutly-secondary group-hover:translate-x-0.5 transition-transform" />
+          </button>
+
+          {/* Settings Button */}
+          <button
+            type="button"
+            onClick={() => router.push('/settings')}
+            className="flex items-center justify-between p-4 bg-sproutly-bg hover:bg-sproutly-light/10 rounded-2xl transition-all text-left border border-sproutly-secondary/5 group"
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-white text-sproutly-primary shadow-sm">
+                <AlertCircle size={16} />
+              </div>
+              <div>
+                <span className="block text-xs font-bold text-sproutly-primary">Configure Settings</span>
+                <span className="block text-[10px] font-bold text-sproutly-secondary">Timers & Weather locations</span>
+              </div>
+            </div>
+            <ChevronRight size={16} className="text-sproutly-secondary group-hover:translate-x-0.5 transition-transform" />
+          </button>
+        </div>
+      </section>
 
       {/* Seasonal Advisor Widget */}
       <SeasonalAdvisorWidget location={profile?.location || ''} plants={plants} />
