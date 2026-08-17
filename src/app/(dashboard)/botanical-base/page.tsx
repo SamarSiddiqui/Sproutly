@@ -687,6 +687,7 @@ export default function DashboardPage() {
                           ))}
                         </Pie>
                         <Tooltip
+                          wrapperStyle={{ zIndex: 40 }}
                           formatter={(value: number, name: string) => [`${value} plants`, name]}
                           contentStyle={{
                             borderRadius: '12px',
@@ -697,7 +698,7 @@ export default function DashboardPage() {
                       </PieChart>
                     </ResponsiveContainer>
                     {environmentBreakdown.dominant && (
-                      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-0">
                         <div className="text-3xl font-bold text-sproutly-primary leading-none">
                           {environmentBreakdown.dominant.percent}%
                         </div>
