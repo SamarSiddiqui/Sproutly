@@ -726,36 +726,54 @@ export default function DashboardPage() {
                   </div>
                 )}
 
-                <div className="mt-6 space-y-4">
-                  {environmentBreakdown.categories.map((c) => (
-                    <div key={c.name} className="flex items-center gap-3">
-                      <div
-                        className="w-3 h-3 rounded-full shrink-0"
-                        style={{
-                          backgroundColor: c.color
-                        }}
-                      />
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between gap-4">
-                          <span className="text-sm font-bold text-sproutly-primary">
-                            {c.name}
-                          </span>
-                          <span className="text-sm font-semibold text-sproutly-secondary">
-                            {c.value} • {c.percent}%
-                          </span>
+                <div className="mt-6 grid grid-cols-1 gap-3">
+                  {(() => {
+                    const cellMeta = {
+                      'Indoor': {
+                        title: 'Indoor Conservatory',
+                        desc: 'Controlled air & indirect light',
+                        icon: Sprout,
+                        colorClass: 'text-emerald-800'
+                      },
+                      'Semi-Shade': {
+                        title: 'Semi-Shaded Atrium',
+                        desc: 'Filtered sun & moderate humidity',
+                        icon: Leaf,
+                        colorClass: 'text-teal-800'
+                      },
+                      'Direct Sun': {
+                        title: 'Sun-Drenched Balcony',
+                        desc: 'Full exposure & direct natural warmth',
+                        icon: Sun,
+                        colorClass: 'text-amber-600'
+                      }
+                    };
+
+                    return environmentBreakdown.categories.map((c) => {
+                      const meta = cellMeta[c.name as keyof typeof cellMeta] || cellMeta['Indoor'];
+                      const Icon = meta.icon;
+                      return (
+                        <div 
+                          key={c.name}
+                          className="p-3.5 bg-sproutly-bg rounded-2xl border border-sproutly-secondary/5 flex items-center justify-between gap-3 shadow-sm hover:border-sproutly-secondary/15 transition-all"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className={`p-2.5 rounded-xl bg-white shadow-sm ${meta.colorClass}`}>
+                              <Icon size={16} />
+                            </div>
+                            <div>
+                              <span className="block text-xs font-bold text-sproutly-primary">{meta.title}</span>
+                              <span className="block text-[10px] font-bold text-sproutly-secondary mt-0.5">{meta.desc}</span>
+                            </div>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <span className="block text-xs font-extrabold text-sproutly-primary">{c.value} {c.value === 1 ? 'plant' : 'plants'}</span>
+                            <span className="block text-[9px] font-bold text-sproutly-secondary">{c.percent}% share</span>
+                          </div>
                         </div>
-                        <div className="mt-2 h-2 rounded-full bg-sproutly-bg overflow-hidden">
-                          <div
-                            className="h-full rounded-full"
-                            style={{
-                              width: `${c.percent}%`,
-                              backgroundColor: c.color
-                            }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                      );
+                    });
+                  })()}
                 </div>
               </>
             )}
