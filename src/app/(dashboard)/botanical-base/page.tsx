@@ -161,6 +161,35 @@ export default function DashboardPage() {
     };
   }, [plants]);
 
+  const gardenLogs = useMemo(() => {
+    const logs: { id: string; date: Date; type: string; plantName: string; text: string; icon: string }[] = [];
+
+    plants.forEach((p) => {
+      if (p.lastWatered) {
+        logs.push({
+          id: `${p.id}-water`,
+          date: new Date(p.lastWatered),
+          type: 'water',
+          plantName: p.name,
+          text: `Watered ${p.name}`,
+          icon: '💧'
+        });
+      }
+      if (p.lastFertilized) {
+        logs.push({
+          id: `${p.id}-fertilizer`,
+          date: new Date(p.lastFertilized),
+          type: 'fertilizer',
+          plantName: p.name,
+          text: `Fertilized ${p.name}`,
+          icon: '🧪'
+        });
+      }
+    });
+
+    return logs.sort((a, b) => b.date.getTime() - a.date.getTime()).slice(0, 3);
+  }, [plants]);
+
   const environmentBreakdown = useMemo(() => {
     const total = plants.length;
     const categories = [
@@ -781,6 +810,39 @@ export default function DashboardPage() {
           </div>
         </section>
       </div>
+
+      {/* Garden Timeline Feed */}
+      {plants.length > 0 && (
+        <section className="bg-white p-6 rounded-[32px] border border-sproutly-secondary/5 shadow-sm space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-bold text-sproutly-secondary uppercase tracking-wider">Garden Journal Feed</h3>
+            <span className="text-[10px] font-bold text-sproutly-secondary/70">Recent entries</span>
+          </div>
+
+          {gardenLogs.length === 0 ? (
+            <p className="text-xs font-bold text-sproutly-secondary/60 text-center py-4">No care history logged yet. Tap checkoffs or Quick Actions to start your journal!</p>
+          ) : (
+            <div className="space-y-4 relative before:absolute before:left-[17px] before:top-2 before:bottom-2 before:w-[2px] before:bg-sproutly-secondary/10">
+              {gardenLogs.map((log) => (
+                <div key={log.id} className="flex items-start gap-4 relative">
+                  <div className="w-9 h-9 rounded-xl bg-sproutly-bg flex items-center justify-center text-sm shadow-sm border border-sproutly-secondary/5 shrink-0 z-10">
+                    {log.icon}
+                  </div>
+                  <div className="flex-1 min-w-0 pt-0.5">
+                    <div className="flex justify-between items-baseline gap-2">
+                      <span className="text-xs font-bold text-sproutly-primary truncate">{log.text}</span>
+                      <span className="text-[9px] font-semibold text-sproutly-secondary shrink-0">
+                        {log.date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
+                    <span className="block text-[10px] font-bold text-sproutly-secondary/80 mt-0.5">Logged automatically in cloud database</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
 
       {/* Optimization Note */}
       <footer className="mt-8 pt-4 border-t border-sproutly-secondary/10 text-[11px] font-bold text-sproutly-secondary flex items-center justify-between">
