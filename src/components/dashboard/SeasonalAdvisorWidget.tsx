@@ -121,6 +121,44 @@ export function SeasonalAdvisorWidget({ location, plants }: SeasonalAdvisorWidge
           </div>
         ) : null}
       </div>
+
+      {/* Active Specimen Quick Care Tips */}
+      {plants && plants.length > 0 && (
+        <div className="mt-4 pt-4 border-t border-sproutly-secondary/5 space-y-3 relative z-10">
+          <h4 className="text-xs font-bold text-sproutly-secondary uppercase tracking-wider">Specimen Micro-Tips</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {plants.slice(0, 4).map((plant) => {
+              // Generate simple targeted tips based on species/category
+              let tip = "Provide filtered bright light and check soil weekly.";
+              const speciesLow = plant.species.toLowerCase();
+              const nameLow = plant.name.toLowerCase();
+              if (speciesLow.includes('monstera') || nameLow.includes('monstera')) {
+                tip = "Wipe leaves with a damp cloth monthly to clear dust and improve photosynthesis.";
+              } else if (speciesLow.includes('pothos') || speciesLow.includes('ivy') || nameLow.includes('pothos')) {
+                tip = "Trim trailing runners occasionally to encourage bushier root systems.";
+              } else if (speciesLow.includes('fern') || nameLow.includes('fern')) {
+                tip = "Keep soil consistently damp and mist foliage to retain high humidity.";
+              } else if (speciesLow.includes('cactus') || speciesLow.includes('succulent')) {
+                tip = "Allow soil to dry out completely between sparse watering cycles.";
+              } else if (plant.category === 'Direct Sun') {
+                tip = "Rotate container 90 degrees every week to prevent lopsided light growth.";
+              } else if (plant.category === 'Indoor') {
+                tip = "Mist foliage or group pots closely to optimize ambient humidity.";
+              }
+
+              return (
+                <div key={plant.id} className="p-3 bg-sproutly-bg rounded-2xl border border-sproutly-secondary/5 text-xs font-semibold text-sproutly-secondary flex items-start gap-2.5">
+                  <span className="text-sproutly-primary text-sm leading-none mt-0.5 select-none">💡</span>
+                  <div>
+                    <span className="font-extrabold text-sproutly-primary block">{plant.name} <span className="font-medium text-sproutly-secondary">({plant.species})</span></span>
+                    <span className="text-[10px] font-bold text-sproutly-secondary mt-1 block leading-relaxed">{tip}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 }
