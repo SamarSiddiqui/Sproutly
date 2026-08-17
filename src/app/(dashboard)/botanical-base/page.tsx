@@ -668,7 +668,7 @@ export default function DashboardPage() {
             ) : (
               <>
                 {environmentView === 'chart' ? (
-                  <div className="relative mt-6 flex-1 min-h-[220px] w-full">
+                  <div className="relative mt-6 h-[220px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
