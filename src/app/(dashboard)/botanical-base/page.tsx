@@ -114,6 +114,28 @@ export default function DashboardPage() {
     }
   };
 
+  const handleCheckoffAlert = async (alertId: string, alertType: string) => {
+    try {
+      if (alertType === 'water') {
+        await updatePlant(alertId, {
+          healthStatus: 'healthy',
+          lastWatered: new Date().toISOString()
+        });
+      } else if (alertType === 'fertilizer') {
+        await updatePlant(alertId, {
+          healthStatus: 'healthy',
+          lastFertilized: new Date().toISOString()
+        });
+      } else {
+        await updatePlant(alertId, {
+          healthStatus: 'healthy'
+        });
+      }
+    } catch (e) {
+      console.error('Failed to check off alert:', e);
+    }
+  };
+
   const [environmentView, setEnvironmentView] = useState<'chart' | 'bars'>('chart');
 
   useEffect(() => {
@@ -536,14 +558,14 @@ export default function DashboardPage() {
 
           <div className="space-y-3">
             {alerts.length === 0 ? (
-              <div className="bg-white p-6 rounded-2xl shadow-sm text-center text-sproutly-secondary">
+              <div className="bg-white p-6 rounded-2xl shadow-sm text-center text-sproutly-secondary font-medium">
                 All plants are happy and healthy! 🌱
               </div>
             ) : (
               alerts.map((alert, idx) => {
                 const Icon = alert.icon;
                 return (
-                  <motion.button
+                  <motion.div
                     initial={{
                       opacity: 0,
                       y: 10
@@ -556,20 +578,35 @@ export default function DashboardPage() {
                       delay: idx * 0.1
                     }}
                     key={`${alert.id}-${alert.type}`}
+                    className="w-full bg-white p-5 rounded-2xl shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow group relative cursor-pointer"
                     onClick={() => handleAlertClick(alert.id)}
-                    className="w-full bg-white p-5 rounded-2xl shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow text-left"
                   >
-                    <div className={`p-3 rounded-xl ${alert.bg} ${alert.color}`}>
+                    {/* Checkbox Trigger */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCheckoffAlert(alert.id, alert.type);
+                      }}
+                      className="w-6 h-6 rounded-full border-2 border-sproutly-secondary/30 hover:border-emerald-500 hover:bg-emerald-50 flex items-center justify-center transition-all shrink-0"
+                      title="Mark task completed"
+                    >
+                      <span className="w-3 h-3 rounded-full bg-emerald-500 opacity-0 group-hover:opacity-30 hover:opacity-100 transition-opacity" />
+                    </button>
+
+                    <div className={`p-3 rounded-xl ${alert.bg} ${alert.color} shrink-0`}>
                       <Icon size={24} />
                     </div>
-                    <div className="flex-1 font-semibold text-sproutly-primary text-lg">
+
+                    <div className="flex-1 font-semibold text-sproutly-primary text-base md:text-lg">
                       {alert.message}
                     </div>
+
                     <ChevronRight
-                      size={24}
-                      className="text-sproutly-secondary/50"
+                      size={20}
+                      className="text-sproutly-secondary/50 group-hover:translate-x-0.5 transition-transform"
                     />
-                  </motion.button>
+                  </motion.div>
                 );
               })
             )}
