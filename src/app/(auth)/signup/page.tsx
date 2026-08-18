@@ -56,12 +56,7 @@ export default function SignupPage() {
 
   const password = watch('password');
 
-  const getStrength = () => {
-    if (!password || password.length === 0) return 0;
-    if (password.length < 6) return 1;
-    if (password.length < 10) return 2;
-    return 3;
-  };
+
 
 
   const onSubmit = async (data: SignupInputs) => {

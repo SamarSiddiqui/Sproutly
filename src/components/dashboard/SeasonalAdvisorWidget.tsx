@@ -66,20 +66,20 @@ export function SeasonalAdvisorWidget({ location, plants }: SeasonalAdvisorWidge
   if (!location) return null;
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       className="relative overflow-hidden bg-white p-6 rounded-3xl shadow-sm flex flex-col gap-3 border border-sproutly-secondary/5"
     >
       {/* Subtle Animated gradient background effect */}
       <div className="absolute inset-0 bg-gradient-to-r from-sproutly-primary/5 via-sproutly-urgent/5 to-sproutly-primary/5 animate-pulse pointer-events-none" />
-      
+
       <div className="relative flex items-center justify-between">
         <div className="flex items-center gap-2 text-sproutly-primary">
           <Sparkles size={20} className="text-yellow-500" />
           <h2 className="text-lg font-bold">Proactive Care Advisor</h2>
         </div>
-        <button 
+        <button
           onClick={() => fetchAdvice(true)}
           disabled={loading}
           className="text-sproutly-secondary hover:text-sproutly-primary transition-colors disabled:opacity-50"
@@ -102,15 +102,18 @@ export function SeasonalAdvisorWidget({ location, plants }: SeasonalAdvisorWidge
           <div className="space-y-2">
             {advice.split('\n').filter(line => line.trim()).map((line, idx) => {
               // Basic markdown list parsing and bold/italic formatting stripping
-              const isListItem = line.trim().startsWith('-') || line.trim().startsWith('*');
-              // Strip list characters, asterisks, and backticks
+              // Detect standard bullet points or numbered lists (e.g., 1. or -)
+              const isListItem = line.trim().startsWith('-') || line.trim().startsWith('*') || /^\d+\.\s*/.test(line.trim());
+              // Clean the line: strip list bullets, numbers, double spaces, and emojis
               const cleanLine = line
                 .replace(/^[-*]\s*/, '')
+                .replace(/^\d+\.\s*/, '')
                 .replace(/\*/g, '')
                 .replace(/`/g, '')
                 .replace(/[\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/g, '')
+                .replace(/\s+/g, ' ')
                 .trim();
-              
+
               return (
                 <div key={idx} className="flex items-start gap-2">
                   {isListItem && <span className="text-sproutly-primary mt-0.5 select-none">•</span>}
