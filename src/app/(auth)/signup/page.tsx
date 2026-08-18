@@ -20,6 +20,7 @@ const signupSchema = z.object({
     .regex(/[A-Z]/, 'Must include at least 1 capital letter (A-Z)')
     .regex(/[a-z]/, 'Must include at least 1 lowercase letter (a-z)')
     .regex(/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>?]/, 'Must include at least 1 special character (!@#$)')
+    .regex(/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>?]/, 'Must include at least 1 special character (!@#$)')
     .regex(/[0-9]/, 'Must include at least 1 number (0-9)'),
 });
 
@@ -139,11 +140,10 @@ export default function SignupPage() {
 
       {error && (
         <div
-          className={`mb-6 p-4 rounded-xl text-sm font-semibold text-left border ${
-            error.startsWith('Success!')
+          className={`mb-6 p-4 rounded-xl text-sm font-semibold text-left border ${error.startsWith('Success!')
               ? 'bg-green-50 border-green-200 text-green-600'
               : 'bg-red-50 border-red-200 text-red-600'
-          }`}
+            }`}
         >
           {error}
         </div>
@@ -161,9 +161,8 @@ export default function SignupPage() {
             type="text"
             id="fullName"
             {...register('fullName')}
-            className={`w-full px-4 py-3.5 rounded-xl border ${
-              errors.fullName ? 'border-red-500 focus:ring-red-500' : 'border-sproutly-forest/20 focus:ring-sproutly-sage'
-            } bg-white text-sproutly-forest placeholder-sproutly-forest/40 focus:outline-none focus:ring-2 focus:border-transparent transition-all`}
+            className={`w-full px-4 py-3.5 rounded-xl border ${errors.fullName ? 'border-red-500 focus:ring-red-500' : 'border-sproutly-forest/20 focus:ring-sproutly-sage'
+              } bg-white text-sproutly-forest placeholder-sproutly-forest/40 focus:outline-none focus:ring-2 focus:border-transparent transition-all`}
             placeholder="Jane Doe"
             disabled={isLoading}
           />
@@ -183,9 +182,8 @@ export default function SignupPage() {
             type="email"
             id="email"
             {...register('email')}
-            className={`w-full px-4 py-3.5 rounded-xl border ${
-              errors.email ? 'border-red-500 focus:ring-red-500' : 'border-sproutly-forest/20 focus:ring-sproutly-sage'
-            } bg-white text-sproutly-forest placeholder-sproutly-forest/40 focus:outline-none focus:ring-2 focus:border-transparent transition-all`}
+            className={`w-full px-4 py-3.5 rounded-xl border ${errors.email ? 'border-red-500 focus:ring-red-500' : 'border-sproutly-forest/20 focus:ring-sproutly-sage'
+              } bg-white text-sproutly-forest placeholder-sproutly-forest/40 focus:outline-none focus:ring-2 focus:border-transparent transition-all`}
             placeholder="you@example.com"
             disabled={isLoading}
           />
@@ -206,9 +204,8 @@ export default function SignupPage() {
               type={showPassword ? 'text' : 'password'}
               id="password"
               {...register('password')}
-              className={`w-full px-4 py-3.5 rounded-xl border ${
-                errors.password ? 'border-red-500 focus:ring-red-500' : 'border-sproutly-forest/20 focus:ring-sproutly-sage'
-              } bg-white text-sproutly-forest placeholder-sproutly-forest/40 focus:outline-none focus:ring-2 focus:border-transparent transition-all pr-12`}
+              className={`w-full px-4 py-3.5 rounded-xl border ${errors.password ? 'border-red-500 focus:ring-red-500' : 'border-sproutly-forest/20 focus:ring-sproutly-sage'
+                } bg-white text-sproutly-forest placeholder-sproutly-forest/40 focus:outline-none focus:ring-2 focus:border-transparent transition-all pr-12`}
               placeholder="••••••••"
               disabled={isLoading}
             />

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useArticle, useArticles } from '../../../../hooks/useArticles';
 import {
   ArrowLeft,

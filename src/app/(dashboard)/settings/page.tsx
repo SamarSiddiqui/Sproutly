@@ -10,7 +10,6 @@ import {
   RefreshCw,
   Trash2,
   Bell,
-  User,
   Sparkles,
   SlidersHorizontal,
   ShieldAlert,

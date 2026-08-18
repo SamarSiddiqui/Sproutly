@@ -9,6 +9,7 @@ import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { AuthLayout } from '../../../components/PreLogin/AuthLayout';
 import { supabase } from '../../../utils/supabaseClient';
 import { useAuth } from '../../../hooks/useAuth';
+import Link from 'next/link';
 
 const loginSchema = z.object({
   email: z.string().min(1, 'Email is required').email('Invalid email address'),
@@ -184,12 +185,12 @@ export default function LoginPage() {
               Remember me
             </span>
           </label>
-          <button
-            type="button"
+          <Link
+            href="/forgot-password"
             className="text-sm font-medium text-sproutly-forest hover:text-sproutly-sage transition-colors"
           >
             Forgot password?
-          </button>
+          </Link>
         </div>
 
         <button
