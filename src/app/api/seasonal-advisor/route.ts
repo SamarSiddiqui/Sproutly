@@ -24,7 +24,7 @@ Location: ${location || 'Unknown'}
 
 ${plantsContext}
 
-Write a concise, 3-point checklist of things the user should consider for their plants this season. Use emojis. Keep it under 100 words. Format it directly as a markdown list without any introductory filler (e.g. no "Here is your advice:").`;
+Write a concise, 3-point checklist of things the user should consider for their plants this season. Do NOT use any emojis. Keep it under 100 words. Format it directly as a markdown list without any introductory filler (e.g. no "Here is your advice:").`;
 
     // Map messages to Mistral's expected chat format
     const formattedMessages = [

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Sparkles, RefreshCw } from 'lucide-react';
+import { Sparkles, RefreshCw, Info } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface SeasonalAdvisorWidgetProps {
@@ -148,7 +148,9 @@ export function SeasonalAdvisorWidget({ location, plants }: SeasonalAdvisorWidge
 
               return (
                 <div key={plant.id} className="p-3 bg-sproutly-bg rounded-2xl border border-sproutly-secondary/5 text-xs font-semibold text-sproutly-secondary flex items-start gap-2.5">
-                  <span className="text-sproutly-primary text-sm leading-none mt-0.5 select-none">💡</span>
+                  <div className="text-sproutly-primary shrink-0 mt-0.5">
+                    <Info size={14} />
+                  </div>
                   <div>
                     <span className="font-extrabold text-sproutly-primary block">{plant.name} <span className="font-medium text-sproutly-secondary">({plant.species})</span></span>
                     <span className="text-[10px] font-bold text-sproutly-secondary mt-1 block leading-relaxed">{tip}</span>
