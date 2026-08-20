@@ -19,7 +19,8 @@ import {
   Wind,
   RotateCw,
   Info,
-  Sun
+  Sun,
+  Trash2
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { SeasonalAdvisorWidget } from '../../../components/dashboard/SeasonalAdvisorWidget';
@@ -145,7 +146,49 @@ export default function DashboardPage() {
     }
   }, []);
 
-  const changeEnvironmentView = (view: 'chart' | 'bars') => {
+  const [customNotes, setCustomNotes] = useState<{ id: string; date: string; text: string }[]>([]);
+  const [newNoteText, setNewNoteText] = useState('');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const stored = window.localStorage.getItem('sproutly:garden_diary_notes');
+      if (stored) {
+        try {
+          setCustomNotes(JSON.parse(stored));
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    }
+  }, []);
+
+  const handleAddNote = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newNoteText.trim()) return;
+
+    const newNote = {
+      id: `custom-${Date.now()}`,
+      date: new Date().toISOString(),
+      text: newNoteText.trim(),
+    };
+
+    const updated = [newNote, ...customNotes].slice(0, 20);
+    setCustomNotes(updated);
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem('sproutly:garden_diary_notes', JSON.stringify(updated));
+    }
+    setNewNoteText('');
+  };
+
+  const handleDeleteNote = (id: string) => {
+    const updated = customNotes.filter(n => n.id !== id);
+    setCustomNotes(updated);
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem('sproutly:garden_diary_notes', JSON.stringify(updated));
+    }
+  };
+
+  const handleEnvironmentViewChange = (view: 'chart' | 'bars') => {
     setEnvironmentView(view);
     if (typeof window !== 'undefined') {
       window.localStorage.setItem('sproutly:dashboard:environmentView', view);
@@ -162,12 +205,12 @@ export default function DashboardPage() {
   }, [plants]);
 
   const gardenLogs = useMemo(() => {
-    const logs: { id: string; date: Date; type: string; plantName: string; text: string; icon: any }[] = [];
+    const logs: { id: string; date: Date; type: string; plantName?: string; text: string; icon: any }[] = [];
 
     plants.forEach((p) => {
       if (p.lastWatered) {
         logs.push({
-          id: `${p.id}-water`,
+          id: `${p.id}-water-${p.lastWatered}`,
           date: new Date(p.lastWatered),
           type: 'water',
           plantName: p.name,
@@ -177,7 +220,7 @@ export default function DashboardPage() {
       }
       if (p.lastFertilized) {
         logs.push({
-          id: `${p.id}-fertilizer`,
+          id: `${p.id}-fertilizer-${p.lastFertilized}`,
           date: new Date(p.lastFertilized),
           type: 'fertilizer',
           plantName: p.name,
@@ -187,8 +230,18 @@ export default function DashboardPage() {
       }
     });
 
-    return logs.sort((a, b) => b.date.getTime() - a.date.getTime()).slice(0, 3);
-  }, [plants]);
+    customNotes.forEach((n) => {
+      logs.push({
+        id: n.id,
+        date: new Date(n.date),
+        type: 'note',
+        text: n.text,
+        icon: Leaf
+      });
+    });
+
+    return logs.sort((a, b) => b.date.getTime() - a.date.getTime()).slice(0, 4);
+  }, [plants, customNotes]);
 
   const environmentBreakdown = useMemo(() => {
     const total = plants.length;
@@ -644,26 +697,55 @@ export default function DashboardPage() {
           {/* Garden Timeline Feed */}
           {plants.length > 0 && (
             <div className="mt-6 bg-white p-6 rounded-2xl border border-sproutly-secondary/5 shadow-sm space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-bold text-sproutly-secondary uppercase tracking-wider">Garden Journal Feed</h3>
-                <span className="text-[10px] font-bold text-sproutly-secondary/70">Recent entries</span>
+              <div className="flex items-center justify-between mb-1">
+                <h3 className="text-sm font-bold text-sproutly-secondary uppercase tracking-wider">Garden Journal Diary</h3>
+                <span className="text-[10px] font-bold text-sproutly-secondary/70">Recent logs & observations</span>
               </div>
 
+              {/* Add Custom Note Input Form */}
+              <form onSubmit={handleAddNote} className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Note a growth stage or observation (e.g. leaf sprouted!)..."
+                  value={newNoteText}
+                  onChange={(e) => setNewNoteText(e.target.value)}
+                  className="flex-grow bg-sproutly-bg border border-sproutly-secondary/10 rounded-xl px-3.5 py-2 text-xs font-semibold placeholder-sproutly-secondary/40 text-sproutly-primary focus:outline-none focus:border-sproutly-secondary/20 focus:ring-1 focus:ring-sproutly-secondary/20 transition-all"
+                />
+                <button
+                  type="submit"
+                  className="bg-sproutly-primary hover:bg-sproutly-secondary text-white text-xs font-extrabold px-3.5 py-2 rounded-xl transition-colors shadow-sm shrink-0"
+                >
+                  Post Note
+                </button>
+              </form>
+
               {gardenLogs.length === 0 ? (
-                <p className="text-xs font-bold text-sproutly-secondary/60 text-center py-4">No care history logged yet. Tap checkoffs or Quick Actions to start your journal!</p>
+                <p className="text-xs font-bold text-sproutly-secondary/60 text-center py-4">No observations or care logs yet. Type a note or log tasks to start!</p>
               ) : (
-                <div className="space-y-4 relative before:absolute before:left-[17px] before:top-2 before:bottom-2 before:w-[2px] before:bg-sproutly-secondary/10">
+                <div className="space-y-4 relative before:absolute before:left-[17px] before:top-2 before:bottom-2 before:w-[2px] before:bg-sproutly-secondary/10 mt-3 pt-2">
                   {gardenLogs.map((log) => (
-                    <div key={log.id} className="flex items-start gap-4 relative">
+                    <div key={log.id} className="flex items-start gap-4 relative group">
                       <div className="w-9 h-9 rounded-xl bg-sproutly-bg flex items-center justify-center shadow-sm border border-sproutly-secondary/5 shrink-0 z-10">
-                        <log.icon size={16} className={log.type === 'water' ? 'text-sproutly-light' : 'text-teal-600'} />
+                        <log.icon size={16} className={log.type === 'water' ? 'text-sproutly-light' : log.type === 'fertilizer' ? 'text-teal-600' : 'text-emerald-700'} />
                       </div>
-                      <div className="flex-1 min-w-0 pt-0.5">
+                      <div className="flex-grow min-w-0 pt-0.5">
                         <div className="flex justify-between items-baseline gap-2">
-                          <span className="text-xs font-bold text-sproutly-primary truncate">{log.text}</span>
-                          <span className="text-[9px] font-semibold text-sproutly-secondary shrink-0">
-                            {log.date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                          </span>
+                          <span className="text-xs font-bold text-sproutly-primary leading-normal">{log.text}</span>
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <span className="text-[9px] font-semibold text-sproutly-secondary">
+                              {log.date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                            {log.type === 'note' && (
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteNote(log.id)}
+                                className="opacity-0 group-hover:opacity-100 text-sproutly-secondary hover:text-red-500 transition-opacity p-0.5"
+                                title="Delete note"
+                              >
+                                <Trash2 size={10} />
+                              </button>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
