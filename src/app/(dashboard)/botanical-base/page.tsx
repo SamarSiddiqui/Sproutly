@@ -162,7 +162,7 @@ export default function DashboardPage() {
   }, [plants]);
 
   const gardenLogs = useMemo(() => {
-    const logs: { id: string; date: Date; type: string; plantName: string; text: string; icon: string }[] = [];
+    const logs: { id: string; date: Date; type: string; plantName: string; text: string; icon: any }[] = [];
 
     plants.forEach((p) => {
       if (p.lastWatered) {
@@ -172,7 +172,7 @@ export default function DashboardPage() {
           type: 'water',
           plantName: p.name,
           text: `Watered ${p.name}`,
-          icon: '💧'
+          icon: Droplets
         });
       }
       if (p.lastFertilized) {
@@ -182,7 +182,7 @@ export default function DashboardPage() {
           type: 'fertilizer',
           plantName: p.name,
           text: `Fertilized ${p.name}`,
-          icon: '🧪'
+          icon: FlaskConical
         });
       }
     });
@@ -655,8 +655,8 @@ export default function DashboardPage() {
                 <div className="space-y-4 relative before:absolute before:left-[17px] before:top-2 before:bottom-2 before:w-[2px] before:bg-sproutly-secondary/10">
                   {gardenLogs.map((log) => (
                     <div key={log.id} className="flex items-start gap-4 relative">
-                      <div className="w-9 h-9 rounded-xl bg-sproutly-bg flex items-center justify-center text-sm shadow-sm border border-sproutly-secondary/5 shrink-0 z-10">
-                        {log.icon}
+                      <div className="w-9 h-9 rounded-xl bg-sproutly-bg flex items-center justify-center shadow-sm border border-sproutly-secondary/5 shrink-0 z-10">
+                        <log.icon size={16} className={log.type === 'water' ? 'text-sproutly-light' : 'text-teal-600'} />
                       </div>
                       <div className="flex-1 min-w-0 pt-0.5">
                         <div className="flex justify-between items-baseline gap-2">
