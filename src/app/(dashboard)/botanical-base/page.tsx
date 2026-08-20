@@ -20,7 +20,10 @@ import {
   RotateCw,
   Info,
   Sun,
-  Trash2
+  Trash2,
+  Edit2,
+  X,
+  Check
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { SeasonalAdvisorWidget } from '../../../components/dashboard/SeasonalAdvisorWidget';
@@ -147,8 +150,10 @@ export default function DashboardPage() {
     }
   }, []);
 
-  const { notes, addNote, deleteNote } = useJournalNotes();
+  const { notes, addNote, deleteNote, updateNote } = useJournalNotes();
   const [newNoteText, setNewNoteText] = useState('');
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+  const [editingText, setEditingText] = useState('');
 
   const handleAddNote = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -167,6 +172,21 @@ export default function DashboardPage() {
       await deleteNote(id);
     } catch (err) {
       console.error('Failed to delete note:', err);
+    }
+  };
+
+  const handleStartEdit = (id: string, text: string) => {
+    setEditingNoteId(id);
+    setEditingText(text);
+  };
+
+  const handleSaveEdit = async (id: string) => {
+    if (!editingText.trim()) return;
+    try {
+      await updateNote({ noteId: id, content: editingText.trim() });
+      setEditingNoteId(null);
+    } catch (err) {
+      console.error('Failed to update note:', err);
     }
   };
 
@@ -682,24 +702,59 @@ export default function DashboardPage() {
                         <log.icon size={16} className={log.type === 'water' ? 'text-sproutly-light' : log.type === 'fertilizer' ? 'text-teal-600' : 'text-emerald-700'} />
                       </div>
                       <div className="flex-grow min-w-0 pt-0.5">
-                        <div className="flex justify-between items-baseline gap-2">
-                          <span className="text-xs font-bold text-sproutly-primary leading-normal">{log.text}</span>
-                          <div className="flex items-center gap-1.5 shrink-0">
-                            <span className="text-[9px] font-semibold text-sproutly-secondary">
-                              {log.date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                            </span>
-                            {log.type === 'note' && (
-                              <button
-                                type="button"
-                                onClick={() => handleDeleteNote(log.id)}
-                                className="opacity-0 group-hover:opacity-100 text-sproutly-secondary hover:text-red-500 transition-opacity p-0.5"
-                                title="Delete note"
-                              >
-                                <Trash2 size={10} />
-                              </button>
-                            )}
+                        {editingNoteId === log.id ? (
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="text"
+                              value={editingText}
+                              onChange={(e) => setEditingText(e.target.value)}
+                              className="flex-grow bg-sproutly-bg border border-sproutly-secondary/20 rounded-xl px-2.5 py-1 text-xs font-semibold text-sproutly-primary focus:outline-none focus:border-sproutly-secondary/30 transition-all"
+                            />
+                            <button
+                              onClick={() => handleSaveEdit(log.id)}
+                              className="p-1 text-emerald-600 hover:text-emerald-800 transition-colors"
+                              title="Save note"
+                            >
+                              <Check size={14} />
+                            </button>
+                            <button
+                              onClick={() => setEditingNoteId(null)}
+                              className="p-1 text-red-500 hover:text-red-700 transition-colors"
+                              title="Cancel editing"
+                            >
+                              <X size={14} />
+                            </button>
                           </div>
-                        </div>
+                        ) : (
+                          <div className="flex justify-between items-baseline gap-2">
+                            <span className="text-xs font-bold text-sproutly-primary leading-normal">{log.text}</span>
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              <span className="text-[9px] font-semibold text-sproutly-secondary">
+                                {log.date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                              {log.type === 'note' && (
+                                <>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleStartEdit(log.id, log.text)}
+                                    className="opacity-0 group-hover:opacity-100 text-sproutly-secondary hover:text-sproutly-primary transition-opacity p-0.5"
+                                    title="Edit note"
+                                  >
+                                    <Edit2 size={10} />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDeleteNote(log.id)}
+                                    className="opacity-0 group-hover:opacity-100 text-sproutly-secondary hover:text-red-500 transition-opacity p-0.5"
+                                    title="Delete note"
+                                  >
+                                    <Trash2 size={10} />
+                                  </button>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}

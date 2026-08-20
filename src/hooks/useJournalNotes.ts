@@ -63,6 +63,23 @@ export function useJournalNotes() {
     },
   });
 
+  const updateNoteMutation = useMutation({
+    mutationFn: async ({ noteId, content }: { noteId: string; content: string }) => {
+      const { data, error } = await supabase
+        .from('garden_notes')
+        .update({ content })
+        .eq('id', noteId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: journalNotesQueryKey });
+    },
+  });
+
   return {
     notes: notesQuery.data || [],
     isLoading: notesQuery.isLoading,
@@ -71,5 +88,7 @@ export function useJournalNotes() {
     isAdding: addNoteMutation.isPending,
     deleteNote: deleteNoteMutation.mutateAsync,
     isDeleting: deleteNoteMutation.isPending,
+    updateNote: updateNoteMutation.mutateAsync,
+    isUpdating: updateNoteMutation.isPending,
   };
 }
