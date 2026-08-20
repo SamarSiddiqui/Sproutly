@@ -711,14 +711,22 @@ export default function DashboardPage() {
                               className="flex-grow bg-sproutly-bg border border-sproutly-secondary/20 rounded-xl px-2.5 py-1 text-xs font-semibold text-sproutly-primary focus:outline-none focus:border-sproutly-secondary/30 transition-all"
                             />
                             <button
-                              onClick={() => handleSaveEdit(log.id)}
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleSaveEdit(log.id);
+                              }}
                               className="p-1 text-emerald-600 hover:text-emerald-800 transition-colors"
                               title="Save note"
                             >
                               <Check size={14} />
                             </button>
                             <button
-                              onClick={() => setEditingNoteId(null)}
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingNoteId(null);
+                              }}
                               className="p-1 text-red-500 hover:text-red-700 transition-colors"
                               title="Cancel editing"
                             >
