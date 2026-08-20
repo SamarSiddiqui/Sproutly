@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { SeasonalAdvisorWidget } from '../../../components/dashboard/SeasonalAdvisorWidget';
+import { useJournalNotes } from '../../../hooks/useJournalNotes';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -146,45 +147,26 @@ export default function DashboardPage() {
     }
   }, []);
 
-  const [customNotes, setCustomNotes] = useState<{ id: string; date: string; text: string }[]>([]);
+  const { notes, addNote, deleteNote } = useJournalNotes();
   const [newNoteText, setNewNoteText] = useState('');
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const stored = window.localStorage.getItem('sproutly:garden_diary_notes');
-      if (stored) {
-        try {
-          setCustomNotes(JSON.parse(stored));
-        } catch (e) {
-          console.error(e);
-        }
-      }
-    }
-  }, []);
-
-  const handleAddNote = (e: React.FormEvent) => {
+  const handleAddNote = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newNoteText.trim()) return;
 
-    const newNote = {
-      id: `custom-${Date.now()}`,
-      date: new Date().toISOString(),
-      text: newNoteText.trim(),
-    };
-
-    const updated = [newNote, ...customNotes].slice(0, 20);
-    setCustomNotes(updated);
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem('sproutly:garden_diary_notes', JSON.stringify(updated));
+    try {
+      await addNote(newNoteText.trim());
+      setNewNoteText('');
+    } catch (err) {
+      console.error('Failed to add note:', err);
     }
-    setNewNoteText('');
   };
 
-  const handleDeleteNote = (id: string) => {
-    const updated = customNotes.filter(n => n.id !== id);
-    setCustomNotes(updated);
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem('sproutly:garden_diary_notes', JSON.stringify(updated));
+  const handleDeleteNote = async (id: string) => {
+    try {
+      await deleteNote(id);
+    } catch (err) {
+      console.error('Failed to delete note:', err);
     }
   };
 
@@ -205,43 +187,14 @@ export default function DashboardPage() {
   }, [plants]);
 
   const gardenLogs = useMemo(() => {
-    const logs: { id: string; date: Date; type: string; plantName?: string; text: string; icon: any }[] = [];
-
-    plants.forEach((p) => {
-      if (p.lastWatered) {
-        logs.push({
-          id: `${p.id}-water-${p.lastWatered}`,
-          date: new Date(p.lastWatered),
-          type: 'water',
-          plantName: p.name,
-          text: `Watered ${p.name}`,
-          icon: Droplets
-        });
-      }
-      if (p.lastFertilized) {
-        logs.push({
-          id: `${p.id}-fertilizer-${p.lastFertilized}`,
-          date: new Date(p.lastFertilized),
-          type: 'fertilizer',
-          plantName: p.name,
-          text: `Fertilized ${p.name}`,
-          icon: FlaskConical
-        });
-      }
-    });
-
-    customNotes.forEach((n) => {
-      logs.push({
-        id: n.id,
-        date: new Date(n.date),
-        type: 'note',
-        text: n.text,
-        icon: Leaf
-      });
-    });
-
-    return logs.sort((a, b) => b.date.getTime() - a.date.getTime()).slice(0, 4);
-  }, [plants, customNotes]);
+    return notes.map((n) => ({
+      id: n.id,
+      date: new Date(n.created_at),
+      type: 'note',
+      text: n.content,
+      icon: Leaf
+    }));
+  }, [notes]);
 
   const environmentBreakdown = useMemo(() => {
     const total = plants.length;
