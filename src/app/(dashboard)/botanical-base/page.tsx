@@ -665,7 +665,6 @@ export default function DashboardPage() {
                             {log.date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                           </span>
                         </div>
-                        <span className="block text-[10px] font-bold text-sproutly-secondary/80 mt-0.5">Logged automatically in cloud database</span>
                       </div>
                     </div>
                   ))}
