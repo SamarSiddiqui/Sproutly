@@ -162,7 +162,7 @@ export default function CareCyclePage() {
         </div>
 
         {/* Desktop Vertical Selector */}
-        <div className="hidden lg:flex flex-col gap-3 overflow-y-auto pr-4 pb-8 flex-1 scrollbar-hide">
+        <div data-lenis-prevent className="hidden lg:flex flex-col gap-3 overflow-y-auto pr-4 pb-8 flex-1 scrollbar-hide">
           {plants.map((p) => (
             <button
               key={p.id}
