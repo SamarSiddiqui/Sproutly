@@ -790,14 +790,14 @@ export default function DashboardPage() {
               <div className="flex items-center bg-sproutly-bg rounded-xl p-1">
                 <button
                   type="button"
-                  onClick={() => changeEnvironmentView('chart')}
+                  onClick={() => handleEnvironmentViewChange('chart')}
                   className={`px-3 py-1.5 rounded-lg text-sm font-bold transition-all ${environmentView === 'chart' ? 'bg-white text-sproutly-primary shadow-sm' : 'text-sproutly-secondary hover:text-sproutly-primary'}`}
                 >
                   Chart
                 </button>
                 <button
                   type="button"
-                  onClick={() => changeEnvironmentView('bars')}
+                  onClick={() => handleEnvironmentViewChange('bars')}
                   className={`px-3 py-1.5 rounded-lg text-sm font-bold transition-all ${environmentView === 'bars' ? 'bg-white text-sproutly-primary shadow-sm' : 'text-sproutly-secondary hover:text-sproutly-primary'}`}
                 >
                   Bars
