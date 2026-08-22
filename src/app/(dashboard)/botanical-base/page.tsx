@@ -100,17 +100,21 @@ export default function DashboardPage() {
   };
 
   const handleWaterAllDue = async () => {
-    const waterDue = plants.filter((p) => p.healthStatus === 'needs-water');
+    const nowMs = Date.now();
+    const waterDue = plants.filter((p) => p.healthStatus === 'needs-water' || (p.nextWatering && new Date(p.nextWatering).getTime() <= nowMs));
     if (waterDue.length === 0) return;
     setIsWatering(true);
     try {
       await Promise.all(
-        waterDue.map((p) =>
-          updatePlant(p.id, {
+        waterDue.map((p) => {
+          const intervalMs = p.waterInterval ? p.waterInterval * 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000;
+          const newNextW = new Date(Date.now() + intervalMs);
+          return updatePlant(p.id, {
             healthStatus: 'healthy',
-            lastWatered: new Date().toISOString()
-          })
-        )
+            lastWatered: new Date().toISOString(),
+            nextWatering: newNextW.toISOString()
+          });
+        })
       );
     } catch (e) {
       console.error('Failed to water all:', e);
@@ -121,10 +125,14 @@ export default function DashboardPage() {
 
   const handleCheckoffAlert = async (alertId: string, alertType: string) => {
     try {
+      const plant = plants.find((p) => p.id === alertId);
       if (alertType === 'water') {
+        const intervalMs = plant?.waterInterval ? plant.waterInterval * 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000;
+        const newNextW = new Date(Date.now() + intervalMs);
         await updatePlant(alertId, {
           healthStatus: 'healthy',
-          lastWatered: new Date().toISOString()
+          lastWatered: new Date().toISOString(),
+          nextWatering: newNextW.toISOString()
         });
       } else if (alertType === 'fertilizer') {
         await updatePlant(alertId, {
@@ -248,37 +256,34 @@ export default function DashboardPage() {
   }, [plants]);
 
   const alerts = useMemo(() => {
-    return [
-      ...plants
-        .filter((p) => p.healthStatus === 'needs-water')
-        .map((p) => {
-          const isRainDelay = weather && weather.rainProbability > 50;
-          return {
-            id: p.id,
-            type: 'water',
-            message: isRainDelay
-              ? `${p.name} needs water (Skip: Rain Forecast)`
-              : `${p.name} needs water`,
-            urgency: isRainDelay ? 'low' : 'high',
-            icon: Droplets,
-            color: isRainDelay ? 'text-green-600' : 'text-sproutly-urgent',
-            bg: isRainDelay ? 'bg-green-50' : 'bg-sproutly-urgent/10'
-          };
-        }),
-      ...plants
-        .filter((p) => p.healthStatus === 'needs-pruning')
-        .map((p) => ({
+    const list: any[] = [];
+    const nowMs = Date.now();
+
+    plants.forEach((p) => {
+      // 1. Water Alert
+      const isWaterDue = p.healthStatus === 'needs-water' || (p.nextWatering && new Date(p.nextWatering).getTime() <= nowMs);
+      if (isWaterDue) {
+        const isRainDelay = weather && weather.rainProbability > 50;
+        list.push({
           id: p.id,
-          type: 'prune',
-          message: `${p.name} needs pruning`,
-          urgency: 'medium',
-          icon: Scissors,
-          color: 'text-sproutly-warning',
-          bg: 'bg-sproutly-warning/10'
-        })),
-      ...plants
-        .filter((p) => p.healthStatus === 'needs-fertilizer')
-        .map((p) => ({
+          type: 'water',
+          message: isRainDelay
+            ? `${p.name} needs water (Skip: Rain Forecast)`
+            : `${p.name} needs water`,
+          urgency: isRainDelay ? 'low' : 'high',
+          icon: Droplets,
+          color: isRainDelay ? 'text-green-600' : 'text-sproutly-urgent',
+          bg: isRainDelay ? 'bg-green-50' : 'bg-sproutly-urgent/10'
+        });
+      }
+
+      // 2. Fertilizer Alert
+      const nextFertilizingMs = p.lastFertilized && p.fertilizerCycle
+        ? new Date(p.lastFertilized).getTime() + p.fertilizerCycle * 24 * 60 * 60 * 1000
+        : null;
+      const isFertilizerDue = p.healthStatus === 'needs-fertilizer' || (nextFertilizingMs && nextFertilizingMs <= nowMs);
+      if (isFertilizerDue) {
+        list.push({
           id: p.id,
           type: 'fertilizer',
           message: `${p.name} needs fertilizer`,
@@ -286,8 +291,24 @@ export default function DashboardPage() {
           icon: FlaskConical,
           color: 'text-sproutly-warning',
           bg: 'bg-sproutly-warning/10'
-        }))
-    ];
+        });
+      }
+
+      // 3. Pruning Alert
+      if (p.healthStatus === 'needs-pruning') {
+        list.push({
+          id: p.id,
+          type: 'prune',
+          message: `${p.name} needs pruning`,
+          urgency: 'medium',
+          icon: Scissors,
+          color: 'text-sproutly-warning',
+          bg: 'bg-sproutly-warning/10'
+        });
+      }
+    });
+
+    return list;
   }, [plants, weather]);
 
   const handleAlertClick = (plantId: string) => {
