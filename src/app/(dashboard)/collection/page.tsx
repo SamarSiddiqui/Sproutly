@@ -14,7 +14,13 @@ import {
   AlertTriangle,
   Loader2,
   Sparkles,
-  X
+  X,
+  Leaf,
+  Droplets,
+  Flower2,
+  Sprout,
+  Sun,
+  Scissors
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PlantFormModal } from '../../../components/collection/PlantFormModal';
@@ -41,12 +47,12 @@ export default function CollectionPage() {
   const [activeFilter, setActiveFilter] = useState<string>('All');
 
   const filterChips = [
-    { id: 'All', label: 'All Plants', icon: '🌿' },
-    { id: 'Thirsty', label: 'Thirsty', icon: '💧' },
-    { id: 'Nursery', label: 'Nursery Pots', icon: '🪴' },
-    { id: 'Seedling', label: 'Seedlings', icon: '🌱' },
-    { id: 'DirectSun', label: 'Direct Sun', icon: '☀️' },
-    { id: 'NeedsPruning', label: 'Needs Pruning', icon: '✂️' },
+    { id: 'All', label: 'All Plants', icon: Leaf },
+    { id: 'Thirsty', label: 'Thirsty', icon: Droplets },
+    { id: 'Nursery', label: 'Nursery Pots', icon: Flower2 },
+    { id: 'Seedling', label: 'Seedlings', icon: Sprout },
+    { id: 'DirectSun', label: 'Direct Sun', icon: Sun },
+    { id: 'NeedsPruning', label: 'Needs Pruning', icon: Scissors },
   ];
 
   const isLikelySentence = searchQuery.trim().split(' ').length > 2 || searchQuery.length > 20;
@@ -372,7 +378,7 @@ export default function CollectionPage() {
                     : 'bg-white text-sproutly-secondary hover:bg-sproutly-bg border border-sproutly-light/30'
                 }`}
               >
-                <span className="text-base">{chip.icon}</span>
+                <chip.icon size={16} className={activeFilter === chip.id ? 'text-white' : 'text-sproutly-primary'} />
                 {chip.label}
               </button>
             ))}
