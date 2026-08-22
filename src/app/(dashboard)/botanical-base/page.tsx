@@ -281,16 +281,20 @@ export default function DashboardPage() {
       const nextFertilizingMs = p.lastFertilized && p.fertilizerCycle
         ? new Date(p.lastFertilized).getTime() + p.fertilizerCycle * 24 * 60 * 60 * 1000
         : null;
-      const isFertilizerDue = p.healthStatus === 'needs-fertilizer' || (nextFertilizingMs && nextFertilizingMs <= nowMs);
+      const isFertilizerOverdue = nextFertilizingMs && nextFertilizingMs <= nowMs;
+      const isFertilizerDueSoon = nextFertilizingMs && nextFertilizingMs > nowMs && nextFertilizingMs <= nowMs + 2 * 24 * 60 * 60 * 1000;
+      const isFertilizerDue = p.healthStatus === 'needs-fertilizer' || isFertilizerOverdue || isFertilizerDueSoon;
       if (isFertilizerDue) {
         list.push({
           id: p.id,
           type: 'fertilizer',
-          message: `${p.name} needs fertilizer`,
-          urgency: 'medium',
+          message: isFertilizerOverdue
+            ? `${p.name} fertilizer overdue`
+            : `${p.name} needs fertilizer soon`,
+          urgency: isFertilizerOverdue ? 'high' : 'medium',
           icon: FlaskConical,
-          color: 'text-sproutly-warning',
-          bg: 'bg-sproutly-warning/10'
+          color: isFertilizerOverdue ? 'text-sproutly-urgent' : 'text-sproutly-warning',
+          bg: isFertilizerOverdue ? 'bg-sproutly-urgent/10' : 'bg-sproutly-warning/10'
         });
       }
 
@@ -311,8 +315,12 @@ export default function DashboardPage() {
     return list;
   }, [plants, weather]);
 
-  const handleAlertClick = (plantId: string) => {
-    router.push(`/care?plantId=${plantId}`);
+  const handleAlertClick = (plantId: string, alertType: string) => {
+    if (alertType === 'fertilizer') {
+      router.push(`/care?plantId=${plantId}&action=fertilize`);
+    } else {
+      router.push(`/care?plantId=${plantId}`);
+    }
   };
 
   const today = new Date().toLocaleDateString('en-US', {
@@ -655,7 +663,7 @@ export default function DashboardPage() {
                     }}
                     key={`${alert.id}-${alert.type}`}
                     className="w-full bg-white p-5 rounded-2xl shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow group relative cursor-pointer"
-                    onClick={() => handleAlertClick(alert.id)}
+                    onClick={() => handleAlertClick(alert.id, alert.type)}
                   >
                     {/* Checkbox Trigger */}
                     <button

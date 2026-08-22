@@ -79,6 +79,14 @@ export default function CareCyclePage() {
   };
 
   const [selectedDate, setSelectedDate] = React.useState<string | null>(null);
+
+  useEffect(() => {
+    const action = searchParams.get('action');
+    if (action === 'fertilize' && plant) {
+      setSelectedDate(new Date().toISOString().split('T')[0]);
+    }
+  }, [searchParams, plant]);
+
   const { data: aiSchedule } = useAISchedule(plant, weather?.forecast);
   const { data: aiInsights, isLoading: aiInsightsLoading } = useAICareInsights(plant, weather);
   const { logs } = useFertilizerLogs(plant?.id);
