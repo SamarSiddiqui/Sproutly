@@ -366,8 +366,7 @@ export default function CollectionPage() {
         </motion.div>
       ) : (
         <>
-          {/* Smart Filter Chips */}
-          <div className="flex items-center gap-3 overflow-x-auto pb-4 mb-6 scrollbar-hide snap-x">
+          <div className="flex items-center gap-3 overflow-x-auto pb-4 mb-6 scrollbar-hide snap-x pl-1.5 pt-1.5">
             {filterChips.map(chip => (
               <button
                 key={chip.id}
