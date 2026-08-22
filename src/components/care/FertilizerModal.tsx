@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { X, Sparkles, Plus, FlaskConical } from 'lucide-react';
 import { useFertilizerLogs } from '../../hooks/useFertilizerLogs';
+import { usePlants } from '../../hooks/usePlants';
 
 interface FertilizerModalProps {
   isOpen: boolean;
@@ -13,6 +14,7 @@ interface FertilizerModalProps {
 
 export function FertilizerModal({ isOpen, onClose, plantId, selectedDate, aiRecommendation }: FertilizerModalProps) {
   const { logs, addLog } = useFertilizerLogs(plantId);
+  const { updatePlant } = usePlants();
   const [type, setType] = useState('');
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,6 +32,11 @@ export function FertilizerModal({ isOpen, onClose, plantId, selectedDate, aiReco
         log_date: selectedDate,
         fertilizer_type: type,
         notes: notes
+      });
+      // Sync lastFertilized back to the plants table
+      await updatePlant(plantId, {
+        lastFertilized: new Date(selectedDate).toISOString(),
+        healthStatus: 'healthy'
       });
       setType('');
       setNotes('');

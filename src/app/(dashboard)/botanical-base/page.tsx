@@ -261,7 +261,7 @@ export default function DashboardPage() {
 
     plants.forEach((p) => {
       // 1. Water Alert
-      const isWaterDue = p.healthStatus === 'needs-water' || (p.nextWatering && new Date(p.nextWatering).getTime() <= nowMs);
+      const isWaterDue = p.healthStatus === 'needs-water' || !p.nextWatering || new Date(p.nextWatering).getTime() <= nowMs;
       if (isWaterDue) {
         const isRainDelay = weather && weather.rainProbability > 50;
         list.push({
@@ -281,7 +281,7 @@ export default function DashboardPage() {
       const nextFertilizingMs = p.lastFertilized && p.fertilizerCycle
         ? new Date(p.lastFertilized).getTime() + p.fertilizerCycle * 24 * 60 * 60 * 1000
         : null;
-      const isFertilizerOverdue = nextFertilizingMs && nextFertilizingMs <= nowMs;
+      const isFertilizerOverdue = !p.lastFertilized || (nextFertilizingMs && nextFertilizingMs <= nowMs);
       const isFertilizerDueSoon = nextFertilizingMs && nextFertilizingMs > nowMs && nextFertilizingMs <= nowMs + 2 * 24 * 60 * 60 * 1000;
       const isFertilizerDue = p.healthStatus === 'needs-fertilizer' || isFertilizerOverdue || isFertilizerDueSoon;
       if (isFertilizerDue) {
