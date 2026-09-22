@@ -64,7 +64,7 @@ export function FertilizerModal({ isOpen, onClose, plantId, selectedDate, aiReco
         </button>
 
         {/* Left Side: Form and Logs */}
-        <div className="flex-1 p-6 md:p-8 overflow-y-auto border-b md:border-b-0 md:border-r border-sproutly-secondary/10">
+        <div data-lenis-prevent className="flex-1 p-6 md:p-8 overflow-y-auto border-b md:border-b-0 md:border-r border-sproutly-secondary/10">
           <div className="flex items-center gap-3 mb-6">
             <div className="p-3 bg-sproutly-warning/20 text-sproutly-warning rounded-xl">
               <FlaskConical size={24} />

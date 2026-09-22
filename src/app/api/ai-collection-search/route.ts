@@ -4,9 +4,9 @@ export async function POST(req: Request) {
   try {
     const { query, plants } = await req.json();
 
-    const apiKey = process.env.MISTRAL_API_KEY;
+    const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) {
-      return NextResponse.json({ error: 'Mistral API key missing' }, { status: 500 });
+      return NextResponse.json({ error: 'Groq API key missing' }, { status: 500 });
     }
 
     if (!query || !plants) {
@@ -35,14 +35,14 @@ Do not include markdown blocks, explanations, or any other text. Return ONLY the
 User Query: "${query}"
 User's Collection: ${JSON.stringify(plants, null, 2)}`;
 
-    const response = await fetch('https://api.mistral.ai/v1/chat/completions', {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: 'mistral-small-latest',
+        model: 'openai/gpt-oss-120b',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userMessage }
@@ -53,7 +53,7 @@ User's Collection: ${JSON.stringify(plants, null, 2)}`;
     });
 
     if (!response.ok) {
-      throw new Error(`Mistral API error: ${response.status}`);
+      throw new Error(`Groq API error: ${response.status}`);
     }
 
     const data = await response.json();

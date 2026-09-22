@@ -4,10 +4,10 @@ export async function POST(request: Request) {
   try {
     const { location, plants, date } = await request.json();
 
-    const apiKey = process.env.MISTRAL_API_KEY;
+    const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) {
       return NextResponse.json(
-        { error: 'Mistral API key is not configured on the server.' },
+        { error: 'Groq API key is not configured on the server.' },
         { status: 500 }
       );
     }
@@ -26,20 +26,20 @@ ${plantsContext}
 
 Write a concise, 3-point checklist of things the user should consider for their plants this season. Do NOT use any emojis. Keep it under 100 words. Format it directly as a markdown list without any introductory filler (e.g. no "Here is your advice:").`;
 
-    // Map messages to Mistral's expected chat format
+    // Map messages to Groq expected chat format
     const formattedMessages = [
       { role: 'user', content: systemPrompt }
     ];
 
-    // Call Mistral API
-    const response = await fetch('https://api.mistral.ai/v1/chat/completions', {
+    // Call Groq API
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: 'mistral-small-latest',
+        model: 'openai/gpt-oss-120b',
         messages: formattedMessages,
         temperature: 0.7,
         max_tokens: 300
@@ -48,9 +48,9 @@ Write a concise, 3-point checklist of things the user should consider for their 
 
     if (!response.ok) {
       const errText = await response.text();
-      console.error('Mistral API error response:', errText);
+      console.error('Groq API error response:', errText);
       return NextResponse.json(
-        { error: `Mistral API request failed: ${response.statusText}` },
+        { error: `Groq API request failed (${response.status}): ${errText}` },
         { status: response.status }
       );
     }

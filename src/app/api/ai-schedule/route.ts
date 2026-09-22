@@ -4,9 +4,9 @@ export async function POST(request: Request) {
   try {
     const { forecast, plant } = await request.json();
 
-    const apiKey = process.env.MISTRAL_API_KEY;
+    const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) {
-      return NextResponse.json({ error: 'Mistral API key missing' }, { status: 500 });
+      return NextResponse.json({ error: 'Groq API key missing' }, { status: 500 });
     }
 
     const systemPrompt = `You are Sproutly AI, a botanical scheduling expert.
@@ -36,28 +36,28 @@ Output JSON Schema:
   "reason": string (A concise, user-friendly UI badge message starting with "AI Adjusted:". Only provide reason if adjusted is true, else empty string.)
 }`;
 
-    const response = await fetch('https://api.mistral.ai/v1/chat/completions', {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: 'mistral-small-latest',
+        model: 'openai/gpt-oss-120b',
         response_format: { type: 'json_object' },
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: 'Analyze the plant and weather, and provide the JSON adjustment.' }
         ],
-        temperature: 0.1, // low temp for deterministic JSON output
+        temperature: 0.1,
         max_tokens: 150
       })
     });
 
     if (!response.ok) {
       const errText = await response.text();
-      console.error('Mistral API error response:', errText);
-      throw new Error(`Mistral API error: ${response.statusText}`);
+      console.error('Groq API error response:', errText);
+      throw new Error(`Groq API error: ${response.statusText}`);
     }
 
     const data = await response.json();

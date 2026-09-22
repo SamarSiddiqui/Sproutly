@@ -272,7 +272,7 @@ export default function SproutlyAIPage() {
         )}
       </header>
 
-      <div className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-6 bg-sproutly-bg/30">
+      <div data-lenis-prevent className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-6 bg-sproutly-bg/30">
         <AnimatePresence initial={false}>
           {displayMessages.map((msg) => (
             <motion.div

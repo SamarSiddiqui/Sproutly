@@ -37,10 +37,10 @@ export async function POST(request: Request) {
 
     const { messages, plants } = await request.json();
 
-    const apiKey = process.env.MISTRAL_API_KEY;
+    const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) {
       return NextResponse.json(
-        { error: 'Mistral API key is not configured on the server.' },
+        { error: 'Groq API key is not configured on the server.' },
         { status: 500 }
       );
     }
@@ -66,7 +66,7 @@ CRITICAL GUARDRAILS:
 2. If the user asks a question that is NOT related to plants, gardening, or botany (e.g., coding, math, general chit-chat, cooking, etc.), you must politely decline to answer and redirect them back to plant-related topics (e.g., "I'm sorry, I'm Sproutly AI, and I can only help you with questions related to plant care and gardening. How is your garden doing today?").
 3. Do not make up information or hallucinate facts. If you do not know the answer or lack confidence, suggest they check the Sproutly Knowledge Hub or consult a local gardener.`;
 
-    // Map messages to Mistral's expected chat format
+    // Map messages to Groq expected chat format
     const formattedMessages = [
       { role: 'system', content: systemPrompt },
       ...messages.map((msg: any) => ({
@@ -75,15 +75,15 @@ CRITICAL GUARDRAILS:
       }))
     ];
 
-    // Call Mistral API
-    const response = await fetch('https://api.mistral.ai/v1/chat/completions', {
+    // Call Groq API
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: 'mistral-small-latest',
+        model: 'openai/gpt-oss-120b',
         messages: formattedMessages,
         temperature: 0.7,
         max_tokens: 1000
@@ -92,9 +92,9 @@ CRITICAL GUARDRAILS:
 
     if (!response.ok) {
       const errText = await response.text();
-      console.error('Mistral API error response:', errText);
+      console.error('Groq API error response:', errText);
       return NextResponse.json(
-        { error: `Mistral API request failed: ${response.statusText}` },
+        { error: `Groq API request failed (${response.status}): ${errText}` },
         { status: response.status }
       );
     }

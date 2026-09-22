@@ -4,9 +4,9 @@ export async function POST(request: Request) {
   try {
     const { plantName } = await request.json();
 
-    const apiKey = process.env.MISTRAL_API_KEY;
+    const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) {
-      return NextResponse.json({ error: 'Mistral API key missing' }, { status: 500 });
+      return NextResponse.json({ error: 'Groq API key missing' }, { status: 500 });
     }
 
     const systemPrompt = `You are a botanical data API. Given the common nickname of a plant, you must return a strict JSON object with precise botanical data.
@@ -21,14 +21,14 @@ Return ONLY a valid JSON object matching this exact schema, with no markdown for
   "isPetFriendly": boolean (true if the plant is non-toxic to cats and dogs, false if it is toxic)
 }`;
 
-    const response = await fetch('https://api.mistral.ai/v1/chat/completions', {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: 'mistral-small-latest',
+        model: 'openai/gpt-oss-120b',
         response_format: { type: 'json_object' },
         messages: [
           { role: 'system', content: systemPrompt },
@@ -41,8 +41,8 @@ Return ONLY a valid JSON object matching this exact schema, with no markdown for
 
     if (!response.ok) {
       const errText = await response.text();
-      console.error('Mistral API error response:', errText);
-      throw new Error(`Mistral API error: ${response.statusText}`);
+      console.error('Groq API error response:', errText);
+      throw new Error(`Groq API error: ${response.statusText}`);
     }
 
     const data = await response.json();

@@ -33,9 +33,9 @@ export async function POST(request: Request) {
 
     const { message } = await request.json();
 
-    const apiKey = process.env.MISTRAL_API_KEY;
+    const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) {
-      return NextResponse.json({ error: 'Mistral API key missing' }, { status: 500 });
+      return NextResponse.json({ error: 'Groq API key missing' }, { status: 500 });
     }
 
     const systemPrompt = `You are Sproutly AI, a friendly and highly knowledgeable botanical AI assistant.
@@ -50,14 +50,14 @@ STRICT RULES:
 5. Be friendly, use emojis occasionally.
 6. OUTPUT PLAIN TEXT ONLY. DO NOT use any markdown formatting (no asterisks, no bold, no italics).`;
 
-    const response = await fetch('https://api.mistral.ai/v1/chat/completions', {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: 'mistral-small-latest',
+        model: 'openai/gpt-oss-120b',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: message }
@@ -68,7 +68,7 @@ STRICT RULES:
     });
 
     if (!response.ok) {
-      throw new Error(`Mistral API error: ${response.statusText}`);
+      throw new Error(`Groq API error: ${response.statusText}`);
     }
 
     const data = await response.json();

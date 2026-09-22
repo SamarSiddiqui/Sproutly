@@ -237,7 +237,7 @@ export function AiSection() {
                 </div>
               </div>
 
-              <div ref={messagesRef} className="space-y-4 h-[320px] overflow-y-auto pr-2 scrollbar-hide pb-4 transition-all scroll-smooth">
+              <div ref={messagesRef} data-lenis-prevent className="space-y-4 h-[320px] overflow-y-auto pr-2 scrollbar-hide pb-4 transition-all scroll-smooth">
                 {messages.map((msg, i) => (
                   <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                     <div className={`${
